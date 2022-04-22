@@ -1,0 +1,9 @@
+.DS_Store
+node_modules
+dist
+.rpt2_cache
+cypress/videos
+cypress/screenshots
+.vscode
+.idea
+package-lock.json
