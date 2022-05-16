@@ -3,3 +3,4 @@ export const helper = () => {
 };
 
 export { RouteHelper } from './route-helper';
+export {Guard} from './types';

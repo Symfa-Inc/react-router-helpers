@@ -1,6 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
+import { Status, useManager } from "./hooks";
+import { Guard } from "./types";
 
 export class RouteHelper {
+  private guards: Guard[] = [];
+
   constructor(private component: JSX.Element) {}
 
   // TODO: Add resolvers
@@ -23,23 +27,38 @@ export class RouteHelper {
 
   public withResolvers(): void {}
 
-  public withGuards(): void {}
+  public withGuards(guards: Guard[]): void {
+    this.guards = guards;
+  }
 
   public create(): JSX.Element {
-    const [isSet, set] = useState(false);
 
-    const setSomething = () => {
-      setTimeout(() => {
-        set(true);
-      }, 2000);
+    const manager = useManager({guards: this.guards});
+    const [status, setStatus] = useState<Status>(Status.Initial);
+    // const [isSet, set] = useState(false);
+
+    const evaluateGuards = async () => {
+      const initialStatus = manager.getStatusBeforeAvaluating();
+      setStatus(Status.Loading);
+      const guardStatus = await manager.evaluateGuards();
+      console.log('wat');
+      setStatus(guardStatus);
+      if (status === Status.Failed) {
+        console.log('Need to do something');
+      }
     };
 
     useEffect(() => {
-      setSomething();
+      (async () => {
+        await evaluateGuards();
+      })();
     }, []);
 
-    if (!isSet) {
+    if (status == Status.Initial) {
       return <h1>loading...</h1>;
+    }
+    if (status == Status.Failed) {
+      return <h1>failed to load...</h1>;
     }
     return <>{this.component}</>;
   }
