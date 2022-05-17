@@ -1,5 +1,6 @@
 /* eslint-disable */
 import React, { useState, useEffect } from 'react';
+import { useMatch, useLocation, useRoutes } from 'react-router-dom';
 
 /*! *****************************************************************************
 Copyright (c) Microsoft Corporation. All rights reserved.
@@ -15,6 +16,29 @@ MERCHANTABLITY OR NON-INFRINGEMENT.
 See the Apache Version 2.0 License for specific language governing permissions
 and limitations under the License.
 ***************************************************************************** */
+
+var __assign = function() {
+    __assign = Object.assign || function __assign(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
+
+function __rest(s, e) {
+    var t = {};
+    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+        t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function")
+        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
+                t[p[i]] = s[p[i]];
+        }
+    return t;
+}
 
 function __awaiter(thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -60,6 +84,8 @@ var Status;
     Status[Status["Loaded"] = 2] = "Loaded";
     Status[Status["Failed"] = 3] = "Failed";
 })(Status || (Status = {}));
+//# sourceMappingURL=types.js.map
+
 function useManager(_a) {
     // const infoAboutComponent = useRef<InfoAboutComponent>({});
     // if (!infoAboutComponent.current[pathname]) {
@@ -72,7 +98,7 @@ function useManager(_a) {
     //   };
     // }
     var guards = _a.guards;
-    function checkGuards() {
+    function evaluateGuards() {
         return __awaiter(this, void 0, void 0, function () {
             var _i, guards_1, guard, canActivate, e_1;
             return __generator(this, function (_a) {
@@ -123,18 +149,27 @@ function useManager(_a) {
     //     return infoAboutComponent.current[pathname].redirectUrl as string;
     //   };
     // }
-    return { evaluateGuards: checkGuards };
+    function getStatusBeforeEvaluating() {
+        return guards.length === 0 ? Status.Loaded : Status.Loading;
+    }
+    return { evaluateGuards: evaluateGuards, getStatusBeforeEvaluating: getStatusBeforeEvaluating };
 }
+var useLoadingNotification = function (element, fn) {
+    // console.log(element, fn);
+    element.__notifyLoading = fn;
+};
+//# sourceMappingURL=hooks.js.map
 
 var RouteHelper = /** @class */ (function () {
-    function RouteHelper(component) {
-        this.component = component;
+    function RouteHelper(element) {
+        this.element = element;
         this.guards = [];
     }
-    // TODO: Add resolvers
-    // TODO: Add resolvers tests
     // TODO: Add guards
     // TODO: Add guards tests
+    // TODO: Add ability to show loading
+    // TODO: Add resolvers
+    // TODO: Add resolvers tests
     // TODO: Add something like (useRoutes) with RouteHelper
     // TODO: Add something like (useRoutes) with RouteHelper tests
     // TODO: Add metadata (title)
@@ -143,58 +178,78 @@ var RouteHelper = /** @class */ (function () {
     // TODO: Add lazy loading tests
     // TODO: Add server side plug
     // TODO: Add server side plug tests
-    RouteHelper.prototype.withResolvers = function () { };
+    // public withResolvers(): void {}
     RouteHelper.prototype.withGuards = function (guards) {
         this.guards = guards;
+        return this;
+    };
+    RouteHelper.prototype.notifyStatusChange = function (status) {
+        var notifyFunction = this.element.type['__notifyLoading'];
+        if (typeof notifyFunction === 'function') {
+            notifyFunction(status);
+        }
     };
     RouteHelper.prototype.create = function () {
-        var _this = this;
         var manager = useManager({ guards: this.guards });
         var _a = useState(Status.Initial), status = _a[0], setStatus = _a[1];
-        // const [isSet, set] = useState(false);
-        var evaluateGuards = function () { return __awaiter(_this, void 0, void 0, function () {
-            var guardStatus;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        setStatus(Status.Loading);
-                        return [4 /*yield*/, manager.evaluateGuards()];
-                    case 1:
-                        guardStatus = _a.sent();
-                        console.log('wat');
-                        setStatus(guardStatus);
-                        if (status === Status.Failed) {
-                            console.log('Need to do something');
-                        }
-                        return [2 /*return*/];
-                }
-            });
-        }); };
+        // const path = useResolvedPath('home22');
+        var match = useMatch('home/home22');
+        var location = useLocation();
+        // const evaluateGuards = async () => {
+        //   const initialStatus = manager.getStatusBeforeEvaluating();
+        //
+        //   setStatus(initialStatus);
+        //   this.notifyStatusChange(initialStatus);
+        //
+        //   const guardStatus = await manager.evaluateGuards();
+        //
+        //   setStatus(guardStatus);
+        //   this.notifyStatusChange(initialStatus);
+        //   if (status === Status.Failed) {
+        //     console.log('Need to do something');
+        //   }
+        // };
         useEffect(function () {
-            (function () { return __awaiter(_this, void 0, void 0, function () {
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0: return [4 /*yield*/, evaluateGuards()];
-                        case 1:
-                            _a.sent();
-                            return [2 /*return*/];
-                    }
-                });
-            }); })();
+            console.log('rendered 88');
+            //   (async () => {
+            //     // console.log(path);
+            //     await evaluateGuards();
+            //   })();
         }, []);
-        if (status == Status.Initial) {
+        // useEffect(() => {
+        //   console.log(match);
+        // }, [location]);
+        if (status == Status.Loading) {
             return React.createElement("h1", null, "loading...");
         }
         if (status == Status.Failed) {
             return React.createElement("h1", null, "failed to load...");
         }
-        return React.createElement(React.Fragment, null, this.component);
+        // if (status == Status.Loaded) {
+        return React.createElement(React.Fragment, null, this.element);
     };
     return RouteHelper;
 }());
 
-var helper = function () {
-    console.log('should work!');
+var createWrapperRoute = function (props, element) {
+    var helper = new RouteHelper(element);
+    if (Array.isArray(props.guards)) {
+        helper.withGuards(props.guards);
+    }
+    return helper.create();
+};
+var wrapRoutesToHelper = function (routes) {
+    return routes.map(function (_a) {
+        var element = _a.element, others = __rest(_a, ["element"]);
+        var children = Array.isArray(others.children) ? wrapRoutesToHelper(others.children) : [];
+        return __assign(__assign({}, others), { element: createWrapperRoute(others, element), children: children });
+    });
+};
+var RouteHelper2 = function (props) {
+    return createWrapperRoute(props, props.element);
+};
+var useRoutesWithHelper = function (routes) {
+    return useRoutes(wrapRoutesToHelper(routes));
 };
 
-export { RouteHelper, helper };
+export { RouteHelper, RouteHelper2, Status, useLoadingNotification, useRoutesWithHelper };

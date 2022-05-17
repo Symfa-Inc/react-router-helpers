@@ -1,10 +1,10 @@
-/// <reference types="react" />
-import { Guard } from "./types";
+import React from 'react';
+import { Guard } from './types';
 export declare class RouteHelper {
-    private component;
+    private element;
     private guards;
-    constructor(component: JSX.Element);
-    withResolvers(): void;
-    withGuards(guards: Guard[]): void;
+    constructor(element: JSX.Element | React.ReactNode);
+    withGuards(guards: Guard[]): RouteHelper;
+    private notifyStatusChange;
     create(): JSX.Element;
 }

@@ -1,18 +1,4 @@
-import { Guard } from "./types";
-
-interface HelperManager {
-  // resolvers: PropsResolvers;
-  guards: Guard[];
-  // pathname: string;
-  // redirectUrl?: string;
-}
-
-export enum Status {
-  Initial,
-  Loading,
-  Loaded,
-  Failed,
-}
+import { HelperManager, Status } from './types';
 
 export function useManager({ guards }: HelperManager) {
   // const infoAboutComponent = useRef<InfoAboutComponent>({});
@@ -62,8 +48,15 @@ export function useManager({ guards }: HelperManager) {
   //   };
   // }
   function getStatusBeforeEvaluating(): Status {
-
+    return guards.length === 0 ? Status.Loaded : Status.Loading;
   }
 
   return { evaluateGuards, getStatusBeforeEvaluating };
 }
+
+type Fn = (status: Status) => void;
+
+export const useLoadingNotification = (element: any, fn: Fn) => {
+  // console.log(element, fn);
+  element.__notifyLoading = fn;
+};
