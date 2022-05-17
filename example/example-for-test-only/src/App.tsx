@@ -1,16 +1,18 @@
 import React, { useEffect } from 'react';
-import { BrowserRouter as Router, Link, Outlet, useResolvedPath } from 'react-router-dom';
+import { BrowserRouter as Router, Link, Outlet, useResolvedPath, useRoutes } from 'react-router-dom';
 import './App.css';
 import { MockGuard } from './guards/MockGuard';
 import { useRoutesWithHelper, Status, useLoadingNotification } from './reactRouterHelpers';
 
 function Home() {
-  console.log('render 11');
-  // useLoadingNotification(Home, (status: Status) => {
-  //   console.log(status);
-  // });
+  // console.log('render 11');
+  useLoadingNotification(Home, (status: Status) => {
+    console.log(status);
+  });
 
-
+  useEffect(() => {
+    console.log('rendered HOME');
+  }, []);
   return (
     <div>
       <h1>Home</h1>
@@ -24,13 +26,11 @@ function Home() {
 }
 
 function Home2() {
-  console.log('render 22');
-
   // useLoadingNotification(Home, (status: Status) => {
   //   console.log(status);
   // });
   useEffect(() => {
-    console.log('rendered');
+    console.log('rendered HOME2');
   }, []);
 
 
@@ -52,13 +52,14 @@ function Home2() {
 const RoutesWrapper = () => {
   return useRoutesWithHelper([
     {
-      path: "/home",
+      path: "/",
       element: <Home />,
+      guards: [new MockGuard()],
       children: [
         {
           path: "home22",
           element: <Home2 />,
-          guards: [new MockGuard()]
+          // guards: [new MockGuard()]
           // children: [
           //   {
           //     path: "nested2",
