@@ -1,6 +1,6 @@
 /* eslint-disable */
 import { useRoutes } from 'react-router-dom';
-import React, { useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 
 /*! *****************************************************************************
 Copyright (c) Microsoft Corporation. All rights reserved.
@@ -142,6 +142,17 @@ function useManager(_a) {
     }
     return { evaluateGuards: evaluateGuards, getStatusBeforeEvaluating: getStatusBeforeEvaluating };
 }
+function useStatusNotification(receiver) {
+    var stackRef = useRef([]);
+    return {
+        notify: function (status) {
+            if (receiver != null && stackRef.current[stackRef.current.length - 1] !== status) {
+                stackRef.current.push(status);
+                receiver(status);
+            }
+        }
+    };
+}
 var useLoadingNotification = function (element, fn) {
     // console.log(element, fn);
     element.__notifyLoading = fn;
@@ -151,17 +162,7 @@ var useLoadingNotification = function (element, fn) {
 var RouteHelper = function (props) {
     var manager = useManager({ guards: props.guards || [] });
     var _a = useState(Status.Initial), status = _a[0], setStatus = _a[1];
-    // const path = useResolvedPath('home22');
-    // const match = useMatch('home/home22');
-    // const location = useLocation();
-    var notifyStatusChange = function (status) {
-        var notifyFunction = props.element.type['__notifyLoading'];
-        console.log('BEFORE notify', Status[status], notifyFunction);
-        if (typeof notifyFunction === 'function') {
-            console.log('notify', Status[status]);
-            notifyFunction(status);
-        }
-    };
+    var notification = useStatusNotification(props.statusChanged);
     var evaluateGuards = function () { return __awaiter(void 0, void 0, void 0, function () {
         var initialStatus, guardStatus;
         return __generator(this, function (_a) {
@@ -169,14 +170,14 @@ var RouteHelper = function (props) {
                 case 0:
                     initialStatus = manager.getStatusBeforeEvaluating();
                     setStatus(initialStatus);
-                    notifyStatusChange(initialStatus);
+                    notification.notify(initialStatus);
                     return [4 /*yield*/, manager.evaluateGuards()];
                 case 1:
                     guardStatus = _a.sent();
                     setStatus(guardStatus);
-                    notifyStatusChange(guardStatus);
+                    notification.notify(guardStatus);
                     if (status === Status.Failed) {
-                        console.log('Need to do something');
+                        console.log('Need to do something redirect of something');
                     }
                     return [2 /*return*/];
             }

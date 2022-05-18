@@ -9,6 +9,7 @@ export interface Guard {
 
 export interface OnlyHelperFields {
   guards?: Guard[];
+  statusChanged?: (status: Status) => void;
 }
 
 export interface RouteHelperProps extends OnlyHelperFields {
@@ -32,3 +33,5 @@ export interface HelperManager {
   // pathname: string;
   // redirectUrl?: string;
 }
+
+export type StatusChangeReceiver = (status: Status) => void;

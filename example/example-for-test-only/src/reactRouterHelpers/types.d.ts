@@ -6,6 +6,7 @@ export interface Guard {
 }
 export interface OnlyHelperFields {
     guards?: Guard[];
+    statusChanged?: (status: Status) => void;
 }
 export interface RouteHelperProps extends OnlyHelperFields {
     element: JSX.Element | React.ReactNode;
@@ -22,3 +23,4 @@ export declare enum Status {
 export interface HelperManager {
     guards: Guard[];
 }
+export declare type StatusChangeReceiver = (status: Status) => void;

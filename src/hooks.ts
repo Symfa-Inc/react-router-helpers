@@ -1,4 +1,5 @@
-import { HelperManager, Status } from './types';
+import { useRef } from 'react';
+import { HelperManager, Status, StatusChangeReceiver } from './types';
 
 export function useManager({ guards }: HelperManager) {
   // const infoAboutComponent = useRef<InfoAboutComponent>({});
@@ -51,8 +52,21 @@ export function useManager({ guards }: HelperManager) {
     return guards.length === 0 ? Status.Loaded : Status.Loading;
   }
 
+
   return { evaluateGuards, getStatusBeforeEvaluating };
 }
+
+export function useStatusNotification(receiver?: StatusChangeReceiver) {
+  const stackRef = useRef<Status[]>([]);
+  return {
+    notify: (status: Status) => {
+      if (receiver != null && stackRef.current[stackRef.current.length - 1] !== status) {
+        stackRef.current.push(status);
+        receiver(status);
+      }
+    }
+  };
+};
 
 type Fn = (status: Status) => void;
 

@@ -1,53 +1,29 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation, useMatch, useResolvedPath } from 'react-router-dom';
-import { useManager } from './hooks';
-import { Guard, HelperRouteObject, OnlyHelperFields, Status } from './types';
+import { useManager, useStatusNotification } from './hooks';
+import { HelperRouteObject, OnlyHelperFields, Status } from './types';
 
 export const RouteHelper = (props: HelperRouteObject) => {
   const manager = useManager({ guards: props.guards || [] });
   const [status, setStatus] = useState<Status>(Status.Initial);
-  // const path = useResolvedPath('home22');
-  // const match = useMatch('home/home22');
-  // const location = useLocation();
-
-  const notifyStatusChange = (status: Status) => {
-    const notifyFunction = (props.element as any).type['__notifyLoading'];
-    console.log('BEFORE notify', Status[status], notifyFunction);
-    if (typeof notifyFunction === 'function') {
-      console.log('notify', Status[status]);
-      notifyFunction(status);
-    }
-  };
+  const notification = useStatusNotification(props.statusChanged);
 
   const evaluateGuards = async () => {
     const initialStatus = manager.getStatusBeforeEvaluating();
 
     setStatus(initialStatus);
-    notifyStatusChange(initialStatus);
+    notification.notify(initialStatus);
 
     const guardStatus = await manager.evaluateGuards();
 
     setStatus(guardStatus);
-    notifyStatusChange(guardStatus);
-    if (status === Status.Failed) {
-      console.log('Need to do something');
-    }
+    notification.notify(guardStatus);
   };
 
   useEffect(() => {
-    console.log('rendered inside' + props.element);
     (async () => {
-      // console.log(path);
       await evaluateGuards();
     })();
   }, []);
-
-  if (status == Status.Loading) {
-    return <h1>loading...</h1>;
-  }
-  if (status == Status.Failed) {
-    return <h1>failed to load...</h1>;
-  }
 
   if (status == Status.Loaded) {
     return <>{props.element}</>;
@@ -63,7 +39,6 @@ export const RouteHelper = (props: HelperRouteObject) => {
 //   constructor(private element: JSX.Element | React.ReactNode) {
 //   }
 //
-//   // TODO: Add guards
 //   // TODO: Add guards tests
 //
 //   // TODO: Add ability to show loading
