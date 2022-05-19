@@ -14,6 +14,6 @@ const wrapRoutesToHelper = (routes: HelperRouteObject[]): RouteObject[] => {
   });
 };
 
-export const useRoutesWithHelper = (routes: HelperRouteObject[]) => {
-  return useRoutes(wrapRoutesToHelper(routes));
+export const useRoutesWithHelper = (routes: HelperRouteObject[], locationArg?: Partial<Location> | string) => {
+  return useRoutes(wrapRoutesToHelper(routes), locationArg);
 };

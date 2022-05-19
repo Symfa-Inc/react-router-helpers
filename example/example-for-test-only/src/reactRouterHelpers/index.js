@@ -72,7 +72,6 @@ var Status;
     Status[Status["Loaded"] = 2] = "Loaded";
     Status[Status["Failed"] = 3] = "Failed";
 })(Status || (Status = {}));
-//# sourceMappingURL=types.js.map
 
 function useManager(_a) {
     // const infoAboutComponent = useRef<InfoAboutComponent>({});
@@ -157,12 +156,11 @@ var useLoadingNotification = function (element, fn) {
     // console.log(element, fn);
     element.__notifyLoading = fn;
 };
-//# sourceMappingURL=hooks.js.map
 
 var RouteHelper = function (props) {
     var manager = useManager({ guards: props.guards || [] });
     var _a = useState(Status.Initial), status = _a[0], setStatus = _a[1];
-    var notification = useStatusNotification(props.statusChanged);
+    var notification = useStatusNotification(props.onStatusChange);
     var evaluateGuards = function () { return __awaiter(void 0, void 0, void 0, function () {
         var initialStatus, guardStatus;
         return __generator(this, function (_a) {
@@ -176,35 +174,22 @@ var RouteHelper = function (props) {
                     guardStatus = _a.sent();
                     setStatus(guardStatus);
                     notification.notify(guardStatus);
-                    if (status === Status.Failed) {
-                        console.log('Need to do something redirect of something');
-                    }
                     return [2 /*return*/];
             }
         });
     }); };
     useEffect(function () {
-        console.log('rendered inside' + props.element);
         (function () { return __awaiter(void 0, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: 
-                    // console.log(path);
-                    return [4 /*yield*/, evaluateGuards()];
+                    case 0: return [4 /*yield*/, evaluateGuards()];
                     case 1:
-                        // console.log(path);
                         _a.sent();
                         return [2 /*return*/];
                 }
             });
         }); })();
     }, []);
-    if (status == Status.Loading) {
-        return React.createElement("h1", null, "loading...");
-    }
-    if (status == Status.Failed) {
-        return React.createElement("h1", null, "failed to load...");
-    }
     if (status == Status.Loaded) {
         return React.createElement(React.Fragment, null, props.element);
     }
@@ -217,7 +202,6 @@ var RouteHelper = function (props) {
 //   constructor(private element: JSX.Element | React.ReactNode) {
 //   }
 //
-//   // TODO: Add guards
 //   // TODO: Add guards tests
 //
 //   // TODO: Add ability to show loading

@@ -2,17 +2,6 @@ import { useRef } from 'react';
 import { HelperManager, Status, StatusChangeReceiver } from './types';
 
 export function useManager({ guards }: HelperManager) {
-  // const infoAboutComponent = useRef<InfoAboutComponent>({});
-  // if (!infoAboutComponent.current[pathname]) {
-  //   infoAboutComponent.current[pathname] = {
-  //     resolvers,
-  //     guards,
-  //     pathname,
-  //     props: {},
-  //     redirectUrl,
-  //   };
-  // }
-
   async function evaluateGuards(): Promise<Status> {
     for (const guard of guards) {
       try {
@@ -52,7 +41,6 @@ export function useManager({ guards }: HelperManager) {
     return guards.length === 0 ? Status.Loaded : Status.Loading;
   }
 
-
   return { evaluateGuards, getStatusBeforeEvaluating };
 }
 
@@ -69,8 +57,3 @@ export function useStatusNotification(receiver?: StatusChangeReceiver) {
 };
 
 type Fn = (status: Status) => void;
-
-export const useLoadingNotification = (element: any, fn: Fn) => {
-  // console.log(element, fn);
-  element.__notifyLoading = fn;
-};

@@ -9,7 +9,7 @@ export interface Guard {
 
 export interface OnlyHelperFields {
   guards?: Guard[];
-  statusChanged?: (status: Status) => void;
+  onStatusChange?: (status: Status) => void;
 }
 
 export interface RouteHelperProps extends OnlyHelperFields {

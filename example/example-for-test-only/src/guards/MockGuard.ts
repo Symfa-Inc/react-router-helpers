@@ -4,7 +4,7 @@ import { Guard } from "../reactRouterHelpers";
 export class MockGuard implements Guard {
   async canActivate(): Promise<boolean> {
     await this.wait(2000);
-    return false;
+    return true;
   }
 
   private wait(number = 1000) {

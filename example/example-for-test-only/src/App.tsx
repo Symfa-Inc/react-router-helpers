@@ -46,25 +46,29 @@ function Home2() {
 // Home.testFunction = () => {
 //   console.log('hello from testFunction');
 // };
-
+//
+// function canActivate() {
+//   return true;
+// }
 const RoutesWrapper = () => {
   const nav = useNavigate();
+
   return useRoutesWithHelper([
     {
       path: "/",
       element: <Home />,
       // guards: [new MockGuard()],
-      statusChanged: (status: Status) => {
-        console.log("status", Status[status]);
-      },
+      // onStatusChange: (status: Status) => {
+      //   console.log("status", Status[status]);
+      // },
       children: [
         {
           path: "home22",
           element: <Home2 />,
-          statusChanged: (status: Status) => {
-            console.log("status 2", Status[status]);
-          },
-          guards: [new MockGuard()]
+          // onStatusChange: (status: Status) => {
+          //   console.log("status 2", Status[status]);
+          // },
+          // guards: [new MockGuard()]
           // children: [
           //   {
           //     path: "nested2",
