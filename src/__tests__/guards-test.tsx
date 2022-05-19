@@ -286,7 +286,7 @@ describe('Guards in route', () => {
         {
           path: '/',
           element: <div>Home</div>,
-          guards: [new MockSyncGuard(false), new MockSyncGuard(false)],
+          guards: [new MockAsyncGuard(false, guardAsyncTime), new MockAsyncGuard(false, guardAsyncTime)],
         },
       ];
 
@@ -298,7 +298,7 @@ describe('Guards in route', () => {
         );
       });
 
-      await wait(1);
+      await wait(guardAsyncTime + 5);
 
       expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
     });
