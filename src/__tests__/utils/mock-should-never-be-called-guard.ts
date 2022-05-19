@@ -1,7 +1,9 @@
 import { Guard } from '../../../dist';
 
 export class MockShouldNeverBeCalledGuard implements Guard {
+  constructor(private counter: { amount: number }) {}
   async canActivate(): Promise<boolean> {
-    throw new Error();
+    this.counter.amount += 1;
+    return true;
   }
 }

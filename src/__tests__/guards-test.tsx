@@ -4,6 +4,7 @@ import * as TestRenderer from 'react-test-renderer';
 import { useRoutesWithHelper } from '../index';
 import { HelperRouteObject } from '../types';
 import { MockAsyncGuard } from './utils/mock-async-guard';
+import { MockShouldNeverBeCalledGuard } from './utils/mock-should-never-be-called-guard';
 import { MockSyncGuard } from './utils/mock-sync-guard';
 import { wait } from './utils/wait';
 
@@ -208,7 +209,7 @@ describe('Guards in route', () => {
       expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
     });
 
-    it('with 2 guard which return true', async () => {
+    it('with 2 guards which return true', async () => {
       let renderer: TestRenderer.ReactTestRenderer;
       const routes: HelperRouteObject[] = [
         {
@@ -234,7 +235,7 @@ describe('Guards in route', () => {
         </div>
       `);
     });
-    it('with 2 guard which return false', async () => {
+    it('with 2 guards which return false', async () => {
       let renderer: TestRenderer.ReactTestRenderer;
       const routes: HelperRouteObject[] = [
         {
@@ -257,7 +258,7 @@ describe('Guards in route', () => {
       expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
     });
 
-    it('with 2 guard which first guard true - second false', async () => {
+    it('with 2 guards which first guard true - second false', async () => {
       let renderer: TestRenderer.ReactTestRenderer;
       const routes: HelperRouteObject[] = [
         {
@@ -280,7 +281,7 @@ describe('Guards in route', () => {
       expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
     });
 
-    it('with 2 guard which first guard false - second false', async () => {
+    it('with 2 guards which first guard false - second false', async () => {
       let renderer: TestRenderer.ReactTestRenderer;
       const routes: HelperRouteObject[] = [
         {
@@ -302,6 +303,103 @@ describe('Guards in route', () => {
 
       expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
     });
+  });
+
+  describe('next guard after failed one must not be called', () => {
+    describe('sync', () => {
+      it('with 2 guards', async () => {
+        const counter = { amount: 0 };
+        const routes: HelperRouteObject[] = [
+          {
+            path: '/',
+            element: <div>Home</div>,
+            guards: [new MockSyncGuard(false), new MockShouldNeverBeCalledGuard(counter)],
+          },
+        ];
+
+        TestRenderer.act(() => {
+          TestRenderer.create(
+            <MemoryRouter initialEntries={['/']}>
+              <RoutesRenderer routes={routes} />
+            </MemoryRouter>,
+          );
+        });
+
+        await wait(1);
+        expect(counter.amount).toBe(0);
+
+      });
+
+      it('with 3 guards', async () => {
+        const counter = { amount: 0 };
+        const routes: HelperRouteObject[] = [
+          {
+            path: '/',
+            element: <div>Home</div>,
+            guards: [new MockSyncGuard(true), new MockSyncGuard(false), new MockShouldNeverBeCalledGuard(counter)],
+          },
+        ];
+
+        TestRenderer.act(() => {
+          TestRenderer.create(
+            <MemoryRouter initialEntries={['/']}>
+              <RoutesRenderer routes={routes} />
+            </MemoryRouter>,
+          );
+        });
+
+        await wait(1);
+        expect(counter.amount).toBe(0);
+      });
+    });
+
+    describe('async', () => {
+      it('with 2 guards', async () => {
+        const counter = { amount: 0 };
+        const routes: HelperRouteObject[] = [
+          {
+            path: '/',
+            element: <div>Home</div>,
+            guards: [new MockAsyncGuard(false, guardAsyncTime), new MockShouldNeverBeCalledGuard(counter)],
+          },
+        ];
+
+        TestRenderer.act(() => {
+          TestRenderer.create(
+            <MemoryRouter initialEntries={['/']}>
+              <RoutesRenderer routes={routes} />
+            </MemoryRouter>,
+          );
+        });
+
+        await wait(guardAsyncTime + 5);
+        expect(counter.amount).toBe(0);
+
+      });
+
+      it('with 3 guards', async () => {
+        const counter = { amount: 0 };
+        const routes: HelperRouteObject[] = [
+          {
+            path: '/',
+            element: <div>Home</div>,
+            guards: [new MockAsyncGuard(true, guardAsyncTime), new MockAsyncGuard(false, guardAsyncTime), new MockShouldNeverBeCalledGuard(counter)],
+          },
+        ];
+
+        TestRenderer.act(() => {
+          TestRenderer.create(
+            <MemoryRouter initialEntries={['/']}>
+              <RoutesRenderer routes={routes} />
+            </MemoryRouter>,
+          );
+        });
+
+        await wait(guardAsyncTime * 2 + 5);
+        expect(counter.amount).toBe(0);
+      });
+    });
+
   });
 });
 
