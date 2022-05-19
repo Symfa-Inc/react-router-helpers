@@ -81,7 +81,7 @@ describe('Guards in route', () => {
         );
       });
 
-      await wait(guardAsyncTime * 2 + 5);
+      await wait(guardAsyncTime * 2 + 20);
 
       expect(renderer.toJSON()).toMatchInlineSnapshot(`
         <div>
