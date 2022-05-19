@@ -6,6 +6,3 @@ export declare function useManager({ guards }: HelperManager): {
 export declare function useStatusNotification(receiver?: StatusChangeReceiver): {
     notify: (status: Status) => void;
 };
-declare type Fn = (status: Status) => void;
-export declare const useLoadingNotification: (element: any, fn: Fn) => void;
-export {};

@@ -45,7 +45,7 @@ describe('Guards in route', () => {
         {
           path: '/',
           element: <div>Home</div>,
-          guards: [new MockAsyncGuard(true, guardAsyncTime)],
+          guards: [new MockAsyncGuard(false, guardAsyncTime)],
         },
       ];
 
@@ -59,11 +59,7 @@ describe('Guards in route', () => {
 
       await wait(guardAsyncTime + 5);
 
-      expect(renderer.toJSON()).toMatchInlineSnapshot(`
-        <div>
-          Home
-        </div>
-      `);
+      expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
     });
 
     it('with 2 guard which return true - first true - second false', async () => {
@@ -98,7 +94,7 @@ describe('Guards in route', () => {
         {
           path: '/',
           element: <div>Home</div>,
-          guards: [new MockAsyncGuard(false, guardAsyncTime), new MockAsyncGuard(true, guardAsyncTime)],
+          guards: [new MockAsyncGuard(false, guardAsyncTime), new MockAsyncGuard(false, guardAsyncTime)],
         },
       ];
 
