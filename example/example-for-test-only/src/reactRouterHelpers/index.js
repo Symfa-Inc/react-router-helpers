@@ -65,13 +65,13 @@ function __generator(thisArg, body) {
     }
 }
 
-var Status;
-(function (Status) {
-    Status[Status["Initial"] = 0] = "Initial";
-    Status[Status["Loading"] = 1] = "Loading";
-    Status[Status["Loaded"] = 2] = "Loaded";
-    Status[Status["Failed"] = 3] = "Failed";
-})(Status || (Status = {}));
+var RouteHelperStatus;
+(function (RouteHelperStatus) {
+    RouteHelperStatus[RouteHelperStatus["Initial"] = 0] = "Initial";
+    RouteHelperStatus[RouteHelperStatus["Loading"] = 1] = "Loading";
+    RouteHelperStatus[RouteHelperStatus["Loaded"] = 2] = "Loaded";
+    RouteHelperStatus[RouteHelperStatus["Failed"] = 3] = "Failed";
+})(RouteHelperStatus || (RouteHelperStatus = {}));
 
 function useManager(_a) {
     var guards = _a.guards;
@@ -93,18 +93,18 @@ function useManager(_a) {
                     case 3:
                         canActivate = _a.sent();
                         if (!canActivate) {
-                            return [2 /*return*/, Status.Failed];
+                            return [2 /*return*/, RouteHelperStatus.Failed];
                         }
                         return [3 /*break*/, 5];
                     case 4:
                         e_1 = _a.sent();
                         console.error('Error in guards');
                         console.error(e_1);
-                        return [2 /*return*/, Status.Failed];
+                        return [2 /*return*/, RouteHelperStatus.Failed];
                     case 5:
                         _i++;
                         return [3 /*break*/, 1];
-                    case 6: return [2 /*return*/, Status.Loaded];
+                    case 6: return [2 /*return*/, RouteHelperStatus.Loaded];
                 }
             });
         });
@@ -127,7 +127,7 @@ function useManager(_a) {
     //   };
     // }
     function getStatusBeforeEvaluating() {
-        return guards.length === 0 ? Status.Loaded : Status.Loading;
+        return guards.length === 0 ? RouteHelperStatus.Loaded : RouteHelperStatus.Loading;
     }
     return { evaluateGuards: evaluateGuards, getStatusBeforeEvaluating: getStatusBeforeEvaluating };
 }
@@ -164,7 +164,7 @@ function useStatusNotification(receiver) {
 //
 var RouteHelper = function (props) {
     var manager = useManager({ guards: props.guards || [] });
-    var _a = useState(Status.Initial), status = _a[0], setStatus = _a[1];
+    var _a = useState(RouteHelperStatus.Initial), status = _a[0], setStatus = _a[1];
     var notification = useStatusNotification(props.onStatusChange);
     var evaluateGuards = function () { return __awaiter(void 0, void 0, void 0, function () {
         var initialStatus, guardStatus;
@@ -195,7 +195,7 @@ var RouteHelper = function (props) {
             });
         }); })();
     }, []);
-    if (status == Status.Loaded) {
+    if (status == RouteHelperStatus.Loaded) {
         return React.createElement(React.Fragment, null, props.element);
     }
     return React.createElement(React.Fragment, null);
@@ -214,4 +214,4 @@ var useRoutesWithHelper = function (routes, locationArg) {
     return useRoutes(wrapRoutesToHelper(routes), locationArg);
 };
 
-export { Status, useRoutesWithHelper };
+export { RouteHelperStatus, useRoutesWithHelper };

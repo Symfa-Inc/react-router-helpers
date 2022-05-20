@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useManager, useStatusNotification } from './hooks';
-import { HelperRouteObject, OnlyHelperFields, Status } from './types';
+import { HelperRouteObject, OnlyHelperFields, RouteHelperStatus } from './types';
 
 
 //   // TODO: Add guards tests
@@ -25,7 +25,7 @@ import { HelperRouteObject, OnlyHelperFields, Status } from './types';
 
 export const RouteHelper = (props: HelperRouteObject) => {
   const manager = useManager({ guards: props.guards || [] });
-  const [status, setStatus] = useState<Status>(Status.Initial);
+  const [status, setStatus] = useState<RouteHelperStatus>(RouteHelperStatus.Initial);
   const notification = useStatusNotification(props.onStatusChange);
 
   const evaluateGuards = async () => {
@@ -46,7 +46,7 @@ export const RouteHelper = (props: HelperRouteObject) => {
     })();
   }, []);
 
-  if (status == Status.Loaded) {
+  if (status == RouteHelperStatus.Loaded) {
     return <>{props.element}</>;
   }
 

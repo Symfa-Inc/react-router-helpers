@@ -9,7 +9,7 @@ export interface Guard {
 
 export interface OnlyHelperFields {
   guards?: Guard[];
-  onStatusChange?: (status: Status) => void;
+  onStatusChange?: (status: RouteHelperStatus) => void;
 }
 
 export interface RouteHelperProps extends OnlyHelperFields {
@@ -20,7 +20,7 @@ export interface HelperRouteObject extends RouteObject, OnlyHelperFields {
   children?: HelperRouteObject[];
 }
 
-export enum Status {
+export enum RouteHelperStatus {
   Initial,
   Loading,
   Loaded,
@@ -34,4 +34,4 @@ export interface HelperManager {
   // redirectUrl?: string;
 }
 
-export type StatusChangeReceiver = (status: Status) => void;
+export type StatusChangeReceiver = (status: RouteHelperStatus) => void;

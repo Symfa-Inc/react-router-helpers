@@ -6,7 +6,7 @@ export interface Guard {
 }
 export interface OnlyHelperFields {
     guards?: Guard[];
-    onStatusChange?: (status: Status) => void;
+    onStatusChange?: (status: RouteHelperStatus) => void;
 }
 export interface RouteHelperProps extends OnlyHelperFields {
     element: JSX.Element | React.ReactNode;
@@ -14,7 +14,7 @@ export interface RouteHelperProps extends OnlyHelperFields {
 export interface HelperRouteObject extends RouteObject, OnlyHelperFields {
     children?: HelperRouteObject[];
 }
-export declare enum Status {
+export declare enum RouteHelperStatus {
     Initial = 0,
     Loading = 1,
     Loaded = 2,
@@ -23,4 +23,4 @@ export declare enum Status {
 export interface HelperManager {
     guards: Guard[];
 }
-export declare type StatusChangeReceiver = (status: Status) => void;
+export declare type StatusChangeReceiver = (status: RouteHelperStatus) => void;

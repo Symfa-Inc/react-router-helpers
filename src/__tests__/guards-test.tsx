@@ -6,6 +6,7 @@ import { HelperRouteObject } from '../types';
 import { MockAsyncGuard } from './utils/mock-async-guard';
 import { MockShouldNeverBeCalledGuard } from './utils/mock-should-never-be-called-guard';
 import { MockSyncGuard } from './utils/mock-sync-guard';
+import { RoutesRenderer } from './utils/RoutesRenderer';
 import { wait } from './utils/wait';
 
 const guardAsyncTime = 200;
@@ -402,13 +403,3 @@ describe('Guards in route', () => {
 
   });
 });
-
-function RoutesRenderer({
-  routes,
-  location,
-}: {
-  routes: HelperRouteObject[];
-  location?: Partial<Location> & { pathname: string };
-}) {
-  return useRoutesWithHelper(routes, location);
-}
