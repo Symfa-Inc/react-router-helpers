@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, Outlet } from 'react-router-dom';
 import * as TestRenderer from 'react-test-renderer';
 import { useRoutesWithHelper } from '../index';
 import { HelperRouteObject } from '../types';
@@ -328,7 +328,6 @@ describe('Guards in route', () => {
 
         await wait(1);
         expect(counter.amount).toBe(0);
-
       });
 
       it('with 3 guards', async () => {
@@ -375,7 +374,6 @@ describe('Guards in route', () => {
 
         await wait(guardAsyncTime + 5);
         expect(counter.amount).toBe(0);
-
       });
 
       it('with 3 guards', async () => {
@@ -384,7 +382,11 @@ describe('Guards in route', () => {
           {
             path: '/',
             element: <div>Home</div>,
-            guards: [new MockAsyncGuard(true, guardAsyncTime), new MockAsyncGuard(false, guardAsyncTime), new MockShouldNeverBeCalledGuard(counter)],
+            guards: [
+              new MockAsyncGuard(true, guardAsyncTime),
+              new MockAsyncGuard(false, guardAsyncTime),
+              new MockShouldNeverBeCalledGuard(counter),
+            ],
           },
         ];
 
@@ -400,6 +402,158 @@ describe('Guards in route', () => {
         expect(counter.amount).toBe(0);
       });
     });
+  });
 
+  describe('check guard render', () => {
+    describe('path direct to the child', () => {
+      describe('guard on parent only', () => {
+        const testDatas = [
+          {
+            it: 'canActivate true',
+            routes: [
+              {
+                path: '/',
+                element: (
+                  <div>
+                    Home <Outlet />
+                  </div>
+                ),
+                children: [{ path: 'child', element: <div>Child</div> }],
+                guards: [new MockAsyncGuard(true, guardAsyncTime)],
+              },
+            ],
+            path: '/child',
+            waitTimeBeforeCheck: guardAsyncTime + 10,
+            expectedResultBeforeGuardWord: `null`,
+            expectedResult: `
+              <div>
+                Home 
+                <div>
+                  Child
+                </div>
+              </div>
+            `,
+          },
+          {
+            it: 'canActivate false',
+            routes: [
+              {
+                path: '/',
+                element: (
+                  <div>
+                    Home <Outlet />
+                  </div>
+                ),
+                children: [{ path: 'child', element: <div>Child</div> }],
+                guards: [new MockAsyncGuard(false, guardAsyncTime)],
+              },
+            ],
+            path: '/child',
+            waitTimeBeforeCheck: guardAsyncTime + 10,
+            expectedResultBeforeGuardWord: `null`,
+            expectedResult: `null`,
+          },
+        ];
+
+        test.each(testDatas)('$it', renderTest);
+      });
+
+      describe('guard on child only', () => {
+        const testDatas = [
+          {
+            it: 'canActivate true',
+            routes: [
+              {
+                path: '/',
+                element: (
+                  <div>
+                    Home <Outlet />
+                  </div>
+                ),
+                children: [
+                  {
+                    path: 'child',
+                    guards: [new MockAsyncGuard(true, guardAsyncTime)],
+                    element: <div>Child</div>,
+                  },
+                ],
+              },
+            ],
+            path: '/child',
+            waitTimeBeforeCheck: guardAsyncTime + 10,
+            expectedResultBeforeGuardWord: `
+              <div>
+                Home 
+              </div>
+            `,
+            expectedResult: `
+              <div>
+                Home 
+                <div>
+                  Child
+                </div>
+              </div>
+            `,
+          },
+          {
+            it: 'canActivate false',
+            routes: [
+              {
+                path: '/',
+                element: (
+                  <div>
+                    Home <Outlet />
+                  </div>
+                ),
+                children: [
+                  {
+                    path: 'child',
+                    guards: [new MockAsyncGuard(false, guardAsyncTime)],
+                    element: <div>Child</div>,
+                  },
+                ],
+              },
+            ],
+            path: '/child',
+            waitTimeBeforeCheck: guardAsyncTime + 10,
+            expectedResultBeforeGuardWord: `
+              <div>
+                Home 
+              </div>
+            `,
+            expectedResult: `
+              <div>
+                Home 
+              </div>
+              `,
+          },
+        ];
+
+        test.each(testDatas)('$it', renderTest);
+      });
+    });
+    describe('path direct to the parent', () => {});
+
+    describe('with dynamic path', () => {});
   });
 });
+
+async function renderTest({ routes, path, waitTimeBeforeCheck, expectedResult, expectedResultBeforeGuardWord }) {
+  let renderer: TestRenderer.ReactTestRenderer;
+
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(
+      <MemoryRouter initialEntries={[path]}>
+        <RoutesRenderer routes={routes} location={{ pathname: path }} />
+      </MemoryRouter>,
+    );
+  });
+
+  await wait(1);
+
+  expect(renderer.toJSON()).toMatchInlineSnapshot(expectedResultBeforeGuardWord);
+
+  await wait(waitTimeBeforeCheck);
+
+  expect(renderer.toJSON()).toMatchInlineSnapshot(expectedResult);
+}
