@@ -4,4 +4,5 @@ module.exports = {
     '\\.[jt]sx?$': './jest-transformer.js',
   },
   setupFilesAfterEnv: ['./src/__tests__/utils/setupTests.js'],
+  testEnvironment: 'jsdom',
 };

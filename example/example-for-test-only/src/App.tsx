@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
-import { BrowserRouter as Router, Link, Outlet, useNavigate } from 'react-router-dom';
+import { BrowserRouter as Router, Link, Outlet, useNavigate, useRoutes } from 'react-router-dom';
 import './App.css';
 import { MockGuard } from './guards/MockGuard';
-import { Status, useRoutesWithHelper } from './reactRouterHelpers';
+import { RouteHelperStatus, useRoutesWithHelper } from './reactRouterHelpers';
 
 function Home() {
   console.log('render 11');
@@ -24,7 +24,7 @@ function Home() {
 }
 
 function Home2() {
-  // useLoadingNotification(Home, (status: Status) => {
+  // useLoadingNotification(Home, (status: RouteHelperStatus) => {
   //   console.log(status);
   // });
   useEffect(() => {
@@ -50,53 +50,42 @@ function Home2() {
 // function canActivate() {
 //   return true;
 // }
-const RoutesWrapper = () => {
-  const nav = useNavigate();
-
-  return useRoutesWithHelper([
-    {
-      path: "/",
-      element: <Home />,
-      // guards: [new MockGuard()],
-      // onStatusChange: (status: Status) => {
-      //   console.log("status", Status[status]);
-      // },
-      children: [
-        {
-          path: "home22",
-          element: <Home2 />,
-          // onStatusChange: (status: Status) => {
-          //   console.log("status 2", Status[status]);
-          // },
-          // guards: [new MockGuard()]
-          // children: [
-          //   {
-          //     path: "nested2",
-          //     element: <Home />
-          //   }
-          // ]
-        }
-      ]
-    },
-  ]);
-};
+// const RoutesWrapper = () => {
+//   // const nav = useNavigate();
+//
+//   return useRoutes([
+//     {
+//       path: "/",
+//       element: <Home />,
+//       // guards: [new MockGuard()],
+//       // onStatusChange: (status: RouteHelperStatus) => {
+//       //   console.log("status", RouteHelperStatus[status]);
+//       // },
+//       children: [
+//         {
+//           path: "home22",
+//           element: <Home2 />,
+//           // onStatusChange: (status: RouteHelperStatus) => {
+//           //   console.log("status 2", RouteHelperStatus[status]);
+//           // },
+//           // guards: [new MockGuard()]
+//           // children: [
+//           //   {
+//           //     path: "nested2",
+//           //     element: <Home />
+//           //   }
+//           // ]
+//         }
+//       ]
+//     },
+//   ]);
+// };
 
 function App() {
 
 
   return (
-    <Router>
-      <RoutesWrapper />
-      {/*<Routes>*/}
-      {/*  <Route path="/" element={*/}
-      {/*    new RouteHelper(<Home/>)*/}
-      {/*      .withGuards([new MockGuard()])*/}
-      {/*      .create()*/}
-      {/*  }/>*/}
-      {/*  <Route path="/home2" element={<RouteHelper2 element={<Home />} guards={[new MockGuard()]} />}/>*/}
-      {/*  /!*<Route path="/" element={<RouteHelper element={<Home />} guards={[new MockGuard()]} />} />*!/*/}
-      {/*</Routes>*/}
-    </Router>
+    <Home />
   );
 }
 

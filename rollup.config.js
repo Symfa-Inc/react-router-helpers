@@ -8,6 +8,7 @@ export default [
     plugins: [
       typescript({
         typescript: require('typescript'),
+        exclude: ['**/__tests__', '**/*-test.ts'],
       }),
     ],
     output: [
@@ -17,7 +18,7 @@ export default [
         file: 'example/example-for-test-only/src/reactRouterHelpers/index.js',
         format: 'es',
         banner: '/* eslint-disable */',
-      }
+      },
     ],
   },
 ];

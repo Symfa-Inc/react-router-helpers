@@ -2,12 +2,11 @@ import * as React from 'react';
 import { MemoryRouter } from 'react-router-dom';
 import * as TestRenderer from 'react-test-renderer';
 import { HelperRouteObject, RouteHelperStatus } from '../types';
+import { guardWaitTimeBeforeCheck, mockGuardWorkTime } from './utils/guard-utils';
 import { MockAsyncGuard } from './utils/mock-async-guard';
 import { MockSyncGuard } from './utils/mock-sync-guard';
 import { RoutesRenderer } from './utils/RoutesRenderer';
 import { wait } from './utils/wait';
-
-const guardAsyncTime = 200;
 
 describe('onStatusChange function', () => {
   describe('with sync guards', () => {
@@ -143,7 +142,7 @@ describe('onStatusChange function', () => {
         {
           path: '/',
           element: <div>Home</div>,
-          guards: [new MockAsyncGuard(true, guardAsyncTime), new MockAsyncGuard(true, guardAsyncTime)],
+          guards: [new MockAsyncGuard(true, mockGuardWorkTime), new MockAsyncGuard(true, mockGuardWorkTime)],
           onStatusChange: (status: RouteHelperStatus) => {
             statuses.push(status);
           },
@@ -158,7 +157,7 @@ describe('onStatusChange function', () => {
         );
       });
 
-      await wait(guardAsyncTime * 2 + 20);
+      await wait(mockGuardWorkTime * 2 + guardWaitTimeBeforeCheck);
       expect(statuses.length).toBe(2);
 
       statuses.forEach((status, index) => {
@@ -174,7 +173,7 @@ describe('onStatusChange function', () => {
         {
           path: '/',
           element: <div>Home</div>,
-          guards: [new MockAsyncGuard(false, guardAsyncTime), new MockAsyncGuard(true, guardAsyncTime)],
+          guards: [new MockAsyncGuard(false, mockGuardWorkTime), new MockAsyncGuard(true, mockGuardWorkTime)],
           onStatusChange: (status: RouteHelperStatus) => {
             statuses.push(status);
           },
@@ -189,7 +188,7 @@ describe('onStatusChange function', () => {
         );
       });
 
-      await wait(guardAsyncTime + 10);
+      await wait(mockGuardWorkTime + guardWaitTimeBeforeCheck);
       expect(statuses.length).toBe(2);
 
       statuses.forEach((status, index) => {
@@ -205,7 +204,7 @@ describe('onStatusChange function', () => {
         {
           path: '/',
           element: <div>Home</div>,
-          guards: [new MockAsyncGuard(true, guardAsyncTime), new MockAsyncGuard(false, guardAsyncTime)],
+          guards: [new MockAsyncGuard(true, mockGuardWorkTime), new MockAsyncGuard(false, mockGuardWorkTime)],
           onStatusChange: (status: RouteHelperStatus) => {
             statuses.push(status);
           },
@@ -220,7 +219,7 @@ describe('onStatusChange function', () => {
         );
       });
 
-      await wait(guardAsyncTime * 2 + 20);
+      await wait(mockGuardWorkTime * 2 + guardWaitTimeBeforeCheck);
       expect(statuses.length).toBe(2);
 
       statuses.forEach((status, index) => {

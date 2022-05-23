@@ -1,6 +1,6 @@
 /* eslint-disable */
-import { useRoutes } from 'react-router-dom';
 import React, { useRef, useState, useEffect } from 'react';
+import { useRoutes } from 'react-router-dom';
 
 /*! *****************************************************************************
 Copyright (c) Microsoft Corporation. All rights reserved.
@@ -214,4 +214,4 @@ var useRoutesWithHelper = function (routes, locationArg) {
     return useRoutes(wrapRoutesToHelper(routes), locationArg);
 };
 
-export { RouteHelperStatus, useRoutesWithHelper };
+export { RouteHelper, RouteHelperStatus, useRoutesWithHelper };
