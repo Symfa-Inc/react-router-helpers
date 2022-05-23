@@ -532,9 +532,70 @@ describe('Guards in route', () => {
         test.each(testDatas)('$it', renderTest);
       });
     });
-    describe('path direct to the parent', () => {});
+    describe('path direct to the parent', () => {
+      const testDatas = [
+        {
+          it: 'canActivate true',
+          routes: [
+            {
+              path: '/',
+              element: (
+                <div>
+                  Home <Outlet />
+                </div>
+              ),
+              children: [
+                {
+                  path: 'child',
+                  guards: [new MockAsyncGuard(true, guardAsyncTime)],
+                  element: <div>Child</div>,
+                },
+              ],
+              guards: [new MockAsyncGuard(true, guardAsyncTime)],
+            },
+          ],
+          path: '/',
+          waitTimeBeforeCheck: guardAsyncTime + 10,
+          expectedResultBeforeGuardWord: `null`,
+          expectedResult: `
+              <div>
+                Home 
+              </div>
+            `,
+        },
+        {
+          it: 'canActivate true',
+          routes: [
+            {
+              path: '/',
+              element: (
+                <div>
+                  Home <Outlet />
+                </div>
+              ),
+              children: [
+                {
+                  path: 'child',
+                  guards: [new MockAsyncGuard(false, guardAsyncTime)],
+                  element: <div>Child</div>,
+                },
+              ],
+              guards: [new MockAsyncGuard(false, guardAsyncTime)],
+            },
+          ],
+          path: '/',
+          waitTimeBeforeCheck: guardAsyncTime + 10,
+          expectedResultBeforeGuardWord: `null`,
+          expectedResult: `null`,
+        },
+      ];
 
-    describe('with dynamic path', () => {});
+      test.each(testDatas)('$it', renderTest);
+    });
+
+    describe('with dynamic path', () => {
+
+    });
   });
 });
 
