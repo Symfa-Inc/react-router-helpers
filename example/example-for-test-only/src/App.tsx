@@ -48,7 +48,7 @@ function Child2() {
         <Link to="/">Home</Link> |{" "}
         <Link to="/child">Child</Link> |{" "}
         <Link to="/child/child2">Child 2</Link> |{" "}
-        <Link to="/child/child2/child3">Child 3</Link>
+        <Link to="child3">Child 3</Link>
       </nav>
       <Outlet/>
     </div>
@@ -85,7 +85,7 @@ const RoutesWrapper = () => {
     {
       path: "/",
       element: <Home />,
-      // guards: [new MockGuard()],
+      guards: [new MockGuard()],
       // onStatusChange: (status: Status) => {
       //   console.log("status", Status[status]);
       // },
@@ -93,18 +93,24 @@ const RoutesWrapper = () => {
         {
           path: "child",
           element: <Child />,
-          // onStatusChange: (status: Status) => {
-          //   console.log("status 2", Status[status]);
-          // },
-          // guards: [new MockGuard()]
+
+          guards: [new MockGuard()],
           children: [
             {
               path: "child2",
               element: <Child2 />,
+              guards: [new MockGuard()],
+              // onStatusChange: (status: RouteHelperStatus) => {
+              //   // console.log("status failed", RouteHelperStatus[status]);
+              //   // if (status === RouteHelperStatus.Failed) {
+              //   //   nav('/');
+              //   // }
+              // },
               children: [
                 {
                   path: "child3",
-                  element: <Child3 />
+                  element: <Child3 />,
+                  guards: [new MockGuard()],
                 }
               ]
             }

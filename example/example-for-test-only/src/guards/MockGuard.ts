@@ -2,9 +2,11 @@ import { Guard } from "../reactRouterHelpers";
 
 
 export class MockGuard implements Guard {
+  constructor(private can: boolean = true) {
+  }
   async canActivate(): Promise<boolean> {
     await this.wait(2000);
-    return true;
+    return this.can;
   }
 
   private wait(number = 1000) {
@@ -13,3 +15,7 @@ export class MockGuard implements Guard {
     })
   }
 }
+
+export const hasPermission = () => {
+  return false;
+};

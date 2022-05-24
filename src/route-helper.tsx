@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useManager, useStatusNotification } from './hooks';
-import { HelperRouteObject, OnlyHelperFields, RouteHelperStatus } from './types';
-
+import { HelperRouteObject, HelperRouteObjectProps, OnlyHelperFields, RouteHelperStatus } from './types';
 
 //   // TODO: Add guards tests
 //
@@ -23,7 +22,7 @@ import { HelperRouteObject, OnlyHelperFields, RouteHelperStatus } from './types'
 //   // TODO: Add server side plug tests
 //
 
-export const RouteHelper = (props: HelperRouteObject) => {
+export const RouteHelper = (props: HelperRouteObjectProps) => {
   const manager = useManager({ guards: props.guards || [] });
   const [status, setStatus] = useState<RouteHelperStatus>(RouteHelperStatus.Initial);
   const notification = useStatusNotification(props.onStatusChange);
@@ -52,7 +51,6 @@ export const RouteHelper = (props: HelperRouteObject) => {
 
   return <></>;
 };
-
 
 export const wrapRouteToHelper = (props: OnlyHelperFields) => {
   return <RouteHelper {...props} />;

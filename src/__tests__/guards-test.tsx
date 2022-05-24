@@ -1,7 +1,8 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { act } from 'react-dom/test-utils';
-import { Link, MemoryRouter, Outlet } from 'react-router-dom';
+// import { act } from 'react-dom/test-utils';
+import { Link, MemoryRouter, Outlet, Route, Routes } from 'react-router-dom';
 import * as TestRenderer from 'react-test-renderer';
 import { HelperRouteObject } from '../types';
 import { guardWaitTimeBeforeCheck, mockGuardWorkTime } from './utils/guard-utils';
@@ -12,6 +13,17 @@ import { RoutesRenderer } from './utils/RoutesRenderer';
 import { wait } from './utils/wait';
 
 // const mockGuardWorkTime = 200;
+
+function click(anchor: HTMLAnchorElement, eventInit?: MouseEventInit) {
+  const event = new MouseEvent('click', {
+    view: window,
+    bubbles: true,
+    cancelable: true,
+    ...eventInit,
+  });
+  anchor.dispatchEvent(event);
+  return event;
+}
 
 describe('Guards in route', () => {
   describe('with async guards', () => {
@@ -891,63 +903,64 @@ describe('Guards in route', () => {
       });
 
       it('with 3 children, check guards to be correctly rendered and should not be rendered twice for parents', async () => {
-        const FirstLink = () => (
-          <Link to="/child" id="child-link">
-            Child
-          </Link>
+        const Home = () => (
+          <div>
+            <h1>Home test</h1>
+            <Link to="child" id="link-to-first-child">
+              Child
+            </Link>
+            <div id="parent-outlet">
+              <Outlet />
+            </div>
+          </div>
         );
 
-        const SecondLink = () => (
-          <Link to="/child2" id="child-link2">
-            Child2
-          </Link>
+        const Child = () => (
+          <div>
+            <h1>Child</h1>
+            <Link to="child2" id="link-to-second-child">
+              Child2
+            </Link>
+            <div id="first-child-outlet">
+              <Outlet />
+            </div>
+          </div>
         );
-        const ThirdLink = () => (
-          <Link to="/child3" id="child-link3">
-            Child3
-          </Link>
+
+        const Child2 = () => (
+          <div>
+            <h1>Child 2</h1>
+            <Link to="child3" id="link-to-third-child">
+              Child3
+            </Link>
+            <div id="second-child-outlet">
+              <Outlet />
+            </div>
+          </div>
         );
+
+        const Child3 = () => <div id="third-child">Child 3</div>;
 
         const routes = [
           {
             path: '/',
             guards: [new MockAsyncGuard(true, mockGuardWorkTime)],
-            element: (
-              <div>
-                Home test
-                <FirstLink />
-                <div id="first-child-container">
-                  <Outlet />
-                </div>
-              </div>
-            ),
+            element: <Home />,
             children: [
               {
                 path: 'child',
                 guards: [new MockAsyncGuard(true, mockGuardWorkTime)],
-                element: (
-                  <div>
-                    Child
-                    <SecondLink />
-                    <Outlet />
-                  </div>
-                ),
+                element: <Child />,
                 children: [
                   {
                     path: 'child2',
                     guards: [new MockAsyncGuard(true, mockGuardWorkTime)],
-                    element: (
-                      <div>
-                        Child 2
-                        <ThirdLink />
-                        <Outlet />
-                      </div>
-                    ),
+                    element: <Child2 />,
                     children: [
                       {
                         path: 'child3',
                         guards: [new MockAsyncGuard(true, mockGuardWorkTime)],
-                        element: <div>Child 3</div>,
+                        element: <Child3 />,
                       },
                     ],
                   },
@@ -960,7 +973,7 @@ describe('Guards in route', () => {
         act(() => {
           ReactDOM.render(
             <MemoryRouter initialEntries={['/']}>
-              <RoutesRenderer routes={routes} location={{ pathname: '/' }} />
+              <RoutesRenderer routes={routes} />
             </MemoryRouter>,
             node,
           );
@@ -969,44 +982,74 @@ describe('Guards in route', () => {
         await wait(1);
 
         // Elements should not be rendered immediately after initialization, since the first parent has guard
-        let firstChildContainer = node.querySelector('#first-child-container');
-        expect(firstChildContainer).toBeNull();
+        let parentOutlet = node.querySelector('#parent-outlet');
+        expect(parentOutlet).toBeNull();
 
         await wait(mockGuardWorkTime + guardWaitTimeBeforeCheck);
 
-        // As soon as guard has first parent guard has finished his work, we should be able to see the content,
-        // but not the children, because they have guards as well
-        firstChildContainer = node.querySelector('#first-child-container');
-        expect(firstChildContainer).not.toBeNull();
-        expect(firstChildContainer!.children.length).toBe(0);
+        // As soon as guard for <Home /> has finished his work, we should be able to see the content,
+        // but not the child <Child />, because it has guard as well
+        parentOutlet = node.querySelector('#parent-outlet');
+        expect(parentOutlet).not.toBeNull();
+        expect(parentOutlet!.children.length).toBe(0);
 
-        const firstChildLink = node.querySelector('#child-link');
-        expect(firstChildLink).not.toBeNull();
+        const linkToFirstChild = node.querySelector('#link-to-first-child');
+        expect(linkToFirstChild).not.toBeNull();
 
+        let event: MouseEvent;
         act(() => {
-          firstChildLink!.dispatchEvent(new Event('click', { bubbles: true, cancelable: true }));
+          event = click(linkToFirstChild);
         });
+
+        expect(event!.defaultPrevented).toBe(true);
         await wait(1);
 
-        // Just after click we still shouldn't be able to see child content, since it has async guard
-        firstChildContainer = node.querySelector('#first-child-container');
-        expect(firstChildContainer!.children.length).toBe(0);
-
-        // expect(firstChildContainer!.children.length).toBe(0);
-        // const childLink = renderer.root.findByType(FirstLink);
-        // expect(childLink).not.toBeNull();
+        // Just after click we still shouldn't be able to see <Child /> content, since it has async guard
+        parentOutlet = node.querySelector('#parent-outlet');
+        expect(parentOutlet!.children.length).toBe(0);
 
         await wait(mockGuardWorkTime + guardWaitTimeBeforeCheck);
 
-        // Just after first child guard work we should be able to see the child content
-        firstChildContainer = node.querySelector('#first-child-container');
-        expect(firstChildContainer!.children.length).toBe(1);
+        // Just after first child guard work we should be able to see the child content and container for
+        // the next child but not child itself <Child2 />
+        parentOutlet = node.querySelector('#parent-outlet');
+        let linkToSecondChild = node.querySelector('#link-to-second-child');
+        let firstChildOutlet = node.querySelector('#first-child-outlet');
 
-        // expect(renderer.toJSON()).toMatchInlineSnapshot(`
-        //   <div>
-        //     Home
-        //   </div>
-        // `);
+        expect(parentOutlet!.children.length).toBe(1);
+        expect(linkToSecondChild).not.toBeNull();
+        expect(firstChildOutlet).not.toBeNull();
+        expect(firstChildOutlet!.children.length).toBe(0);
+
+        let event2: MouseEvent;
+        act(() => {
+          event2 = click(linkToSecondChild);
+        });
+
+        expect(event2.defaultPrevented).toBe(true);
+
+        firstChildOutlet = node.querySelector('#first-child-outlet');
+        linkToSecondChild = node.querySelector('#link-to-second-child');
+
+        // Just after click we should not see the content of <Child2 />, because of guards
+        // but we still should be able to see already loaded content <Home />, <Child />
+        expect(firstChildOutlet).not.toBeNull();
+        expect(firstChildOutlet!.children.length).toBe(0);
+        expect(linkToSecondChild).not.toBeNull();
+
+        await wait(mockGuardWorkTime + guardWaitTimeBeforeCheck);
+
+        firstChildOutlet = node.querySelector('#first-child-outlet');
+        let linkToThirdChild = node.querySelector('#link-to-third-child');
+
+        // As soon as guard in <Child2 /> has finished his work,
+        // we should be able to see content of component
+        expect(firstChildOutlet).not.toBeNull();
+        expect(firstChildOutlet!.children.length).toBe(1);
+        expect(linkToThirdChild).not.toBeNull();
+
+        // Grab third link for component <Child3 />
+
       });
     });
   });
@@ -1030,15 +1073,4 @@ async function renderTest({ routes, path, waitTimeBeforeCheck, expectedResult, e
   await wait(waitTimeBeforeCheck);
 
   expect(renderer.toJSON()).toMatchInlineSnapshot(expectedResult);
-}
-
-function click(anchor: HTMLAnchorElement, eventInit?: MouseEventInit) {
-  const event = new MouseEvent('click', {
-    view: window,
-    bubbles: true,
-    cancelable: true,
-    ...eventInit,
-  });
-  anchor.dispatchEvent(event);
-  return event;
 }

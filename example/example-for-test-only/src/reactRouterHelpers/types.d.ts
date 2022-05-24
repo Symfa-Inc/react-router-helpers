@@ -14,6 +14,8 @@ export interface RouteHelperProps extends OnlyHelperFields {
 export interface HelperRouteObject extends RouteObject, OnlyHelperFields {
     children?: HelperRouteObject[];
 }
+export interface HelperRouteObjectProps extends Omit<HelperRouteObject, 'path'> {
+}
 export declare enum RouteHelperStatus {
     Initial = 0,
     Loading = 1,
