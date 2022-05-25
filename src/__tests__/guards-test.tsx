@@ -939,7 +939,7 @@ describe('Guards in route', () => {
           </div>
         );
 
-        const Child3 = () => <div id="third-child">Child 3</div>;
+        const Child3 = () => <div id="third-child-content">Child 3</div>;
 
         const routes = [
           {
@@ -1048,8 +1048,35 @@ describe('Guards in route', () => {
         expect(firstChildOutlet!.children.length).toBe(1);
         expect(linkToThirdChild).not.toBeNull();
 
-        // Grab third link for component <Child3 />
+        // let linkToThirdChild = node.querySelector('#link-to-third-child');
+        let event3: MouseEvent;
+        act(() => {
+          event3 = click(linkToThirdChild);
+        });
 
+        expect(event3.defaultPrevented).toBe(true);
+
+        // Just after click we should not see the content of <Child3 />, because of guards
+        // but we still should be able to see already loaded content <Home />, <Child />, <Child2 />
+        let thirdChildContent = node.querySelector('#third-child-content');
+        linkToThirdChild = node.querySelector('#link-to-third-child');
+
+        expect(linkToThirdChild).not.toBeNull();
+        expect(thirdChildContent).toBeNull();
+
+        await wait(mockGuardWorkTime + guardWaitTimeBeforeCheck);
+
+        // As soon as guard in <Child3 /> has finished his work,
+        // we should be able to see content of component
+        thirdChildContent = node.querySelector('#third-child-content');
+        linkToThirdChild = node.querySelector('#link-to-third-child');
+
+        expect(linkToThirdChild).not.toBeNull();
+        expect(thirdChildContent).not.toBeNull();
+
+        expect(thirdChildContent.innerHTML).toMatch('Child 3');
+
+        // check reverse link clicking to the parent
       });
     });
   });
