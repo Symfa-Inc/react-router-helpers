@@ -3,7 +3,7 @@ import { MemoryRouter, Outlet, Route, Routes } from 'react-router-dom';
 import * as TestRenderer from 'react-test-renderer';
 import { RouteHelper } from '../route-helper';
 import { guardWaitTimeBeforeCheck, mockGuardWorkTime } from './utils/guard-utils';
-import { MockAsyncGuard } from './utils/mock-async-guard';
+import { mockAsyncGuard } from './utils/mock-async-guard';
 import { wait } from './utils/wait';
 
 describe('route helper component', () => {
@@ -78,7 +78,7 @@ describe('route helper component', () => {
               <Route
                 path="/"
                 element={
-                  <RouteHelper guards={[new MockAsyncGuard(true, mockGuardWorkTime)]} element={<div>Home</div>} />
+                  <RouteHelper guards={[mockAsyncGuard(true, mockGuardWorkTime)]} element={<div>Home</div>} />
                 }
               />
             </Routes>
@@ -109,7 +109,7 @@ describe('route helper component', () => {
                 path="/"
                 element={
                   <RouteHelper
-                    guards={[new MockAsyncGuard(true, mockGuardWorkTime)]}
+                    guards={[mockAsyncGuard(true, mockGuardWorkTime)]}
                     element={
                       <div>
                         Home <Outlet />
@@ -118,7 +118,7 @@ describe('route helper component', () => {
                   />
                 }
               >
-                <Route path="child" element={<RouteHelper guards={[new MockAsyncGuard(true, mockGuardWorkTime)]} element={<div>Child</div>} />}></Route>
+                <Route path="child" element={<RouteHelper guards={[mockAsyncGuard(true, mockGuardWorkTime)]} element={<div>Child</div>} />}></Route>
               </Route>
             </Routes>
           </MemoryRouter>,

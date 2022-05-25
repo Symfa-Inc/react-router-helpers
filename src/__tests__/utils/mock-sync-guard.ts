@@ -1,9 +1,3 @@
-import { Guard } from '../../../dist';
-
-export class MockSyncGuard implements Guard {
-  constructor(private can: boolean) {}
-
-  canActivate(): boolean {
-    return this.can;
-  }
-}
+export const mockSyncGuard = (canActivate: boolean) => () => {
+  return canActivate;
+};

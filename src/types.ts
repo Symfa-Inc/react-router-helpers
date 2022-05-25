@@ -1,11 +1,12 @@
 import React from 'react';
 import { RouteObject } from 'react-router-dom';
 
-export interface Guard {
-  canActivate(): Promise<boolean> | boolean;
-
-  redirectUrl?: string;
-}
+// export interface Guard {
+//   canActivate(): Promise<boolean> | boolean;
+//
+//   redirectUrl?: string;
+// }
+export type Guard = () => Promise<boolean> | boolean;
 
 export interface OnlyHelperFields {
   guards?: Guard[];

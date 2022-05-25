@@ -5,9 +5,9 @@ import { Link, MemoryRouter, Outlet } from 'react-router-dom';
 import * as TestRenderer from 'react-test-renderer';
 import { HelperRouteObject } from '../types';
 import { guardWaitTimeBeforeCheck, mockGuardWorkTime } from './utils/guard-utils';
-import { MockAsyncGuard } from './utils/mock-async-guard';
+import { mockAsyncGuard } from './utils/mock-async-guard';
 import { MockShouldNeverBeCalledGuard } from './utils/mock-should-never-be-called-guard';
-import { MockSyncGuard } from './utils/mock-sync-guard';
+import { mockSyncGuard } from './utils/mock-sync-guard';
 import { RoutesRenderer } from './utils/RoutesRenderer';
 import { wait } from './utils/wait';
 
@@ -31,7 +31,7 @@ describe('Guards in route', () => {
         {
           path: '/',
           element: <div>Home</div>,
-          guards: [new MockAsyncGuard(true, mockGuardWorkTime)],
+          guards: [mockAsyncGuard(true, mockGuardWorkTime)],
         },
       ];
 
@@ -58,7 +58,7 @@ describe('Guards in route', () => {
         {
           path: '/',
           element: <div>Home</div>,
-          guards: [new MockAsyncGuard(false, mockGuardWorkTime)],
+          guards: [mockAsyncGuard(false, mockGuardWorkTime)],
         },
       ];
 
@@ -81,7 +81,7 @@ describe('Guards in route', () => {
         {
           path: '/',
           element: <div>Home</div>,
-          guards: [new MockAsyncGuard(true, mockGuardWorkTime), new MockAsyncGuard(true, mockGuardWorkTime)],
+          guards: [mockAsyncGuard(true, mockGuardWorkTime), mockAsyncGuard(true, mockGuardWorkTime)],
         },
       ];
 
@@ -107,7 +107,7 @@ describe('Guards in route', () => {
         {
           path: '/',
           element: <div>Home</div>,
-          guards: [new MockAsyncGuard(false, mockGuardWorkTime), new MockAsyncGuard(false, mockGuardWorkTime)],
+          guards: [mockAsyncGuard(false, mockGuardWorkTime), mockAsyncGuard(false, mockGuardWorkTime)],
         },
       ];
 
@@ -130,7 +130,7 @@ describe('Guards in route', () => {
         {
           path: '/',
           element: <div>Home</div>,
-          guards: [new MockAsyncGuard(true, mockGuardWorkTime), new MockAsyncGuard(false, mockGuardWorkTime)],
+          guards: [mockAsyncGuard(true, mockGuardWorkTime), mockAsyncGuard(false, mockGuardWorkTime)],
         },
       ];
 
@@ -153,7 +153,7 @@ describe('Guards in route', () => {
         {
           path: '/',
           element: <div>Home</div>,
-          guards: [new MockAsyncGuard(false, mockGuardWorkTime), new MockAsyncGuard(true, mockGuardWorkTime)],
+          guards: [mockAsyncGuard(false, mockGuardWorkTime), mockAsyncGuard(true, mockGuardWorkTime)],
         },
       ];
 
@@ -178,7 +178,7 @@ describe('Guards in route', () => {
         {
           path: '/',
           element: <div>Home</div>,
-          guards: [new MockSyncGuard(true)],
+          guards: [mockSyncGuard(true)],
         },
       ];
 
@@ -204,7 +204,7 @@ describe('Guards in route', () => {
         {
           path: '/',
           element: <div>Home</div>,
-          guards: [new MockSyncGuard(false)],
+          guards: [mockSyncGuard(false)],
         },
       ];
 
@@ -227,7 +227,7 @@ describe('Guards in route', () => {
         {
           path: '/',
           element: <div>Home</div>,
-          guards: [new MockSyncGuard(true), new MockSyncGuard(true)],
+          guards: [mockSyncGuard(true), mockSyncGuard(true)],
         },
       ];
 
@@ -253,7 +253,7 @@ describe('Guards in route', () => {
         {
           path: '/',
           element: <div>Home</div>,
-          guards: [new MockSyncGuard(false), new MockSyncGuard(false)],
+          guards: [mockSyncGuard(false), mockSyncGuard(false)],
         },
       ];
 
@@ -276,7 +276,7 @@ describe('Guards in route', () => {
         {
           path: '/',
           element: <div>Home</div>,
-          guards: [new MockSyncGuard(true), new MockSyncGuard(false)],
+          guards: [mockSyncGuard(true), mockSyncGuard(false)],
         },
       ];
 
@@ -299,7 +299,7 @@ describe('Guards in route', () => {
         {
           path: '/',
           element: <div>Home</div>,
-          guards: [new MockSyncGuard(false, mockGuardWorkTime), new MockSyncGuard(false, mockGuardWorkTime)],
+          guards: [mockSyncGuard(false, mockGuardWorkTime), mockSyncGuard(false, mockGuardWorkTime)],
         },
       ];
 
@@ -325,7 +325,7 @@ describe('Guards in route', () => {
           {
             path: '/',
             element: <div>Home</div>,
-            guards: [new MockSyncGuard(false), new MockShouldNeverBeCalledGuard(counter)],
+            guards: [mockSyncGuard(false), new MockShouldNeverBeCalledGuard(counter)],
           },
         ];
 
@@ -347,7 +347,7 @@ describe('Guards in route', () => {
           {
             path: '/',
             element: <div>Home</div>,
-            guards: [new MockSyncGuard(true), new MockSyncGuard(false), new MockShouldNeverBeCalledGuard(counter)],
+            guards: [mockSyncGuard(true), mockSyncGuard(false), new MockShouldNeverBeCalledGuard(counter)],
           },
         ];
 
@@ -371,7 +371,7 @@ describe('Guards in route', () => {
           {
             path: '/',
             element: <div>Home</div>,
-            guards: [new MockAsyncGuard(false, mockGuardWorkTime), new MockShouldNeverBeCalledGuard(counter)],
+            guards: [mockAsyncGuard(false, mockGuardWorkTime), new MockShouldNeverBeCalledGuard(counter)],
           },
         ];
 
@@ -394,8 +394,8 @@ describe('Guards in route', () => {
             path: '/',
             element: <div>Home</div>,
             guards: [
-              new MockAsyncGuard(true, mockGuardWorkTime),
-              new MockAsyncGuard(false, mockGuardWorkTime),
+              mockAsyncGuard(true, mockGuardWorkTime),
+              mockAsyncGuard(false, mockGuardWorkTime),
               new MockShouldNeverBeCalledGuard(counter),
             ],
           },
@@ -430,7 +430,7 @@ describe('Guards in route', () => {
                   </div>
                 ),
                 children: [{ path: 'child', element: <div>Child</div> }],
-                guards: [new MockAsyncGuard(true, mockGuardWorkTime)],
+                guards: [mockAsyncGuard(true, mockGuardWorkTime)],
               },
             ],
             path: '/child',
@@ -456,7 +456,7 @@ describe('Guards in route', () => {
                   </div>
                 ),
                 children: [{ path: 'child', element: <div>Child</div> }],
-                guards: [new MockAsyncGuard(false, mockGuardWorkTime)],
+                guards: [mockAsyncGuard(false, mockGuardWorkTime)],
               },
             ],
             path: '/child',
@@ -484,7 +484,7 @@ describe('Guards in route', () => {
                 children: [
                   {
                     path: 'child',
-                    guards: [new MockAsyncGuard(true, mockGuardWorkTime)],
+                    guards: [mockAsyncGuard(true, mockGuardWorkTime)],
                     element: <div>Child</div>,
                   },
                 ],
@@ -519,7 +519,7 @@ describe('Guards in route', () => {
                 children: [
                   {
                     path: 'child',
-                    guards: [new MockAsyncGuard(false, mockGuardWorkTime)],
+                    guards: [mockAsyncGuard(false, mockGuardWorkTime)],
                     element: <div>Child</div>,
                   },
                 ],
@@ -555,11 +555,11 @@ describe('Guards in route', () => {
                     Home <Outlet />
                   </div>
                 ),
-                guards: [new MockAsyncGuard(true, mockGuardWorkTime)],
+                guards: [mockAsyncGuard(true, mockGuardWorkTime)],
                 children: [
                   {
                     path: 'child',
-                    guards: [new MockAsyncGuard(true, mockGuardWorkTime)],
+                    guards: [mockAsyncGuard(true, mockGuardWorkTime)],
                     element: <div>Child</div>,
                   },
                 ],
@@ -587,11 +587,11 @@ describe('Guards in route', () => {
                     Home <Outlet />
                   </div>
                 ),
-                guards: [new MockAsyncGuard(true, mockGuardWorkTime)],
+                guards: [mockAsyncGuard(true, mockGuardWorkTime)],
                 children: [
                   {
                     path: 'child',
-                    guards: [new MockAsyncGuard(true, mockGuardWorkTime)],
+                    guards: [mockAsyncGuard(true, mockGuardWorkTime)],
                     element: (
                       <div>
                         Child
@@ -601,7 +601,7 @@ describe('Guards in route', () => {
                     children: [
                       {
                         path: 'child2',
-                        guards: [new MockAsyncGuard(true, mockGuardWorkTime)],
+                        guards: [mockAsyncGuard(true, mockGuardWorkTime)],
                         element: <div>Child 2</div>,
                       },
                     ],
@@ -634,11 +634,11 @@ describe('Guards in route', () => {
                     Home <Outlet />
                   </div>
                 ),
-                guards: [new MockAsyncGuard(true, mockGuardWorkTime)],
+                guards: [mockAsyncGuard(true, mockGuardWorkTime)],
                 children: [
                   {
                     path: 'child',
-                    guards: [new MockAsyncGuard(true, mockGuardWorkTime)],
+                    guards: [mockAsyncGuard(true, mockGuardWorkTime)],
                     element: (
                       <div>
                         Child
@@ -648,7 +648,7 @@ describe('Guards in route', () => {
                     children: [
                       {
                         path: 'child2',
-                        guards: [new MockAsyncGuard(true, mockGuardWorkTime)],
+                        guards: [mockAsyncGuard(true, mockGuardWorkTime)],
                         element: (
                           <div>
                             Child 2
@@ -658,7 +658,7 @@ describe('Guards in route', () => {
                         children: [
                           {
                             path: 'child3',
-                            guards: [new MockAsyncGuard(true, mockGuardWorkTime)],
+                            guards: [mockAsyncGuard(true, mockGuardWorkTime)],
                             element: <div>Child 3</div>,
                           },
                         ],
@@ -696,11 +696,11 @@ describe('Guards in route', () => {
                     Home <Outlet />
                   </div>
                 ),
-                guards: [new MockAsyncGuard(false, mockGuardWorkTime)],
+                guards: [mockAsyncGuard(false, mockGuardWorkTime)],
                 children: [
                   {
                     path: 'child',
-                    guards: [new MockAsyncGuard(false, mockGuardWorkTime)],
+                    guards: [mockAsyncGuard(false, mockGuardWorkTime)],
                     element: <div>Child</div>,
                   },
                 ],
@@ -731,11 +731,11 @@ describe('Guards in route', () => {
               children: [
                 {
                   path: 'child',
-                  guards: [new MockAsyncGuard(true, mockGuardWorkTime)],
+                  guards: [mockAsyncGuard(true, mockGuardWorkTime)],
                   element: <div>Child</div>,
                 },
               ],
-              guards: [new MockAsyncGuard(true, mockGuardWorkTime)],
+              guards: [mockAsyncGuard(true, mockGuardWorkTime)],
             },
           ],
           path: '/',
@@ -760,11 +760,11 @@ describe('Guards in route', () => {
               children: [
                 {
                   path: 'child',
-                  guards: [new MockAsyncGuard(false, mockGuardWorkTime)],
+                  guards: [mockAsyncGuard(false, mockGuardWorkTime)],
                   element: <div>Child</div>,
                 },
               ],
-              guards: [new MockAsyncGuard(false, mockGuardWorkTime)],
+              guards: [mockAsyncGuard(false, mockGuardWorkTime)],
             },
           ],
           path: '/',
@@ -787,11 +787,11 @@ describe('Guards in route', () => {
                 Home <Outlet />
               </div>
             ),
-            guards: [new MockAsyncGuard(true, mockGuardWorkTime)],
+            guards: [mockAsyncGuard(true, mockGuardWorkTime)],
             children: [
               {
                 path: 'child',
-                guards: [new MockAsyncGuard(true, mockGuardWorkTime)],
+                guards: [mockAsyncGuard(true, mockGuardWorkTime)],
                 element: (
                   <div>
                     Child
@@ -801,7 +801,7 @@ describe('Guards in route', () => {
                 children: [
                   {
                     path: 'child2',
-                    guards: [new MockAsyncGuard(true, mockGuardWorkTime)],
+                    guards: [mockAsyncGuard(true, mockGuardWorkTime)],
                     element: (
                       <div>
                         Child 2
@@ -811,7 +811,7 @@ describe('Guards in route', () => {
                     children: [
                       {
                         path: 'child3',
-                        guards: [new MockAsyncGuard(true, mockGuardWorkTime)],
+                        guards: [mockAsyncGuard(true, mockGuardWorkTime)],
                         element: <div>Child 3</div>,
                       },
                     ],
@@ -941,22 +941,22 @@ describe('Guards in route', () => {
         const routes = [
           {
             path: '/',
-            guards: [new MockAsyncGuard(true, mockGuardWorkTime)],
+            guards: [mockAsyncGuard(true, mockGuardWorkTime)],
             element: <Home />,
             children: [
               {
                 path: 'child',
-                guards: [new MockAsyncGuard(true, mockGuardWorkTime)],
+                guards: [mockAsyncGuard(true, mockGuardWorkTime)],
                 element: <Child />,
                 children: [
                   {
                     path: 'child2',
-                    guards: [new MockAsyncGuard(true, mockGuardWorkTime)],
+                    guards: [mockAsyncGuard(true, mockGuardWorkTime)],
                     element: <Child2 />,
                     children: [
                       {
                         path: 'child3',
-                        guards: [new MockAsyncGuard(true, mockGuardWorkTime)],
+                        guards: [mockAsyncGuard(true, mockGuardWorkTime)],
                         element: <Child3 />,
                       },
                     ],

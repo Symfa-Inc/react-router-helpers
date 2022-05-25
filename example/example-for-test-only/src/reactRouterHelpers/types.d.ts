@@ -1,9 +1,6 @@
 import React from 'react';
 import { RouteObject } from 'react-router-dom';
-export interface Guard {
-    canActivate(): Promise<boolean> | boolean;
-    redirectUrl?: string;
-}
+export declare type Guard = () => Promise<boolean> | boolean;
 export interface OnlyHelperFields {
     guards?: Guard[];
     onStatusChange?: (status: RouteHelperStatus) => void;

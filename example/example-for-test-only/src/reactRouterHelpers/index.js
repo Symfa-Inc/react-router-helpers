@@ -89,7 +89,7 @@ function useManager(_a) {
                         _a.label = 2;
                     case 2:
                         _a.trys.push([2, 4, , 5]);
-                        return [4 /*yield*/, guard.canActivate()];
+                        return [4 /*yield*/, guard()];
                     case 3:
                         canActivate = _a.sent();
                         if (!canActivate) {
@@ -139,7 +139,7 @@ function useStatusNotification(receiver) {
                 stackRef.current.push(status);
                 receiver(status);
             }
-        }
+        },
     };
 }
 

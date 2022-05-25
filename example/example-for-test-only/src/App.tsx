@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Link, Outlet, useNavigate } from 'react-router-dom';
 import './App.css';
-import { MockGuard } from './guards/MockGuard';
+import { mockGuard } from './guards/mock-guard';
 import { RouteHelperStatus, useRoutesWithHelper } from './reactRouterHelpers';
 
 function Home() {
@@ -71,13 +71,6 @@ function Child3() {
   );
 }
 
-// Home.testFunction = () => {
-//   console.log('hello from testFunction');
-// };
-//
-// function canActivate() {
-//   return true;
-// }
 const RoutesWrapper = () => {
   const nav = useNavigate();
 
@@ -85,7 +78,7 @@ const RoutesWrapper = () => {
     {
       path: "/",
       element: <Home />,
-      guards: [new MockGuard()],
+      guards: [mockGuard()],
       // onStatusChange: (status: Status) => {
       //   console.log("status", Status[status]);
       // },
@@ -94,23 +87,22 @@ const RoutesWrapper = () => {
           path: "child",
           element: <Child />,
 
-          guards: [new MockGuard()],
+          guards: [mockGuard()],
           children: [
             {
               path: "child2",
               element: <Child2 />,
-              guards: [new MockGuard()],
-              // onStatusChange: (status: RouteHelperStatus) => {
-              //   // console.log("status failed", RouteHelperStatus[status]);
-              //   // if (status === RouteHelperStatus.Failed) {
-              //   //   nav('/');
-              //   // }
-              // },
+              guards: [mockGuard()],
               children: [
                 {
                   path: "child3",
                   element: <Child3 />,
-                  guards: [new MockGuard()],
+                  guards: [mockGuard()],
+                  onStatusChange: (status: RouteHelperStatus) => {
+                    // if (status === RouteHelperStatus.Failed) {
+                    //   nav('/login', { replace: true });
+                    // }
+                  },
                 }
               ]
             }
@@ -130,11 +122,11 @@ function App() {
       {/*<Routes>*/}
       {/*  <Route path="/" element={*/}
       {/*    new RouteHelper(<Home/>)*/}
-      {/*      .withGuards([new MockGuard()])*/}
+      {/*      .withGuards([mockGuard])*/}
       {/*      .create()*/}
       {/*  }/>*/}
-      {/*  <Route path="/home2" element={<RouteHelper2 element={<Home />} guards={[new MockGuard()]} />}/>*/}
-      {/*  /!*<Route path="/" element={<RouteHelper element={<Home />} guards={[new MockGuard()]} />} />*!/*/}
+      {/*  <Route path="/home2" element={<RouteHelper2 element={<Home />} guards={[mockGuard]} />}/>*/}
+      {/*  /!*<Route path="/" element={<RouteHelper element={<Home />} guards={[mockGuard]} />} />*!/*/}
       {/*</Routes>*/}
     </Router>
   );

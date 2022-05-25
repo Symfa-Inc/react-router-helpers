@@ -5,7 +5,7 @@ export function useManager({ guards }: HelperManager) {
   async function evaluateGuards(): Promise<RouteHelperStatus> {
     for (const guard of guards) {
       try {
-        const canActivate = await guard.canActivate();
+        const canActivate = await guard();
         if (!canActivate) {
           return RouteHelperStatus.Failed;
         }
@@ -52,8 +52,8 @@ export function useStatusNotification(receiver?: StatusChangeReceiver) {
         stackRef.current.push(status);
         receiver(status);
       }
-    }
+    },
   };
-};
+}
 
 type Fn = (status: RouteHelperStatus) => void;
