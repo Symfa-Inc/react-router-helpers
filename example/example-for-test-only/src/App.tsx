@@ -2,14 +2,15 @@ import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Link, Outlet, useNavigate } from 'react-router-dom';
 import './App.css';
 import { mockGuard } from './guards/mock-guard';
-import { RouteHelperStatus, useRoutesWithHelper } from './reactRouterHelpers';
+import { RouteHelperStatus, useResolver, useRoutesWithHelper } from './reactRouterHelpers';
 
 function Home() {
   console.log('render 11');
+  const resolverInfos = useResolver<{ test: string; }>();
 
 
   useEffect(() => {
-    console.log('rendered HOME');
+    console.log('rendered HOME', resolverInfos);
   }, []);
   return (
     <div>
@@ -26,6 +27,12 @@ function Home() {
 }
 
 function Child() {
+  const resolverInfos = useResolver<{ userName: string; lastName: string; }>();
+
+  useEffect(() => {
+    console.log('rendered Child', resolverInfos);
+  }, []);
+
   return (
     <div>
       <h1>Child </h1>
@@ -34,6 +41,7 @@ function Child() {
         <Link to="/child">Child</Link> |{" "}
         <Link to="/child/child2">Child 2</Link> |{" "}
         <Link to="/child/child2/child3">Child 3</Link>
+        <h2>resolver info: {resolverInfos.lastName}</h2>
       </nav>
       <Outlet/>
     </div>
@@ -79,6 +87,11 @@ const RoutesWrapper = () => {
       path: "/",
       element: <Home />,
       guards: [mockGuard()],
+      resolvers: {
+        test: () => {
+          return ({ 'name': 'eugene' });
+        }
+      },
       // onStatusChange: (status: Status) => {
       //   console.log("status", Status[status]);
       // },
@@ -88,6 +101,11 @@ const RoutesWrapper = () => {
           element: <Child />,
 
           guards: [mockGuard()],
+          resolvers: {
+            'userInfo': () => {
+              return {userName: 'eugene', name: 'eugene', lastName: 'tsarenko'}
+            }
+          },
           children: [
             {
               path: "child2",

@@ -65,6 +65,11 @@ function __generator(thisArg, body) {
     }
 }
 
+var RouteContext = React.createContext({
+    routeResolverInfos: {},
+});
+//# sourceMappingURL=context.js.map
+
 var RouteHelperStatus;
 (function (RouteHelperStatus) {
     RouteHelperStatus[RouteHelperStatus["Initial"] = 0] = "Initial";
@@ -72,9 +77,10 @@ var RouteHelperStatus;
     RouteHelperStatus[RouteHelperStatus["Loaded"] = 2] = "Loaded";
     RouteHelperStatus[RouteHelperStatus["Failed"] = 3] = "Failed";
 })(RouteHelperStatus || (RouteHelperStatus = {}));
+//# sourceMappingURL=types.js.map
 
 function useManager(_a) {
-    var guards = _a.guards;
+    var guards = _a.guards, resolvers = _a.resolvers;
     function evaluateGuards() {
         return __awaiter(this, void 0, void 0, function () {
             var _i, guards_1, guard, canActivate, e_1;
@@ -109,27 +115,33 @@ function useManager(_a) {
             });
         });
     }
-    // async function loadResolvers() {
-    //   const keys = Object.keys(resolvers).map(resolverKey => resolverKey);
-    //   const promises = Object.keys(resolvers).map(resolverKey => resolvers[resolverKey].resolve());
-    //   const resultOfResolvers = await Promise.all(promises).catch(e => {
-    //     console.error('Error in resolvers');
-    //     console.error(e);
-    //   });
-    //   return (resultOfResolvers as []).reduce((acc, next, index) => {
-    //     const key = keys[index];
-    //     return { ...acc, [key]: next };
-    //   }, {});
-    // }
-    // function getRedirectUrl(): string | undefined {
-    //   if (infoAboutComponent.current[pathname].redirectUrl) {
-    //     return infoAboutComponent.current[pathname].redirectUrl as string;
-    //   };
-    // }
+    function evaluateResolvers() {
+        return __awaiter(this, void 0, void 0, function () {
+            var keys, promises, resultOfResolvers;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        keys = Object.keys(resolvers).map(function (resolverKey) { return resolverKey; });
+                        promises = Object.keys(resolvers).map(function (resolverKey) { return resolvers[resolverKey](); });
+                        return [4 /*yield*/, Promise.all(promises).catch(function (e) {
+                                console.error('Error in resolvers');
+                                console.error(e);
+                            })];
+                    case 1:
+                        resultOfResolvers = _a.sent();
+                        return [2 /*return*/, resultOfResolvers.reduce(function (acc, next, index) {
+                                var _a;
+                                var key = keys[index];
+                                return __assign(__assign({}, acc), (_a = {}, _a[key] = next, _a));
+                            }, {})];
+                }
+            });
+        });
+    }
     function getStatusBeforeEvaluating() {
         return guards.length === 0 ? RouteHelperStatus.Loaded : RouteHelperStatus.Loading;
     }
-    return { evaluateGuards: evaluateGuards, getStatusBeforeEvaluating: getStatusBeforeEvaluating };
+    return { evaluateGuards: evaluateGuards, getStatusBeforeEvaluating: getStatusBeforeEvaluating, evaluateResolvers: evaluateResolvers };
 }
 function useStatusNotification(receiver) {
     var stackRef = useRef([]);
@@ -143,16 +155,8 @@ function useStatusNotification(receiver) {
     };
 }
 
-//   // TODO: Add guards tests
-//
-//   // TODO: Add ability to show loading
-//
 //   // TODO: Add resolvers
 //   // TODO: Add resolvers tests
-//
-//   // TODO: Add something like (useRoutes) with RouteHelper
-//   // TODO: Add something like (useRoutes) with RouteHelper tests
-//
 //   // TODO: Add metadata (title)
 //   // TODO: Add metadata (title) tests
 //
@@ -163,8 +167,12 @@ function useStatusNotification(receiver) {
 //   // TODO: Add server side plug tests
 //
 var RouteHelper = function (props) {
-    var manager = useManager({ guards: props.guards || [] });
+    var manager = useManager({
+        guards: props.guards || [],
+        resolvers: props.resolvers || {},
+    });
     var _a = useState(RouteHelperStatus.Initial), status = _a[0], setStatus = _a[1];
+    var _b = useState({}), loadedResolverInfos = _b[0], setLoadedResolverInfos = _b[1];
     var notification = useStatusNotification(props.onStatusChange);
     var evaluateGuards = function () { return __awaiter(void 0, void 0, void 0, function () {
         var initialStatus, guardStatus;
@@ -183,6 +191,18 @@ var RouteHelper = function (props) {
             }
         });
     }); };
+    var evaluateResolvers = function () { return __awaiter(void 0, void 0, void 0, function () {
+        var result;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, manager.evaluateResolvers()];
+                case 1:
+                    result = _a.sent();
+                    setLoadedResolverInfos(result);
+                    return [2 /*return*/];
+            }
+        });
+    }); };
     useEffect(function () {
         (function () { return __awaiter(void 0, void 0, void 0, function () {
             return __generator(this, function (_a) {
@@ -190,13 +210,19 @@ var RouteHelper = function (props) {
                     case 0: return [4 /*yield*/, evaluateGuards()];
                     case 1:
                         _a.sent();
+                        return [4 /*yield*/, evaluateResolvers()];
+                    case 2:
+                        _a.sent();
                         return [2 /*return*/];
                 }
             });
         }); })();
     }, []);
     if (status == RouteHelperStatus.Loaded) {
-        return React.createElement(React.Fragment, null, props.element);
+        return (React.createElement(RouteContext.Provider, { value: {
+                routeResolverInfos: loadedResolverInfos,
+            } },
+            React.createElement(RouteContext.Consumer, null, function () { return props.element; })));
     }
     return React.createElement(React.Fragment, null);
 };
@@ -214,4 +240,9 @@ var useRoutesWithHelper = function (routes, locationArg) {
     return useRoutes(wrapRoutesToHelper(routes), locationArg);
 };
 
-export { RouteHelper, RouteHelperStatus, useRoutesWithHelper };
+function useResolver() {
+    return React.useContext(RouteContext).routeResolverInfos;
+}
+//# sourceMappingURL=hooks.js.map
+
+export { RouteHelper, RouteHelperStatus, useResolver, useRoutesWithHelper };

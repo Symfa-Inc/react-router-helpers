@@ -1,28 +1,19 @@
-import React from 'react';
 import { RouteObject } from 'react-router-dom';
 
-// export interface Guard {
-//   canActivate(): Promise<boolean> | boolean;
-//
-//   redirectUrl?: string;
-// }
 export type Guard = () => Promise<boolean> | boolean;
+
+export type Resolver = () => Promise<any> | Promise<void> | any | void;
 
 export interface OnlyHelperFields {
   guards?: Guard[];
+  resolvers?: Record<string, Resolver>;
   onStatusChange?: (status: RouteHelperStatus) => void;
-}
-
-export interface RouteHelperProps extends OnlyHelperFields {
-  element: JSX.Element | React.ReactNode;
 }
 
 export interface HelperRouteObject extends RouteObject, OnlyHelperFields {
   children?: HelperRouteObject[];
 }
-export interface HelperRouteObjectProps extends Omit<HelperRouteObject, 'path'> {
-
-}
+export type HelperRouteObjectProps = Omit<HelperRouteObject, 'path'>;
 
 export enum RouteHelperStatus {
   Initial,
@@ -32,7 +23,7 @@ export enum RouteHelperStatus {
 }
 
 export interface HelperManager {
-  // resolvers: PropsResolvers;
+  resolvers: Record<string, Resolver>;
   guards: Guard[];
   // pathname: string;
   // redirectUrl?: string;

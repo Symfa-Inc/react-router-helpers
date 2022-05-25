@@ -1,17 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { useManager, useStatusNotification } from './hooks';
+import { RouteContext } from './context';
+import { useManager, useStatusNotification } from './inner-hooks';
 import { HelperRouteObject, HelperRouteObjectProps, OnlyHelperFields, RouteHelperStatus } from './types';
 
-//   // TODO: Add guards tests
-//
-//   // TODO: Add ability to show loading
-//
 //   // TODO: Add resolvers
 //   // TODO: Add resolvers tests
-//
-//   // TODO: Add something like (useRoutes) with RouteHelper
-//   // TODO: Add something like (useRoutes) with RouteHelper tests
-//
+
 //   // TODO: Add metadata (title)
 //   // TODO: Add metadata (title) tests
 //
@@ -23,8 +17,13 @@ import { HelperRouteObject, HelperRouteObjectProps, OnlyHelperFields, RouteHelpe
 //
 
 export const RouteHelper = (props: HelperRouteObjectProps) => {
-  const manager = useManager({ guards: props.guards || [] });
+  const manager = useManager({
+    guards: props.guards || [],
+    resolvers: props.resolvers || {},
+  });
   const [status, setStatus] = useState<RouteHelperStatus>(RouteHelperStatus.Initial);
+  const [loadedResolverInfos, setLoadedResolverInfos] = useState({});
+
   const notification = useStatusNotification(props.onStatusChange);
 
   const evaluateGuards = async () => {
@@ -39,14 +38,28 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
     notification.notify(guardStatus);
   };
 
+  const evaluateResolvers = async () => {
+    const result = await manager.evaluateResolvers();
+    setLoadedResolverInfos(result);
+  };
+
   useEffect(() => {
     (async () => {
       await evaluateGuards();
+      await evaluateResolvers();
     })();
   }, []);
 
   if (status == RouteHelperStatus.Loaded) {
-    return <>{props.element}</>;
+    return (
+      <RouteContext.Provider
+        value={{
+          routeResolverInfos: loadedResolverInfos,
+        }}
+      >
+        <RouteContext.Consumer>{() => props.element}</RouteContext.Consumer>
+      </RouteContext.Provider>
+    );
   }
 
   return <></>;

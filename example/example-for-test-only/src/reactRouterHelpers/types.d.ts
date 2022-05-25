@@ -1,18 +1,15 @@
-import React from 'react';
 import { RouteObject } from 'react-router-dom';
 export declare type Guard = () => Promise<boolean> | boolean;
+export declare type Resolver = () => Promise<any> | Promise<void> | any | void;
 export interface OnlyHelperFields {
     guards?: Guard[];
+    resolvers?: Record<string, Resolver>;
     onStatusChange?: (status: RouteHelperStatus) => void;
-}
-export interface RouteHelperProps extends OnlyHelperFields {
-    element: JSX.Element | React.ReactNode;
 }
 export interface HelperRouteObject extends RouteObject, OnlyHelperFields {
     children?: HelperRouteObject[];
 }
-export interface HelperRouteObjectProps extends Omit<HelperRouteObject, 'path'> {
-}
+export declare type HelperRouteObjectProps = Omit<HelperRouteObject, 'path'>;
 export declare enum RouteHelperStatus {
     Initial = 0,
     Loading = 1,
@@ -20,6 +17,7 @@ export declare enum RouteHelperStatus {
     Failed = 3
 }
 export interface HelperManager {
+    resolvers: Record<string, Resolver>;
     guards: Guard[];
 }
 export declare type StatusChangeReceiver = (status: RouteHelperStatus) => void;
