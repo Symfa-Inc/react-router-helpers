@@ -1,8 +1,7 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { act } from 'react-dom/test-utils';
-// import { act } from 'react-dom/test-utils';
-import { Link, MemoryRouter, Outlet, Route, Routes } from 'react-router-dom';
+import { Link, MemoryRouter, Outlet } from 'react-router-dom';
 import * as TestRenderer from 'react-test-renderer';
 import { HelperRouteObject } from '../types';
 import { guardWaitTimeBeforeCheck, mockGuardWorkTime } from './utils/guard-utils';
@@ -11,8 +10,6 @@ import { MockShouldNeverBeCalledGuard } from './utils/mock-should-never-be-calle
 import { MockSyncGuard } from './utils/mock-sync-guard';
 import { RoutesRenderer } from './utils/RoutesRenderer';
 import { wait } from './utils/wait';
-
-// const mockGuardWorkTime = 200;
 
 function click(anchor: HTMLAnchorElement, eventInit?: MouseEventInit) {
   const event = new MouseEvent('click', {
@@ -302,7 +299,7 @@ describe('Guards in route', () => {
         {
           path: '/',
           element: <div>Home</div>,
-          guards: [new MockAsyncGuard(false, mockGuardWorkTime), new MockAsyncGuard(false, mockGuardWorkTime)],
+          guards: [new MockSyncGuard(false, mockGuardWorkTime), new MockSyncGuard(false, mockGuardWorkTime)],
         },
       ];
 
@@ -993,7 +990,7 @@ describe('Guards in route', () => {
         expect(parentOutlet).not.toBeNull();
         expect(parentOutlet!.children.length).toBe(0);
 
-        const linkToFirstChild = node.querySelector('#link-to-first-child');
+        let linkToFirstChild = node.querySelector('#link-to-first-child');
         expect(linkToFirstChild).not.toBeNull();
 
         let event: MouseEvent;
@@ -1077,6 +1074,43 @@ describe('Guards in route', () => {
         expect(thirdChildContent.innerHTML).toMatch('Child 3');
 
         // check reverse link clicking to the parent
+
+        linkToSecondChild = node.querySelector('#link-to-second-child');
+        expect(linkToSecondChild).not.toBeNull();
+
+        // Click back to the previous child link <Child2 />
+        let event4: MouseEvent;
+        act(() => {
+          event4 = click(linkToSecondChild);
+        });
+
+        expect(event4.defaultPrevented).toBe(true);
+
+        // Just after click, we should be able to see <Child2 /> and <Child3 /> should disappear
+        thirdChildContent = node.querySelector('#third-child-content');
+        linkToThirdChild = node.querySelector('#link-to-third-child');
+
+        expect(linkToThirdChild).not.toBeNull();
+        expect(thirdChildContent).toBeNull();
+
+        linkToFirstChild = node.querySelector('#link-to-first-child');
+
+        expect(linkToFirstChild).not.toBeNull();
+        expect(firstChildOutlet).not.toBeNull();
+
+        let event5: MouseEvent;
+        act(() => {
+          event5 = click(linkToFirstChild);
+        });
+
+        expect(event5.defaultPrevented).toBe(true);
+
+        parentOutlet = node.querySelector('#parent-outlet');
+        firstChildOutlet = node.querySelector('#first-child-outlet');
+
+        expect(firstChildOutlet).not.toBeNull();
+        expect(firstChildOutlet!.children.length).toBe(0);
+        expect(parentOutlet!.children.length).toBe(1);
       });
     });
   });
