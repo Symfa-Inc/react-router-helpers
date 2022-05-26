@@ -68,7 +68,6 @@ function __generator(thisArg, body) {
 var RouteContext = React.createContext({
     routeResolverInfos: {},
 });
-//# sourceMappingURL=context.js.map
 
 var RouteHelperStatus;
 (function (RouteHelperStatus) {
@@ -77,7 +76,6 @@ var RouteHelperStatus;
     RouteHelperStatus[RouteHelperStatus["Loaded"] = 2] = "Loaded";
     RouteHelperStatus[RouteHelperStatus["Failed"] = 3] = "Failed";
 })(RouteHelperStatus || (RouteHelperStatus = {}));
-//# sourceMappingURL=types.js.map
 
 function useManager(_a) {
     var guards = _a.guards, resolvers = _a.resolvers;
@@ -117,39 +115,60 @@ function useManager(_a) {
     }
     function evaluateResolvers() {
         return __awaiter(this, void 0, void 0, function () {
-            var keys, promises, resultOfResolvers;
+            var status, keys, promises, resultOfResolvers, infos;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
+                        status = RouteHelperStatus.Loaded;
                         keys = Object.keys(resolvers).map(function (resolverKey) { return resolverKey; });
                         promises = Object.keys(resolvers).map(function (resolverKey) { return resolvers[resolverKey](); });
                         return [4 /*yield*/, Promise.all(promises).catch(function (e) {
                                 console.error('Error in resolvers');
                                 console.error(e);
+                                status = RouteHelperStatus.Failed;
                             })];
                     case 1:
                         resultOfResolvers = _a.sent();
-                        return [2 /*return*/, resultOfResolvers.reduce(function (acc, next, index) {
-                                var _a;
-                                var key = keys[index];
-                                return __assign(__assign({}, acc), (_a = {}, _a[key] = next, _a));
-                            }, {})];
+                        infos = resultOfResolvers.reduce(function (acc, next, index) {
+                            var _a;
+                            var key = keys[index];
+                            return __assign(__assign({}, acc), (_a = {}, _a[key] = next, _a));
+                        }, {});
+                        return [2 /*return*/, {
+                                infos: infos,
+                                status: status
+                            }];
                 }
             });
         });
     }
-    function getStatusBeforeEvaluating() {
+    function getGuardsStatusBeforeEvaluating() {
         return guards.length === 0 ? RouteHelperStatus.Loaded : RouteHelperStatus.Loading;
     }
-    return { evaluateGuards: evaluateGuards, getStatusBeforeEvaluating: getStatusBeforeEvaluating, evaluateResolvers: evaluateResolvers };
-}
-function useStatusNotification(receiver) {
-    var stackRef = useRef([]);
+    function getResolversStatusBeforeEvaluating() {
+        return Object.keys(resolvers).length === 0 ? RouteHelperStatus.Loaded : RouteHelperStatus.Loading;
+    }
     return {
-        notify: function (status) {
-            if (receiver != null && stackRef.current[stackRef.current.length - 1] !== status) {
-                stackRef.current.push(status);
-                receiver(status);
+        evaluateGuards: evaluateGuards,
+        getGuardsStatusBeforeEvaluating: getGuardsStatusBeforeEvaluating,
+        evaluateResolvers: evaluateResolvers,
+        getResolversStatusBeforeEvaluating: getResolversStatusBeforeEvaluating
+    };
+}
+function useStatusNotification(guardsStatusChangeReceiver, resolversStatusChangeReceiver) {
+    var stackGuardsRef = useRef([]);
+    var stackResolversRef = useRef([]);
+    return {
+        notifyGuardStatusChange: function (status) {
+            if (guardsStatusChangeReceiver != null && stackGuardsRef.current[stackGuardsRef.current.length - 1] !== status) {
+                stackGuardsRef.current.push(status);
+                guardsStatusChangeReceiver(status);
+            }
+        },
+        notifyResolversStatusChange: function (status) {
+            if (resolversStatusChangeReceiver != null && stackResolversRef.current[stackResolversRef.current.length - 1] !== status) {
+                stackResolversRef.current.push(status);
+                resolversStatusChangeReceiver(status);
             }
         },
     };
@@ -167,38 +186,56 @@ function useStatusNotification(receiver) {
 //   // TODO: Add server side plug tests
 //
 var RouteHelper = function (props) {
+    var guards = props.guards || [];
+    var resolvers = props.resolvers || {};
     var manager = useManager({
-        guards: props.guards || [],
-        resolvers: props.resolvers || {},
+        guards: guards.map(function (g) { return g(); }),
+        resolvers: Object.keys(resolvers).reduce(function (acc, next) {
+            var _a;
+            return (__assign(__assign({}, acc), (_a = {}, _a[next] = resolvers[next](), _a)));
+        }, {}),
     });
-    var _a = useState(RouteHelperStatus.Initial), status = _a[0], setStatus = _a[1];
-    var _b = useState({}), loadedResolverInfos = _b[0], setLoadedResolverInfos = _b[1];
-    var notification = useStatusNotification(props.onStatusChange);
-    var evaluateGuards = function () { return __awaiter(void 0, void 0, void 0, function () {
-        var initialStatus, guardStatus;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
+    var _a = useState(RouteHelperStatus.Initial), guardsStatus = _a[0], setGuardsStatus = _a[1];
+    var _b = useState(RouteHelperStatus.Initial), resolversStatus = _b[0], setResolversStatus = _b[1];
+    var _c = useState({}), loadedResolverInfos = _c[0], setLoadedResolverInfos = _c[1];
+    var notification = useStatusNotification(props.onGuardsStatusChange, props.onResolversStatusChange);
+    var evaluateResolvers = function () { return __awaiter(void 0, void 0, void 0, function () {
+        var initialStatus, _a, status, infos;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
                 case 0:
-                    initialStatus = manager.getStatusBeforeEvaluating();
-                    setStatus(initialStatus);
-                    notification.notify(initialStatus);
-                    return [4 /*yield*/, manager.evaluateGuards()];
+                    initialStatus = manager.getResolversStatusBeforeEvaluating();
+                    setResolversStatus(initialStatus);
+                    notification.notifyResolversStatusChange(initialStatus);
+                    return [4 /*yield*/, manager.evaluateResolvers()];
                 case 1:
-                    guardStatus = _a.sent();
-                    setStatus(guardStatus);
-                    notification.notify(guardStatus);
+                    _a = _b.sent(), status = _a.status, infos = _a.infos;
+                    setLoadedResolverInfos(infos);
+                    setResolversStatus(status);
+                    notification.notifyResolversStatusChange(status);
                     return [2 /*return*/];
             }
         });
     }); };
-    var evaluateResolvers = function () { return __awaiter(void 0, void 0, void 0, function () {
-        var result;
+    var evaluateGuardsAndResolvers = function () { return __awaiter(void 0, void 0, void 0, function () {
+        var initialStatus, guardStatus;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, manager.evaluateResolvers()];
+                case 0:
+                    initialStatus = manager.getGuardsStatusBeforeEvaluating();
+                    setGuardsStatus(initialStatus);
+                    notification.notifyGuardStatusChange(initialStatus);
+                    return [4 /*yield*/, manager.evaluateGuards()];
                 case 1:
-                    result = _a.sent();
-                    setLoadedResolverInfos(result);
+                    guardStatus = _a.sent();
+                    notification.notifyGuardStatusChange(guardStatus);
+                    if (!(guardStatus == RouteHelperStatus.Loaded)) return [3 /*break*/, 3];
+                    return [4 /*yield*/, evaluateResolvers()];
+                case 2:
+                    _a.sent();
+                    _a.label = 3;
+                case 3:
+                    setGuardsStatus(guardStatus);
                     return [2 /*return*/];
             }
         });
@@ -207,18 +244,15 @@ var RouteHelper = function (props) {
         (function () { return __awaiter(void 0, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, evaluateGuards()];
+                    case 0: return [4 /*yield*/, evaluateGuardsAndResolvers()];
                     case 1:
-                        _a.sent();
-                        return [4 /*yield*/, evaluateResolvers()];
-                    case 2:
                         _a.sent();
                         return [2 /*return*/];
                 }
             });
         }); })();
     }, []);
-    if (status == RouteHelperStatus.Loaded) {
+    if (guardsStatus == RouteHelperStatus.Loaded && resolversStatus === RouteHelperStatus.Loaded) {
         return (React.createElement(RouteContext.Provider, { value: {
                 routeResolverInfos: loadedResolverInfos,
             } },
@@ -243,6 +277,5 @@ var useRoutesWithHelper = function (routes, locationArg) {
 function useResolver() {
     return React.useContext(RouteContext).routeResolverInfos;
 }
-//# sourceMappingURL=hooks.js.map
 
 export { RouteHelper, RouteHelperStatus, useResolver, useRoutesWithHelper };

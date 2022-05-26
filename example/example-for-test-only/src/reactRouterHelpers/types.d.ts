@@ -1,10 +1,13 @@
 import { RouteObject } from 'react-router-dom';
-export declare type Guard = () => Promise<boolean> | boolean;
-export declare type Resolver = () => Promise<any> | Promise<void> | any | void;
+export declare type Guard = () => () => Promise<boolean> | boolean;
+export declare type InnerGuard = () => Promise<boolean> | boolean;
+export declare type Resolver = () => () => Promise<any> | Promise<void> | any | void;
+export declare type InnerResolver = () => Promise<any> | Promise<void> | any | void;
 export interface OnlyHelperFields {
     guards?: Guard[];
     resolvers?: Record<string, Resolver>;
-    onStatusChange?: (status: RouteHelperStatus) => void;
+    onGuardsStatusChange?: (status: RouteHelperStatus) => void;
+    onResolversStatusChange?: (status: RouteHelperStatus) => void;
 }
 export interface HelperRouteObject extends RouteObject, OnlyHelperFields {
     children?: HelperRouteObject[];
@@ -17,7 +20,7 @@ export declare enum RouteHelperStatus {
     Failed = 3
 }
 export interface HelperManager {
-    resolvers: Record<string, Resolver>;
-    guards: Guard[];
+    resolvers: Record<string, InnerResolver>;
+    guards: InnerGuard[];
 }
 export declare type StatusChangeReceiver = (status: RouteHelperStatus) => void;

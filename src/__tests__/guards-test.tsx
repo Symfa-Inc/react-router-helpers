@@ -1,12 +1,12 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { act } from 'react-dom/test-utils';
-import { Link, MemoryRouter, Outlet } from 'react-router-dom';
+import { Link, MemoryRouter, Outlet, useParams } from 'react-router-dom';
 import * as TestRenderer from 'react-test-renderer';
 import { HelperRouteObject } from '../types';
 import { guardWaitTimeBeforeCheck, mockGuardWorkTime } from './utils/guard-utils';
 import { mockAsyncGuard } from './utils/mock-async-guard';
-import { MockShouldNeverBeCalledGuard } from './utils/mock-should-never-be-called-guard';
+import { mockShouldNeverBeCalledGuard, MockShouldNeverBeCalledGuard } from './utils/mock-should-never-be-called-guard';
 import { mockSyncGuard } from './utils/mock-sync-guard';
 import { RoutesRenderer } from './utils/RoutesRenderer';
 import { wait } from './utils/wait';
@@ -325,7 +325,7 @@ describe('Guards in route', () => {
           {
             path: '/',
             element: <div>Home</div>,
-            guards: [mockSyncGuard(false), new MockShouldNeverBeCalledGuard(counter)],
+            guards: [mockSyncGuard(false), mockShouldNeverBeCalledGuard(counter)],
           },
         ];
 
@@ -347,7 +347,7 @@ describe('Guards in route', () => {
           {
             path: '/',
             element: <div>Home</div>,
-            guards: [mockSyncGuard(true), mockSyncGuard(false), new MockShouldNeverBeCalledGuard(counter)],
+            guards: [mockSyncGuard(true), mockSyncGuard(false), mockShouldNeverBeCalledGuard(counter)],
           },
         ];
 
@@ -371,7 +371,7 @@ describe('Guards in route', () => {
           {
             path: '/',
             element: <div>Home</div>,
-            guards: [mockAsyncGuard(false, mockGuardWorkTime), new MockShouldNeverBeCalledGuard(counter)],
+            guards: [mockAsyncGuard(false, mockGuardWorkTime), mockShouldNeverBeCalledGuard(counter)],
           },
         ];
 
@@ -396,7 +396,7 @@ describe('Guards in route', () => {
             guards: [
               mockAsyncGuard(true, mockGuardWorkTime),
               mockAsyncGuard(false, mockGuardWorkTime),
-              new MockShouldNeverBeCalledGuard(counter),
+              mockShouldNeverBeCalledGuard(counter),
             ],
           },
         ];
@@ -1111,6 +1111,78 @@ describe('Guards in route', () => {
         expect(firstChildOutlet).not.toBeNull();
         expect(firstChildOutlet!.children.length).toBe(0);
         expect(parentOutlet!.children.length).toBe(1);
+      });
+    });
+  });
+
+  describe('guards has access to standard hook functionality', () => {
+    describe('has access to useParamsWithContext', () => {
+      const guardWithParams = () => {
+        const params = useParams<{ id: string }>();
+        return () => {
+          return params.id == '1234';
+        };
+      };
+
+      const routes = [
+        {
+          path: '/home',
+          element: (
+            <div>
+              Home <Outlet />
+            </div>
+          ),
+          children: [
+            {
+              path: ':id',
+              guards: [guardWithParams],
+              element: <div>Child</div>,
+            },
+          ],
+        },
+      ];
+
+      it('should return rendered page', async () => {
+        let renderer: TestRenderer.ReactTestRenderer;
+
+        TestRenderer.act(() => {
+          renderer = TestRenderer.create(
+            <MemoryRouter initialEntries={['/home/1234']}>
+              <RoutesRenderer routes={routes} location={{ pathname: '/home/1234' }} />
+            </MemoryRouter>,
+          );
+        });
+
+        await wait(1);
+
+        expect(renderer.toJSON()).toMatchInlineSnapshot(`
+                  <div>
+                    Home 
+                    <div>
+                      Child
+                    </div>
+                  </div>
+              `);
+      });
+
+      it('should not return rendered child page, different value in params', async () => {
+        let renderer: TestRenderer.ReactTestRenderer;
+
+        TestRenderer.act(() => {
+          renderer = TestRenderer.create(
+            <MemoryRouter initialEntries={['/home/12345']}>
+              <RoutesRenderer routes={routes} location={{ pathname: '/home/12345' }} />
+            </MemoryRouter>,
+          );
+        });
+
+        await wait(1);
+
+        expect(renderer.toJSON()).toMatchInlineSnapshot(`
+          <div>
+            Home 
+          </div>
+        `);
       });
     });
   });

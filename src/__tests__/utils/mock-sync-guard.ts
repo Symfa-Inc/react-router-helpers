@@ -1,3 +1,3 @@
-export const mockSyncGuard = (canActivate: boolean) => () => {
+export const mockSyncGuard = (canActivate: boolean) => () => () => {
   return canActivate;
 };

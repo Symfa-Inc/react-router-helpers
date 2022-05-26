@@ -1,9 +1,14 @@
 import { HelperManager, RouteHelperStatus, StatusChangeReceiver } from './types';
 export declare function useManager({ guards, resolvers }: HelperManager): {
     evaluateGuards: () => Promise<RouteHelperStatus>;
-    getStatusBeforeEvaluating: () => RouteHelperStatus;
-    evaluateResolvers: () => Promise<{}>;
+    getGuardsStatusBeforeEvaluating: () => RouteHelperStatus;
+    evaluateResolvers: () => Promise<{
+        infos: {};
+        status: RouteHelperStatus.Loaded;
+    }>;
+    getResolversStatusBeforeEvaluating: () => RouteHelperStatus;
 };
-export declare function useStatusNotification(receiver?: StatusChangeReceiver): {
-    notify: (status: RouteHelperStatus) => void;
+export declare function useStatusNotification(guardsStatusChangeReceiver?: StatusChangeReceiver, resolversStatusChangeReceiver?: StatusChangeReceiver): {
+    notifyGuardStatusChange: (status: RouteHelperStatus) => void;
+    notifyResolversStatusChange: (status: RouteHelperStatus) => void;
 };

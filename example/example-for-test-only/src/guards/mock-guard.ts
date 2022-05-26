@@ -1,20 +1,5 @@
-import { Guard } from "../reactRouterHelpers";
+import { useParams } from 'react-router-dom';
 
-
-// export class MockGuard implements Guard {
-//   constructor(private can: boolean = true) {
-//   }
-//   async canActivate(): Promise<boolean> {
-//     await this.wait(2000);
-//     return this.can;
-//   }
-//
-//   private wait(number = 1000) {
-//     return new Promise(res => {
-//       setTimeout(res, number);
-//     })
-//   }
-// }
 
 export const mockGuard = (canActivate: boolean = true) => async () => {
   await wait(2000);
@@ -22,7 +7,18 @@ export const mockGuard = (canActivate: boolean = true) => async () => {
 };
 
 function wait(number = 1000) {
-    return new Promise(res => {
-      setTimeout(res, number);
-    })
-  }
+  return new Promise(res => {
+    setTimeout(res, number);
+  });
+}
+
+export const useGuardWithParams = () => {
+  const test = useParams();
+
+  return () => {
+
+    console.log(test);
+
+    return true;
+  };
+};

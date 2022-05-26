@@ -8,7 +8,7 @@ import { mockSyncGuard } from './utils/mock-sync-guard';
 import { RoutesRenderer } from './utils/RoutesRenderer';
 import { wait } from './utils/wait';
 
-describe('onStatusChange function', () => {
+describe('onGuardStatusChange function', () => {
   describe('with sync guards', () => {
     it('for component without guards', async () => {
       let renderer: TestRenderer.ReactTestRenderer;
@@ -19,7 +19,7 @@ describe('onStatusChange function', () => {
           path: '/',
           element: <div>Home</div>,
           guards: [],
-          onStatusChange: (status: RouteHelperStatus) => {
+          onGuardsStatusChange: (status: RouteHelperStatus) => {
             statuses.push(status);
           },
         },
@@ -47,7 +47,7 @@ describe('onStatusChange function', () => {
           path: '/',
           element: <div>Home</div>,
           guards: [mockSyncGuard(true), mockSyncGuard(true)],
-          onStatusChange: (status: RouteHelperStatus) => {
+          onGuardsStatusChange: (status: RouteHelperStatus) => {
             statuses.push(status);
           },
         },
@@ -78,7 +78,7 @@ describe('onStatusChange function', () => {
           path: '/',
           element: <div>Home</div>,
           guards: [mockSyncGuard(false), mockSyncGuard(true)],
-          onStatusChange: (status: RouteHelperStatus) => {
+          onGuardsStatusChange: (status: RouteHelperStatus) => {
             statuses.push(status);
           },
         },
@@ -109,7 +109,7 @@ describe('onStatusChange function', () => {
           path: '/',
           element: <div>Home</div>,
           guards: [mockSyncGuard(true), mockSyncGuard(false)],
-          onStatusChange: (status: RouteHelperStatus) => {
+          onGuardsStatusChange: (status: RouteHelperStatus) => {
             statuses.push(status);
           },
         },
@@ -143,7 +143,7 @@ describe('onStatusChange function', () => {
           path: '/',
           element: <div>Home</div>,
           guards: [mockAsyncGuard(true, mockGuardWorkTime), mockAsyncGuard(true, mockGuardWorkTime)],
-          onStatusChange: (status: RouteHelperStatus) => {
+          onGuardsStatusChange: (status: RouteHelperStatus) => {
             statuses.push(status);
           },
         },
@@ -174,7 +174,7 @@ describe('onStatusChange function', () => {
           path: '/',
           element: <div>Home</div>,
           guards: [mockAsyncGuard(false, mockGuardWorkTime), mockAsyncGuard(true, mockGuardWorkTime)],
-          onStatusChange: (status: RouteHelperStatus) => {
+          onGuardsStatusChange: (status: RouteHelperStatus) => {
             statuses.push(status);
           },
         },
@@ -205,7 +205,7 @@ describe('onStatusChange function', () => {
           path: '/',
           element: <div>Home</div>,
           guards: [mockAsyncGuard(true, mockGuardWorkTime), mockAsyncGuard(false, mockGuardWorkTime)],
-          onStatusChange: (status: RouteHelperStatus) => {
+          onGuardsStatusChange: (status: RouteHelperStatus) => {
             statuses.push(status);
           },
         },

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { RouteContext } from './context';
 import { useManager, useStatusNotification } from './inner-hooks';
-import { HelperRouteObject, HelperRouteObjectProps, OnlyHelperFields, RouteHelperStatus } from './types';
+import { HelperRouteObjectProps, OnlyHelperFields, RouteHelperStatus } from './types';
 
 //   // TODO: Add resolvers
 //   // TODO: Add resolvers tests
@@ -17,40 +17,57 @@ import { HelperRouteObject, HelperRouteObjectProps, OnlyHelperFields, RouteHelpe
 //
 
 export const RouteHelper = (props: HelperRouteObjectProps) => {
+  const guards = props.guards || [];
+  const resolvers = props.resolvers || {};
+
   const manager = useManager({
-    guards: props.guards || [],
-    resolvers: props.resolvers || {},
+    guards: guards.map(g => g()),
+    resolvers: Object.keys(resolvers).reduce((acc, next) => ({ ...acc, [next]: resolvers[next]() }), {}),
   });
-  const [status, setStatus] = useState<RouteHelperStatus>(RouteHelperStatus.Initial);
+
+  const [guardsStatus, setGuardsStatus] = useState<RouteHelperStatus>(RouteHelperStatus.Initial);
+  const [resolversStatus, setResolversStatus] = useState<RouteHelperStatus>(RouteHelperStatus.Initial);
   const [loadedResolverInfos, setLoadedResolverInfos] = useState({});
 
-  const notification = useStatusNotification(props.onStatusChange);
+  const notification = useStatusNotification(props.onGuardsStatusChange, props.onResolversStatusChange);
 
-  const evaluateGuards = async () => {
-    const initialStatus = manager.getStatusBeforeEvaluating();
+  const evaluateResolvers = async () => {
+    const initialStatus = manager.getResolversStatusBeforeEvaluating();
 
-    setStatus(initialStatus);
-    notification.notify(initialStatus);
+    setResolversStatus(initialStatus);
+    notification.notifyResolversStatusChange(initialStatus);
+
+    const { status, infos } = await manager.evaluateResolvers();
+    setLoadedResolverInfos(infos);
+    setResolversStatus(status);
+
+    notification.notifyResolversStatusChange(status);
+  };
+
+  const evaluateGuardsAndResolvers = async () => {
+    const initialStatus = manager.getGuardsStatusBeforeEvaluating();
+
+    setGuardsStatus(initialStatus);
+    notification.notifyGuardStatusChange(initialStatus);
 
     const guardStatus = await manager.evaluateGuards();
 
-    setStatus(guardStatus);
-    notification.notify(guardStatus);
-  };
+    notification.notifyGuardStatusChange(guardStatus);
 
-  const evaluateResolvers = async () => {
-    const result = await manager.evaluateResolvers();
-    setLoadedResolverInfos(result);
+    if (guardStatus == RouteHelperStatus.Loaded) {
+      await evaluateResolvers();
+    }
+
+    setGuardsStatus(guardStatus);
   };
 
   useEffect(() => {
     (async () => {
-      await evaluateGuards();
-      await evaluateResolvers();
+      await evaluateGuardsAndResolvers();
     })();
   }, []);
 
-  if (status == RouteHelperStatus.Loaded) {
+  if (guardsStatus == RouteHelperStatus.Loaded && resolversStatus === RouteHelperStatus.Loaded) {
     return (
       <RouteContext.Provider
         value={{

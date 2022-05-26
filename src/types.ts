@@ -1,18 +1,22 @@
 import { RouteObject } from 'react-router-dom';
 
-export type Guard = () => Promise<boolean> | boolean;
+export type Guard = () => () => Promise<boolean> | boolean;
+export type InnerGuard = () => Promise<boolean> | boolean;
 
-export type Resolver = () => Promise<any> | Promise<void> | any | void;
+export type Resolver = () => () => Promise<any> | Promise<void> | any | void;
+export type InnerResolver = () => Promise<any> | Promise<void> | any | void;
 
 export interface OnlyHelperFields {
   guards?: Guard[];
   resolvers?: Record<string, Resolver>;
-  onStatusChange?: (status: RouteHelperStatus) => void;
+  onGuardsStatusChange?: (status: RouteHelperStatus) => void;
+  onResolversStatusChange?: (status: RouteHelperStatus) => void;
 }
 
 export interface HelperRouteObject extends RouteObject, OnlyHelperFields {
   children?: HelperRouteObject[];
 }
+
 export type HelperRouteObjectProps = Omit<HelperRouteObject, 'path'>;
 
 export enum RouteHelperStatus {
@@ -23,10 +27,8 @@ export enum RouteHelperStatus {
 }
 
 export interface HelperManager {
-  resolvers: Record<string, Resolver>;
-  guards: Guard[];
-  // pathname: string;
-  // redirectUrl?: string;
+  resolvers: Record<string, InnerResolver>;
+  guards: InnerGuard[];
 }
 
 export type StatusChangeReceiver = (status: RouteHelperStatus) => void;
