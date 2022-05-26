@@ -121,17 +121,23 @@ const RoutesWrapper = () => {
       // resolvers: {
       //   test: useResolverForHome
       // },
-      onGuardsStatusChange: (status: RouteHelperStatus) => {
-        console.log("onGuardsStatusChange", RouteHelperStatus[status]);
-      },
-      onResolversStatusChange: (status: RouteHelperStatus) => {
-        console.log("onResolversStatusChange", RouteHelperStatus[status]);
-      },
+      // onGuardsStatusChange: (status: RouteHelperStatus) => {
+      //   console.log("onGuardsStatusChange", RouteHelperStatus[status]);
+      // },
+      // onResolversStatusChange: (status: RouteHelperStatus) => {
+      //   console.log("onResolversStatusChange", RouteHelperStatus[status]);
+      // },
       children: [
         {
           path: "child",
           element: <Child />,
-
+          guards: [useGuardWithParams],
+          onGuardsStatusChange: (status: RouteHelperStatus) => {
+            console.log('status', RouteHelperStatus[status]);
+            if (status === RouteHelperStatus.Failed) {
+              nav('/login', { replace: true });
+            }
+          },
           // guards: [mockGuard()],
           // resolvers: {
           //   'userInfo': () => {
@@ -142,17 +148,13 @@ const RoutesWrapper = () => {
             {
               path: ":id",
               element: <Child2 />,
-              guards: [useGuardWithParams],
+
+
               children: [
                 {
                   path: "child3",
                   element: <Child3 />,
                   // guards: [mockGuard()],
-                  onGuardsStatusChange: (status: RouteHelperStatus) => {
-                    // if (status === RouteHelperStatus.Failed) {
-                    //   nav('/login', { replace: true });
-                    // }
-                  },
                 }
               ]
             }

@@ -3,10 +3,10 @@ import * as ReactDOM from 'react-dom';
 import { act } from 'react-dom/test-utils';
 import { Link, MemoryRouter, Outlet, useParams } from 'react-router-dom';
 import * as TestRenderer from 'react-test-renderer';
-import { HelperRouteObject } from '../types';
+import { HelperRouteObject, RouteHelperStatus } from '../types';
 import { guardWaitTimeBeforeCheck, mockGuardWorkTime } from './utils/guard-utils';
 import { mockAsyncGuard } from './utils/mock-async-guard';
-import { mockShouldNeverBeCalledGuard, MockShouldNeverBeCalledGuard } from './utils/mock-should-never-be-called-guard';
+import { mockShouldNeverBeCalledGuard } from './utils/mock-should-never-be-called-guard';
 import { mockSyncGuard } from './utils/mock-sync-guard';
 import { RoutesRenderer } from './utils/RoutesRenderer';
 import { wait } from './utils/wait';
@@ -1183,6 +1183,83 @@ describe('Guards in route', () => {
             Home 
           </div>
         `);
+      });
+    });
+  });
+
+  describe('guard throw an exception', () => {
+    describe('should just return status failed and not fall down', () => {
+      const guardWithException = () => () => {
+        throw new Error();
+      };
+
+      it('with 1 route', async () => {
+        let renderer: TestRenderer.ReactTestRenderer;
+        let status: RouteHelperStatus;
+        const routes: HelperRouteObject[] = [
+          {
+            path: '/',
+            element: <div>Home</div>,
+            guards: [guardWithException],
+            onGuardsStatusChange: (s: RouteHelperStatus) => {
+              status = s;
+            },
+          },
+        ];
+
+        TestRenderer.act(() => {
+          renderer = TestRenderer.create(
+            <MemoryRouter initialEntries={['/']}>
+              <RoutesRenderer routes={routes} />
+            </MemoryRouter>,
+          );
+        });
+
+        await wait(1);
+        expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
+        expect(status).toBe(RouteHelperStatus.Failed);
+      });
+
+      it('with nested route', async () => {
+        let renderer: TestRenderer.ReactTestRenderer;
+
+        let status: RouteHelperStatus;
+        const routes: HelperRouteObject[] = [
+          {
+            path: '/',
+            element: (
+              <div>
+                Home <Outlet />
+              </div>
+            ),
+            children: [
+              {
+                path: 'child',
+                element: <div>Child</div>,
+                guards: [guardWithException],
+                onGuardsStatusChange: (s: RouteHelperStatus) => {
+                  status = s;
+                },
+              },
+            ],
+          },
+        ];
+
+        TestRenderer.act(() => {
+          renderer = TestRenderer.create(
+            <MemoryRouter initialEntries={['/child']}>
+              <RoutesRenderer routes={routes} location={{ pathname: '/child' }} />
+            </MemoryRouter>,
+          );
+        });
+
+        await wait(1);
+        expect(renderer.toJSON()).toMatchInlineSnapshot(`
+          <div>
+            Home 
+          </div>
+        `);
+        expect(status).toBe(RouteHelperStatus.Failed);
       });
     });
   });

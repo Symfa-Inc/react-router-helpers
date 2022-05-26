@@ -16,6 +16,7 @@ export const useGuardWithParams = () => {
   const test = useParams();
 
   return () => {
+    // throw new Error();
 
     console.log(test);
 
