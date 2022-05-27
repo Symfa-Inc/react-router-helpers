@@ -2,7 +2,7 @@ import * as React from 'react';
 import { MemoryRouter, Outlet, Route, Routes } from 'react-router-dom';
 import * as TestRenderer from 'react-test-renderer';
 import { RouteHelper } from '../route-helper';
-import { guardWaitTimeBeforeCheck, mockGuardWorkTime } from './utils/guard-utils';
+import { workerDurationTimeBeforeCheck, workerDuration } from './utils/guard-utils';
 import { mockAsyncGuard } from './utils/mock-async-guard';
 import { wait } from './utils/wait';
 
@@ -78,7 +78,7 @@ describe('route helper component', () => {
               <Route
                 path="/"
                 element={
-                  <RouteHelper guards={[mockAsyncGuard(true, mockGuardWorkTime)]} element={<div>Home</div>} />
+                  <RouteHelper guards={[mockAsyncGuard(true, workerDuration)]} element={<div>Home</div>} />
                 }
               />
             </Routes>
@@ -89,7 +89,7 @@ describe('route helper component', () => {
       await wait(1);
       expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
 
-      await wait(mockGuardWorkTime + guardWaitTimeBeforeCheck);
+      await wait(workerDuration + workerDurationTimeBeforeCheck);
 
       expect(renderer.toJSON()).toMatchInlineSnapshot(`
         <div>
@@ -109,7 +109,7 @@ describe('route helper component', () => {
                 path="/"
                 element={
                   <RouteHelper
-                    guards={[mockAsyncGuard(true, mockGuardWorkTime)]}
+                    guards={[mockAsyncGuard(true, workerDuration)]}
                     element={
                       <div>
                         Home <Outlet />
@@ -118,7 +118,7 @@ describe('route helper component', () => {
                   />
                 }
               >
-                <Route path="child" element={<RouteHelper guards={[mockAsyncGuard(true, mockGuardWorkTime)]} element={<div>Child</div>} />}></Route>
+                <Route path="child" element={<RouteHelper guards={[mockAsyncGuard(true, workerDuration)]} element={<div>Child</div>} />}></Route>
               </Route>
             </Routes>
           </MemoryRouter>,
@@ -128,7 +128,7 @@ describe('route helper component', () => {
       await wait(1);
       expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
 
-      await wait(mockGuardWorkTime * 2 + guardWaitTimeBeforeCheck);
+      await wait(workerDuration * 2 + workerDurationTimeBeforeCheck);
     });
   });
 });

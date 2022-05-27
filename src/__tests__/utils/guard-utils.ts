@@ -1,2 +1,2 @@
-export const mockGuardWorkTime = 200;
-export const guardWaitTimeBeforeCheck = 50;
+export const workerDuration = 200;
+export const workerDurationTimeBeforeCheck = 70;

@@ -4,7 +4,7 @@ import { act } from 'react-dom/test-utils';
 import { Link, MemoryRouter, Outlet, useParams } from 'react-router-dom';
 import * as TestRenderer from 'react-test-renderer';
 import { HelperRouteObject, RouteHelperStatus } from '../types';
-import { guardWaitTimeBeforeCheck, mockGuardWorkTime } from './utils/guard-utils';
+import { workerDurationTimeBeforeCheck, workerDuration } from './utils/guard-utils';
 import { mockAsyncGuard } from './utils/mock-async-guard';
 import { mockShouldNeverBeCalledGuard } from './utils/mock-should-never-be-called-guard';
 import { mockSyncGuard } from './utils/mock-sync-guard';
@@ -31,7 +31,7 @@ describe('Guards in route', () => {
         {
           path: '/',
           element: <div>Home</div>,
-          guards: [mockAsyncGuard(true, mockGuardWorkTime)],
+          guards: [mockAsyncGuard(true, workerDuration)],
         },
       ];
 
@@ -43,7 +43,7 @@ describe('Guards in route', () => {
         );
       });
 
-      await wait(mockGuardWorkTime + guardWaitTimeBeforeCheck);
+      await wait(workerDuration + workerDurationTimeBeforeCheck);
 
       expect(renderer.toJSON()).toMatchInlineSnapshot(`
         <div>
@@ -58,7 +58,7 @@ describe('Guards in route', () => {
         {
           path: '/',
           element: <div>Home</div>,
-          guards: [mockAsyncGuard(false, mockGuardWorkTime)],
+          guards: [mockAsyncGuard(false, workerDuration)],
         },
       ];
 
@@ -70,7 +70,7 @@ describe('Guards in route', () => {
         );
       });
 
-      await wait(mockGuardWorkTime + guardWaitTimeBeforeCheck);
+      await wait(workerDuration + workerDurationTimeBeforeCheck);
 
       expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
     });
@@ -81,7 +81,7 @@ describe('Guards in route', () => {
         {
           path: '/',
           element: <div>Home</div>,
-          guards: [mockAsyncGuard(true, mockGuardWorkTime), mockAsyncGuard(true, mockGuardWorkTime)],
+          guards: [mockAsyncGuard(true, workerDuration), mockAsyncGuard(true, workerDuration)],
         },
       ];
 
@@ -93,7 +93,7 @@ describe('Guards in route', () => {
         );
       });
 
-      await wait(mockGuardWorkTime * 2 + guardWaitTimeBeforeCheck);
+      await wait(workerDuration * 2 + workerDurationTimeBeforeCheck);
 
       expect(renderer.toJSON()).toMatchInlineSnapshot(`
         <div>
@@ -107,7 +107,7 @@ describe('Guards in route', () => {
         {
           path: '/',
           element: <div>Home</div>,
-          guards: [mockAsyncGuard(false, mockGuardWorkTime), mockAsyncGuard(false, mockGuardWorkTime)],
+          guards: [mockAsyncGuard(false, workerDuration), mockAsyncGuard(false, workerDuration)],
         },
       ];
 
@@ -119,7 +119,7 @@ describe('Guards in route', () => {
         );
       });
 
-      await wait(mockGuardWorkTime + guardWaitTimeBeforeCheck);
+      await wait(workerDuration + workerDurationTimeBeforeCheck);
 
       expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
     });
@@ -130,7 +130,7 @@ describe('Guards in route', () => {
         {
           path: '/',
           element: <div>Home</div>,
-          guards: [mockAsyncGuard(true, mockGuardWorkTime), mockAsyncGuard(false, mockGuardWorkTime)],
+          guards: [mockAsyncGuard(true, workerDuration), mockAsyncGuard(false, workerDuration)],
         },
       ];
 
@@ -142,7 +142,7 @@ describe('Guards in route', () => {
         );
       });
 
-      await wait(mockGuardWorkTime * 2 + guardWaitTimeBeforeCheck);
+      await wait(workerDuration * 2 + workerDurationTimeBeforeCheck);
 
       expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
     });
@@ -153,7 +153,7 @@ describe('Guards in route', () => {
         {
           path: '/',
           element: <div>Home</div>,
-          guards: [mockAsyncGuard(false, mockGuardWorkTime), mockAsyncGuard(true, mockGuardWorkTime)],
+          guards: [mockAsyncGuard(false, workerDuration), mockAsyncGuard(true, workerDuration)],
         },
       ];
 
@@ -165,7 +165,7 @@ describe('Guards in route', () => {
         );
       });
 
-      await wait(mockGuardWorkTime + guardWaitTimeBeforeCheck);
+      await wait(workerDuration + workerDurationTimeBeforeCheck);
 
       expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
     });
@@ -299,7 +299,7 @@ describe('Guards in route', () => {
         {
           path: '/',
           element: <div>Home</div>,
-          guards: [mockSyncGuard(false, mockGuardWorkTime), mockSyncGuard(false, mockGuardWorkTime)],
+          guards: [mockSyncGuard(false, workerDuration), mockSyncGuard(false, workerDuration)],
         },
       ];
 
@@ -311,7 +311,7 @@ describe('Guards in route', () => {
         );
       });
 
-      await wait(mockGuardWorkTime + guardWaitTimeBeforeCheck);
+      await wait(workerDuration + workerDurationTimeBeforeCheck);
 
       expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
     });
@@ -371,7 +371,7 @@ describe('Guards in route', () => {
           {
             path: '/',
             element: <div>Home</div>,
-            guards: [mockAsyncGuard(false, mockGuardWorkTime), mockShouldNeverBeCalledGuard(counter)],
+            guards: [mockAsyncGuard(false, workerDuration), mockShouldNeverBeCalledGuard(counter)],
           },
         ];
 
@@ -383,7 +383,7 @@ describe('Guards in route', () => {
           );
         });
 
-        await wait(mockGuardWorkTime + guardWaitTimeBeforeCheck);
+        await wait(workerDuration + workerDurationTimeBeforeCheck);
         expect(counter.amount).toBe(0);
       });
 
@@ -394,8 +394,8 @@ describe('Guards in route', () => {
             path: '/',
             element: <div>Home</div>,
             guards: [
-              mockAsyncGuard(true, mockGuardWorkTime),
-              mockAsyncGuard(false, mockGuardWorkTime),
+              mockAsyncGuard(true, workerDuration),
+              mockAsyncGuard(false, workerDuration),
               mockShouldNeverBeCalledGuard(counter),
             ],
           },
@@ -409,7 +409,7 @@ describe('Guards in route', () => {
           );
         });
 
-        await wait(mockGuardWorkTime * 2 + guardWaitTimeBeforeCheck);
+        await wait(workerDuration * 2 + workerDurationTimeBeforeCheck);
         expect(counter.amount).toBe(0);
       });
     });
@@ -430,11 +430,11 @@ describe('Guards in route', () => {
                   </div>
                 ),
                 children: [{ path: 'child', element: <div>Child</div> }],
-                guards: [mockAsyncGuard(true, mockGuardWorkTime)],
+                guards: [mockAsyncGuard(true, workerDuration)],
               },
             ],
             path: '/child',
-            waitTimeBeforeCheck: mockGuardWorkTime + guardWaitTimeBeforeCheck,
+            waitTimeBeforeCheck: workerDuration + workerDurationTimeBeforeCheck,
             expectedResultBeforeGuardWord: `null`,
             expectedResult: `
               <div>
@@ -456,11 +456,11 @@ describe('Guards in route', () => {
                   </div>
                 ),
                 children: [{ path: 'child', element: <div>Child</div> }],
-                guards: [mockAsyncGuard(false, mockGuardWorkTime)],
+                guards: [mockAsyncGuard(false, workerDuration)],
               },
             ],
             path: '/child',
-            waitTimeBeforeCheck: mockGuardWorkTime + guardWaitTimeBeforeCheck,
+            waitTimeBeforeCheck: workerDuration + workerDurationTimeBeforeCheck,
             expectedResultBeforeGuardWord: `null`,
             expectedResult: `null`,
           },
@@ -484,14 +484,14 @@ describe('Guards in route', () => {
                 children: [
                   {
                     path: 'child',
-                    guards: [mockAsyncGuard(true, mockGuardWorkTime)],
+                    guards: [mockAsyncGuard(true, workerDuration)],
                     element: <div>Child</div>,
                   },
                 ],
               },
             ],
             path: '/child',
-            waitTimeBeforeCheck: mockGuardWorkTime + guardWaitTimeBeforeCheck,
+            waitTimeBeforeCheck: workerDuration + workerDurationTimeBeforeCheck,
             expectedResultBeforeGuardWord: `
               <div>
                 Home 
@@ -519,14 +519,14 @@ describe('Guards in route', () => {
                 children: [
                   {
                     path: 'child',
-                    guards: [mockAsyncGuard(false, mockGuardWorkTime)],
+                    guards: [mockAsyncGuard(false, workerDuration)],
                     element: <div>Child</div>,
                   },
                 ],
               },
             ],
             path: '/child',
-            waitTimeBeforeCheck: mockGuardWorkTime + guardWaitTimeBeforeCheck,
+            waitTimeBeforeCheck: workerDuration + workerDurationTimeBeforeCheck,
             expectedResultBeforeGuardWord: `
               <div>
                 Home 
@@ -555,18 +555,18 @@ describe('Guards in route', () => {
                     Home <Outlet />
                   </div>
                 ),
-                guards: [mockAsyncGuard(true, mockGuardWorkTime)],
+                guards: [mockAsyncGuard(true, workerDuration)],
                 children: [
                   {
                     path: 'child',
-                    guards: [mockAsyncGuard(true, mockGuardWorkTime)],
+                    guards: [mockAsyncGuard(true, workerDuration)],
                     element: <div>Child</div>,
                   },
                 ],
               },
             ],
             path: '/child',
-            waitTimeBeforeCheck: mockGuardWorkTime * 2 + guardWaitTimeBeforeCheck,
+            waitTimeBeforeCheck: workerDuration * 2 + workerDurationTimeBeforeCheck,
             expectedResultBeforeGuardWord: `null`,
             expectedResult: `
               <div>
@@ -587,11 +587,11 @@ describe('Guards in route', () => {
                     Home <Outlet />
                   </div>
                 ),
-                guards: [mockAsyncGuard(true, mockGuardWorkTime)],
+                guards: [mockAsyncGuard(true, workerDuration)],
                 children: [
                   {
                     path: 'child',
-                    guards: [mockAsyncGuard(true, mockGuardWorkTime)],
+                    guards: [mockAsyncGuard(true, workerDuration)],
                     element: (
                       <div>
                         Child
@@ -601,7 +601,7 @@ describe('Guards in route', () => {
                     children: [
                       {
                         path: 'child2',
-                        guards: [mockAsyncGuard(true, mockGuardWorkTime)],
+                        guards: [mockAsyncGuard(true, workerDuration)],
                         element: <div>Child 2</div>,
                       },
                     ],
@@ -610,7 +610,7 @@ describe('Guards in route', () => {
               },
             ],
             path: '/child/child2',
-            waitTimeBeforeCheck: mockGuardWorkTime * 3 + guardWaitTimeBeforeCheck,
+            waitTimeBeforeCheck: workerDuration * 3 + workerDurationTimeBeforeCheck,
             expectedResultBeforeGuardWord: `null`,
             expectedResult: `
               <div>
@@ -634,11 +634,11 @@ describe('Guards in route', () => {
                     Home <Outlet />
                   </div>
                 ),
-                guards: [mockAsyncGuard(true, mockGuardWorkTime)],
+                guards: [mockAsyncGuard(true, workerDuration)],
                 children: [
                   {
                     path: 'child',
-                    guards: [mockAsyncGuard(true, mockGuardWorkTime)],
+                    guards: [mockAsyncGuard(true, workerDuration)],
                     element: (
                       <div>
                         Child
@@ -648,7 +648,7 @@ describe('Guards in route', () => {
                     children: [
                       {
                         path: 'child2',
-                        guards: [mockAsyncGuard(true, mockGuardWorkTime)],
+                        guards: [mockAsyncGuard(true, workerDuration)],
                         element: (
                           <div>
                             Child 2
@@ -658,7 +658,7 @@ describe('Guards in route', () => {
                         children: [
                           {
                             path: 'child3',
-                            guards: [mockAsyncGuard(true, mockGuardWorkTime)],
+                            guards: [mockAsyncGuard(true, workerDuration)],
                             element: <div>Child 3</div>,
                           },
                         ],
@@ -669,7 +669,7 @@ describe('Guards in route', () => {
               },
             ],
             path: '/child/child2/child3',
-            waitTimeBeforeCheck: mockGuardWorkTime * 4 + guardWaitTimeBeforeCheck * 4,
+            waitTimeBeforeCheck: workerDuration * 4 + workerDurationTimeBeforeCheck * 4,
             expectedResultBeforeGuardWord: `null`,
             expectedResult: `
               <div>
@@ -696,18 +696,18 @@ describe('Guards in route', () => {
                     Home <Outlet />
                   </div>
                 ),
-                guards: [mockAsyncGuard(false, mockGuardWorkTime)],
+                guards: [mockAsyncGuard(false, workerDuration)],
                 children: [
                   {
                     path: 'child',
-                    guards: [mockAsyncGuard(false, mockGuardWorkTime)],
+                    guards: [mockAsyncGuard(false, workerDuration)],
                     element: <div>Child</div>,
                   },
                 ],
               },
             ],
             path: '/child',
-            waitTimeBeforeCheck: mockGuardWorkTime + guardWaitTimeBeforeCheck,
+            waitTimeBeforeCheck: workerDuration + workerDurationTimeBeforeCheck,
             expectedResultBeforeGuardWord: `null`,
             expectedResult: `null`,
           },
@@ -731,15 +731,15 @@ describe('Guards in route', () => {
               children: [
                 {
                   path: 'child',
-                  guards: [mockAsyncGuard(true, mockGuardWorkTime)],
+                  guards: [mockAsyncGuard(true, workerDuration)],
                   element: <div>Child</div>,
                 },
               ],
-              guards: [mockAsyncGuard(true, mockGuardWorkTime)],
+              guards: [mockAsyncGuard(true, workerDuration)],
             },
           ],
           path: '/',
-          waitTimeBeforeCheck: mockGuardWorkTime + guardWaitTimeBeforeCheck,
+          waitTimeBeforeCheck: workerDuration + workerDurationTimeBeforeCheck,
           expectedResultBeforeGuardWord: `null`,
           expectedResult: `
               <div>
@@ -760,15 +760,15 @@ describe('Guards in route', () => {
               children: [
                 {
                   path: 'child',
-                  guards: [mockAsyncGuard(false, mockGuardWorkTime)],
+                  guards: [mockAsyncGuard(false, workerDuration)],
                   element: <div>Child</div>,
                 },
               ],
-              guards: [mockAsyncGuard(false, mockGuardWorkTime)],
+              guards: [mockAsyncGuard(false, workerDuration)],
             },
           ],
           path: '/',
-          waitTimeBeforeCheck: mockGuardWorkTime + guardWaitTimeBeforeCheck,
+          waitTimeBeforeCheck: workerDuration + workerDurationTimeBeforeCheck,
           expectedResultBeforeGuardWord: `null`,
           expectedResult: `null`,
         },
@@ -787,11 +787,11 @@ describe('Guards in route', () => {
                 Home <Outlet />
               </div>
             ),
-            guards: [mockAsyncGuard(true, mockGuardWorkTime)],
+            guards: [mockAsyncGuard(true, workerDuration)],
             children: [
               {
                 path: 'child',
-                guards: [mockAsyncGuard(true, mockGuardWorkTime)],
+                guards: [mockAsyncGuard(true, workerDuration)],
                 element: (
                   <div>
                     Child
@@ -801,7 +801,7 @@ describe('Guards in route', () => {
                 children: [
                   {
                     path: 'child2',
-                    guards: [mockAsyncGuard(true, mockGuardWorkTime)],
+                    guards: [mockAsyncGuard(true, workerDuration)],
                     element: (
                       <div>
                         Child 2
@@ -811,7 +811,7 @@ describe('Guards in route', () => {
                     children: [
                       {
                         path: 'child3',
-                        guards: [mockAsyncGuard(true, mockGuardWorkTime)],
+                        guards: [mockAsyncGuard(true, workerDuration)],
                         element: <div>Child 3</div>,
                       },
                     ],
@@ -835,7 +835,7 @@ describe('Guards in route', () => {
 
         expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
 
-        await wait(mockGuardWorkTime + guardWaitTimeBeforeCheck);
+        await wait(workerDuration + workerDurationTimeBeforeCheck);
 
         expect(renderer.toJSON()).toMatchInlineSnapshot(`
           <div>
@@ -843,7 +843,7 @@ describe('Guards in route', () => {
           </div>
         `);
 
-        await wait(mockGuardWorkTime + guardWaitTimeBeforeCheck);
+        await wait(workerDuration + workerDurationTimeBeforeCheck);
 
         expect(renderer.toJSON()).toMatchInlineSnapshot(`
           <div>
@@ -854,7 +854,7 @@ describe('Guards in route', () => {
           </div>
          `);
 
-        await wait(mockGuardWorkTime + guardWaitTimeBeforeCheck);
+        await wait(workerDuration + workerDurationTimeBeforeCheck);
 
         expect(renderer.toJSON()).toMatchInlineSnapshot(`
               <div>
@@ -868,7 +868,7 @@ describe('Guards in route', () => {
               </div>
          `);
 
-        await wait(mockGuardWorkTime + guardWaitTimeBeforeCheck);
+        await wait(workerDuration + workerDurationTimeBeforeCheck);
 
         expect(renderer.toJSON()).toMatchInlineSnapshot(`
           <div>
@@ -941,22 +941,22 @@ describe('Guards in route', () => {
         const routes = [
           {
             path: '/',
-            guards: [mockAsyncGuard(true, mockGuardWorkTime)],
+            guards: [mockAsyncGuard(true, workerDuration)],
             element: <Home />,
             children: [
               {
                 path: 'child',
-                guards: [mockAsyncGuard(true, mockGuardWorkTime)],
+                guards: [mockAsyncGuard(true, workerDuration)],
                 element: <Child />,
                 children: [
                   {
                     path: 'child2',
-                    guards: [mockAsyncGuard(true, mockGuardWorkTime)],
+                    guards: [mockAsyncGuard(true, workerDuration)],
                     element: <Child2 />,
                     children: [
                       {
                         path: 'child3',
-                        guards: [mockAsyncGuard(true, mockGuardWorkTime)],
+                        guards: [mockAsyncGuard(true, workerDuration)],
                         element: <Child3 />,
                       },
                     ],
@@ -982,7 +982,7 @@ describe('Guards in route', () => {
         let parentOutlet = node.querySelector('#parent-outlet');
         expect(parentOutlet).toBeNull();
 
-        await wait(mockGuardWorkTime + guardWaitTimeBeforeCheck);
+        await wait(workerDuration + workerDurationTimeBeforeCheck);
 
         // As soon as guard for <Home /> has finished his work, we should be able to see the content,
         // but not the child <Child />, because it has guard as well
@@ -1005,7 +1005,7 @@ describe('Guards in route', () => {
         parentOutlet = node.querySelector('#parent-outlet');
         expect(parentOutlet!.children.length).toBe(0);
 
-        await wait(mockGuardWorkTime + guardWaitTimeBeforeCheck);
+        await wait(workerDuration + workerDurationTimeBeforeCheck);
 
         // Just after first child guard work we should be able to see the child content and container for
         // the next child but not child itself <Child2 />
@@ -1034,7 +1034,7 @@ describe('Guards in route', () => {
         expect(firstChildOutlet!.children.length).toBe(0);
         expect(linkToSecondChild).not.toBeNull();
 
-        await wait(mockGuardWorkTime + guardWaitTimeBeforeCheck);
+        await wait(workerDuration + workerDurationTimeBeforeCheck);
 
         firstChildOutlet = node.querySelector('#first-child-outlet');
         let linkToThirdChild = node.querySelector('#link-to-third-child');
@@ -1061,7 +1061,7 @@ describe('Guards in route', () => {
         expect(linkToThirdChild).not.toBeNull();
         expect(thirdChildContent).toBeNull();
 
-        await wait(mockGuardWorkTime + guardWaitTimeBeforeCheck);
+        await wait(workerDuration + workerDurationTimeBeforeCheck);
 
         // As soon as guard in <Child3 /> has finished his work,
         // we should be able to see content of component
