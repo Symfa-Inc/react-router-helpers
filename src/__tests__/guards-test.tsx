@@ -4,7 +4,7 @@ import { act } from 'react-dom/test-utils';
 import { Link, MemoryRouter, Outlet, useParams } from 'react-router-dom';
 import * as TestRenderer from 'react-test-renderer';
 import { HelperRouteObject, RouteHelperStatus } from '../types';
-import { workerDurationTimeBeforeCheck, workerDuration } from './utils/guard-utils';
+import { workerDurationTimeBeforeCheck, workerDuration } from './utils/general-utils';
 import { mockAsyncGuard } from './utils/mock-async-guard';
 import { mockShouldNeverBeCalledGuard } from './utils/mock-should-never-be-called-guard';
 import { mockSyncGuard } from './utils/mock-sync-guard';
@@ -1115,8 +1115,8 @@ describe('Guards in route', () => {
     });
   });
 
-  describe('guards has access to standard hook functionality', () => {
-    describe('has access to useParamsWithContext', () => {
+  describe('guards have access to standard hook functionality', () => {
+    describe('has access to useParams with correct context', () => {
       const guardWithParams = () => {
         const params = useParams<{ id: string }>();
         return () => {

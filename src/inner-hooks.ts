@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { Guard, HelperManager, InnerGuard, RouteHelperStatus, StatusChangeReceiver } from './types';
+import { HelperManager, RouteHelperStatus, StatusChangeReceiver } from './types';
 
 export function useManager({ guards, resolvers }: HelperManager) {
   async function evaluateGuards(): Promise<RouteHelperStatus> {
@@ -20,16 +20,30 @@ export function useManager({ guards, resolvers }: HelperManager) {
   }
 
   async function evaluateResolvers() {
-    let status = RouteHelperStatus.Loaded;
+    let status: RouteHelperStatus = RouteHelperStatus.Loaded;
 
     const keys = Object.keys(resolvers).map(resolverKey => resolverKey);
-    const promises = Object.keys(resolvers).map(resolverKey => resolvers[resolverKey]());
+    const promises = [];
+    for (const resolverKey of Object.keys(resolvers)) {
+      try {
+        promises.push(resolvers[resolverKey]());
+      } catch  {
+        status = RouteHelperStatus.Failed;
+      }
+    }
 
     const resultOfResolvers = await Promise.all(promises).catch(e => {
       console.error('Error in resolvers');
       console.error(e);
       status = RouteHelperStatus.Failed;
     });
+
+    if (status === RouteHelperStatus.Failed) {
+      return {
+        status,
+        infos: null,
+      };
+    }
 
     const infos = (resultOfResolvers as []).reduce((acc, next, index) => {
       const key = keys[index];

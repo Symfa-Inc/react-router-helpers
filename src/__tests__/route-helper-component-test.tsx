@@ -2,7 +2,7 @@ import * as React from 'react';
 import { MemoryRouter, Outlet, Route, Routes } from 'react-router-dom';
 import * as TestRenderer from 'react-test-renderer';
 import { RouteHelper } from '../route-helper';
-import { workerDurationTimeBeforeCheck, workerDuration } from './utils/guard-utils';
+import { workerDurationTimeBeforeCheck, workerDuration } from './utils/general-utils';
 import { mockAsyncGuard } from './utils/mock-async-guard';
 import { wait } from './utils/wait';
 
