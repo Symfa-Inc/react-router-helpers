@@ -1201,7 +1201,7 @@ describe('Guards in route', () => {
             path: '/',
             element: <div>Home</div>,
             guards: [guardWithException],
-            onGuardsStatusChange: (s: RouteHelperStatus) => {
+            onGuardStatusChange: (s: RouteHelperStatus) => {
               status = s;
             },
           },
@@ -1237,7 +1237,7 @@ describe('Guards in route', () => {
                 path: 'child',
                 element: <div>Child</div>,
                 guards: [guardWithException],
-                onGuardsStatusChange: (s: RouteHelperStatus) => {
+                onGuardStatusChange: (s: RouteHelperStatus) => {
                   status = s;
                 },
               },

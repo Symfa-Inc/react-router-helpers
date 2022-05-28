@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Link, Outlet, useNavigate, useParams } from 'react-router-dom';
 import './App.css';
-import { mockGuard, useGuardWithParams } from './guards/mock-guard';
+import { mockGuard, useGetUserInfoResolver, useGuardWithParams } from './guards/mock-guard';
 import { RouteHelperStatus, useResolver, useRoutesWithHelper } from './reactRouterHelpers';
 
 // const useResolverForHome = () => {
@@ -20,10 +20,6 @@ import { RouteHelperStatus, useResolver, useRoutesWithHelper } from './reactRout
 // };
 
 function Home() {
-  // console.log('render 11');
-  const resolverInfos = useResolver<{ test: string; }>();
-  // const manager = useResolverForHome();
-  // useGuardWithParams();
 
 
   // useEffect(() => {
@@ -114,28 +110,36 @@ const RoutesWrapper = () => {
 
   return useRoutesWithHelper([
     {
+      path: 'login',
+      element:<div>Login page</div>
+    },
+    {
       path: "/",
       element: <Home />,
+      resolvers: {
+        userInfo: useGetUserInfoResolver,
+      },
 
       // guards: [mockGuard()],
       // resolvers: {
       //   test: useResolverForHome
       // },
-      // onGuardsStatusChange: (status: RouteHelperStatus) => {
-      //   console.log("onGuardsStatusChange", RouteHelperStatus[status]);
+      // onGuardStatusChange: (status: RouteHelperStatus) => {
+      //   console.log("onGuardStatusChange", RouteHelperStatus[status]);
       // },
-      // onResolversStatusChange: (status: RouteHelperStatus) => {
-      //   console.log("onResolversStatusChange", RouteHelperStatus[status]);
+      // onResolverStatusChange: (status: RouteHelperStatus) => {
+      //   console.log("onResolverStatusChange", RouteHelperStatus[status]);
       // },
       children: [
         {
           path: "child",
           element: <Child />,
-          guards: [useGuardWithParams],
-          onGuardsStatusChange: (status: RouteHelperStatus) => {
+          guards: [mockGuard(false)],
+          onGuardStatusChange: (status: RouteHelperStatus) => {
+            // const nav = useNavigate();
             console.log('status', RouteHelperStatus[status]);
             if (status === RouteHelperStatus.Failed) {
-              nav('/login', { replace: true });
+              nav('/login');
             }
           },
           // guards: [mockGuard()],

@@ -115,20 +115,35 @@ function useManager(_a) {
     }
     function evaluateResolvers() {
         return __awaiter(this, void 0, void 0, function () {
-            var status, keys, promises, resultOfResolvers, infos;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
+            var status, keys, promises, _i, _a, resolverKey, resultOfResolvers, infos;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0:
                         status = RouteHelperStatus.Loaded;
                         keys = Object.keys(resolvers).map(function (resolverKey) { return resolverKey; });
-                        promises = Object.keys(resolvers).map(function (resolverKey) { return resolvers[resolverKey](); });
+                        promises = [];
+                        for (_i = 0, _a = Object.keys(resolvers); _i < _a.length; _i++) {
+                            resolverKey = _a[_i];
+                            try {
+                                promises.push(resolvers[resolverKey]());
+                            }
+                            catch (_c) {
+                                status = RouteHelperStatus.Failed;
+                            }
+                        }
                         return [4 /*yield*/, Promise.all(promises).catch(function (e) {
                                 console.error('Error in resolvers');
                                 console.error(e);
                                 status = RouteHelperStatus.Failed;
                             })];
                     case 1:
-                        resultOfResolvers = _a.sent();
+                        resultOfResolvers = _b.sent();
+                        if (status === RouteHelperStatus.Failed) {
+                            return [2 /*return*/, {
+                                    status: status,
+                                    infos: {},
+                                }];
+                        }
                         infos = resultOfResolvers.reduce(function (acc, next, index) {
                             var _a;
                             var key = keys[index];
@@ -198,7 +213,7 @@ var RouteHelper = function (props) {
     var _a = useState(RouteHelperStatus.Initial), guardsStatus = _a[0], setGuardsStatus = _a[1];
     var _b = useState(RouteHelperStatus.Initial), resolversStatus = _b[0], setResolversStatus = _b[1];
     var _c = useState({}), loadedResolverInfos = _c[0], setLoadedResolverInfos = _c[1];
-    var notification = useStatusNotification(props.onGuardsStatusChange, props.onResolversStatusChange);
+    var notification = useStatusNotification(props.onGuardStatusChange, props.onResolverStatusChange);
     var evaluateResolvers = function () { return __awaiter(void 0, void 0, void 0, function () {
         var initialStatus, _a, status, infos;
         return __generator(this, function (_b) {

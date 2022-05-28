@@ -3,6 +3,9 @@ export declare function useManager({ guards, resolvers }: HelperManager): {
     evaluateGuards: () => Promise<RouteHelperStatus>;
     getGuardsStatusBeforeEvaluating: () => RouteHelperStatus;
     evaluateResolvers: () => Promise<{
+        status: RouteHelperStatus.Failed;
+        infos: {};
+    } | {
         infos: {};
         status: RouteHelperStatus.Loaded;
     }>;

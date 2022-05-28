@@ -41,7 +41,7 @@ export function useManager({ guards, resolvers }: HelperManager) {
     if (status === RouteHelperStatus.Failed) {
       return {
         status,
-        infos: null,
+        infos: {},
       };
     }
 

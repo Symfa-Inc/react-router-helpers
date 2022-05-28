@@ -9,8 +9,8 @@ export type InnerResolver = () => Promise<any> | Promise<void> | any | void;
 export interface OnlyHelperFields {
   guards?: Guard[];
   resolvers?: Record<string, Resolver>;
-  onGuardsStatusChange?: (status: RouteHelperStatus) => void;
-  onResolversStatusChange?: (status: RouteHelperStatus) => void;
+  onGuardStatusChange?: (status: RouteHelperStatus) => void;
+  onResolverStatusChange?: (status: RouteHelperStatus) => void;
 }
 
 export interface HelperRouteObject extends RouteObject, OnlyHelperFields {

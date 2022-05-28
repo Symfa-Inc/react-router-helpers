@@ -29,7 +29,7 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
   const [resolversStatus, setResolversStatus] = useState<RouteHelperStatus>(RouteHelperStatus.Initial);
   const [loadedResolverInfos, setLoadedResolverInfos] = useState({});
 
-  const notification = useStatusNotification(props.onGuardsStatusChange, props.onResolversStatusChange);
+  const notification = useStatusNotification(props.onGuardStatusChange, props.onResolverStatusChange);
 
   const evaluateResolvers = async () => {
     const initialStatus = manager.getResolversStatusBeforeEvaluating();
