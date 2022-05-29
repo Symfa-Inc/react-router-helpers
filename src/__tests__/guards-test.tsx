@@ -81,7 +81,7 @@ describe('Guards in route', () => {
         {
           path: '/',
           element: <div>Home</div>,
-          guards: [mockAsyncGuard(true, workerDuration), mockAsyncGuard(true, workerDuration)],
+          guards: [mockAsyncGuard(true, workerDuration), mockAsyncGuard(false, workerDuration)],
         },
       ];
 
@@ -95,11 +95,7 @@ describe('Guards in route', () => {
 
       await wait(workerDuration * 2 + workerDurationTimeBeforeCheck);
 
-      expect(renderer.toJSON()).toMatchInlineSnapshot(`
-        <div>
-          Home
-        </div>
-      `);
+      expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
     });
     it('with 2 guard which return false - first false - second false', async () => {
       let renderer: TestRenderer.ReactTestRenderer;
@@ -120,29 +116,6 @@ describe('Guards in route', () => {
       });
 
       await wait(workerDuration + workerDurationTimeBeforeCheck);
-
-      expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
-    });
-
-    it('with 2 guard which first guard true - second false', async () => {
-      let renderer: TestRenderer.ReactTestRenderer;
-      const routes: HelperRouteObject[] = [
-        {
-          path: '/',
-          element: <div>Home</div>,
-          guards: [mockAsyncGuard(true, workerDuration), mockAsyncGuard(false, workerDuration)],
-        },
-      ];
-
-      TestRenderer.act(() => {
-        renderer = TestRenderer.create(
-          <MemoryRouter initialEntries={['/']}>
-            <RoutesRenderer routes={routes} />
-          </MemoryRouter>,
-        );
-      });
-
-      await wait(workerDuration * 2 + workerDurationTimeBeforeCheck);
 
       expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
     });
@@ -314,6 +287,269 @@ describe('Guards in route', () => {
       await wait(workerDuration + workerDurationTimeBeforeCheck);
 
       expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
+    });
+  });
+
+  describe('async and sync guards mixed', () => {
+    describe('for parent', () => {
+      it('with 2 guard - true async first', async () => {
+        let renderer: TestRenderer.ReactTestRenderer;
+
+        const routes: HelperRouteObject[] = [
+          {
+            path: '/',
+            element: <div>Home</div>,
+            guards: [mockAsyncGuard(true, workerDuration), mockSyncGuard(true)],
+          },
+        ];
+
+        TestRenderer.act(() => {
+          renderer = TestRenderer.create(
+            <MemoryRouter initialEntries={['/']}>
+              <RoutesRenderer routes={routes} />
+            </MemoryRouter>,
+          );
+        });
+
+        await wait(workerDuration + workerDurationTimeBeforeCheck);
+
+        expect(renderer.toJSON()).toMatchInlineSnapshot(`
+                  <div>
+                    Home
+                  </div>
+              `);
+      });
+      it('with 2 guard - true sync first', async () => {
+        let renderer: TestRenderer.ReactTestRenderer;
+
+        const routes: HelperRouteObject[] = [
+          {
+            path: '/',
+            element: <div>Home</div>,
+            guards: [mockSyncGuard(true), mockAsyncGuard(true, workerDuration)],
+          },
+        ];
+
+        TestRenderer.act(() => {
+          renderer = TestRenderer.create(
+            <MemoryRouter initialEntries={['/']}>
+              <RoutesRenderer routes={routes} />
+            </MemoryRouter>,
+          );
+        });
+
+        await wait(workerDuration + workerDurationTimeBeforeCheck);
+
+        expect(renderer.toJSON()).toMatchInlineSnapshot(`
+                  <div>
+                    Home
+                  </div>
+              `);
+      });
+    });
+    describe('for child', () => {
+      describe('parent has guards', () => {
+        it('with 2 guard - true async first', async () => {
+          let renderer: TestRenderer.ReactTestRenderer;
+
+          const routes: HelperRouteObject[] = [
+            {
+              path: '/',
+              element: (
+                <div>
+                  Home <Outlet />
+                </div>
+              ),
+              guards: [mockAsyncGuard(true, workerDuration), mockSyncGuard(true)],
+              children: [
+                {
+                  path: 'child',
+                  element: <div>Child</div>,
+                  guards: [mockAsyncGuard(true, workerDuration), mockSyncGuard(true)],
+                },
+              ],
+            },
+          ];
+
+          TestRenderer.act(() => {
+            renderer = TestRenderer.create(
+              <MemoryRouter initialEntries={['/']}>
+                <RoutesRenderer routes={routes} location={{ pathname: '/child' }} />
+              </MemoryRouter>,
+            );
+          });
+
+          await wait(1);
+
+          expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
+
+          await wait(workerDuration + workerDurationTimeBeforeCheck);
+          expect(renderer.toJSON()).toMatchInlineSnapshot(`
+            <div>
+              Home 
+            </div>
+          `);
+
+          await wait(workerDuration * 2 + workerDurationTimeBeforeCheck * 2);
+
+          expect(renderer.toJSON()).toMatchInlineSnapshot(`
+            <div>
+              Home 
+              <div>
+                Child
+              </div>
+            </div>
+          `);
+        });
+        it('with 2 guard - true sync first', async () => {
+          let renderer: TestRenderer.ReactTestRenderer;
+
+          const routes: HelperRouteObject[] = [
+            {
+              path: '/',
+              element: (
+                <div>
+                  Home <Outlet />
+                </div>
+              ),
+              guards: [mockSyncGuard(true), mockAsyncGuard(true, workerDuration)],
+              children: [
+                {
+                  path: 'child',
+                  element: <div>Child</div>,
+                  guards: [mockSyncGuard(true), mockAsyncGuard(true, workerDuration)],
+                },
+              ],
+            },
+          ];
+
+          TestRenderer.act(() => {
+            renderer = TestRenderer.create(
+              <MemoryRouter initialEntries={['/child']}>
+                <RoutesRenderer routes={routes} location={{ pathname: '/child' }} />
+              </MemoryRouter>,
+            );
+          });
+
+          await wait(1);
+
+          expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
+
+          await wait(workerDuration + workerDurationTimeBeforeCheck);
+          expect(renderer.toJSON()).toMatchInlineSnapshot(`
+            <div>
+              Home 
+            </div>
+          `);
+
+          await wait(workerDuration * 2 + workerDurationTimeBeforeCheck * 2);
+
+          expect(renderer.toJSON()).toMatchInlineSnapshot(`
+            <div>
+              Home 
+              <div>
+                Child
+              </div>
+            </div>
+          `);
+        });
+      });
+      describe('parent does not have guards', () => {
+        it('with 2 guard - true async first', async () => {
+          let renderer: TestRenderer.ReactTestRenderer;
+
+          const routes: HelperRouteObject[] = [
+            {
+              path: '/',
+              element: (
+                <div>
+                  Home <Outlet />
+                </div>
+              ),
+              children: [
+                {
+                  path: 'child',
+                  element: <div>Child</div>,
+                  guards: [mockAsyncGuard(true, workerDuration), mockSyncGuard(true)],
+                },
+              ],
+            },
+          ];
+
+          TestRenderer.act(() => {
+            renderer = TestRenderer.create(
+              <MemoryRouter initialEntries={['/']}>
+                <RoutesRenderer routes={routes} location={{ pathname: '/child' }} />
+              </MemoryRouter>,
+            );
+          });
+
+          await wait(1);
+
+          expect(renderer.toJSON()).toMatchInlineSnapshot(`
+            <div>
+              Home 
+            </div>
+          `);
+
+          await wait(workerDuration + workerDurationTimeBeforeCheck);
+          expect(renderer.toJSON()).toMatchInlineSnapshot(`
+            <div>
+              Home 
+              <div>
+                Child
+              </div>
+            </div>
+          `);
+        });
+        it('with 2 guard - true sync first', async () => {
+          let renderer: TestRenderer.ReactTestRenderer;
+
+          const routes: HelperRouteObject[] = [
+            {
+              path: '/',
+              element: (
+                <div>
+                  Home <Outlet />
+                </div>
+              ),
+              children: [
+                {
+                  path: 'child',
+                  element: <div>Child</div>,
+                  guards: [mockSyncGuard(true), mockAsyncGuard(true, workerDuration)],
+                },
+              ],
+            },
+          ];
+
+          TestRenderer.act(() => {
+            renderer = TestRenderer.create(
+              <MemoryRouter initialEntries={['/child']}>
+                <RoutesRenderer routes={routes} location={{ pathname: '/child' }} />
+              </MemoryRouter>,
+            );
+          });
+
+          await wait(1);
+
+          expect(renderer.toJSON()).toMatchInlineSnapshot(`
+            <div>
+              Home 
+            </div>
+          `);
+
+          await wait(workerDuration + workerDurationTimeBeforeCheck);
+          expect(renderer.toJSON()).toMatchInlineSnapshot(`
+            <div>
+              Home 
+              <div>
+                Child
+              </div>
+            </div>
+          `);
+        });
+      });
     });
   });
 

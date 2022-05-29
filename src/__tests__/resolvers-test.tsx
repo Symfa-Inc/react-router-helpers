@@ -4,7 +4,7 @@ import * as TestRenderer from 'react-test-renderer';
 import { useResolver } from '../hooks';
 import { HelperRouteObject } from '../types';
 import { workerDuration, workerDurationTimeBeforeCheck } from './utils/general-utils';
-import { mockResolver } from './utils/mock-resolver';
+import { mockAsyncResolver } from './utils/mock-async-resolver';
 import { mockShouldNeverBeCalledResolver } from './utils/mock-should-never-be-called-resolver';
 import { RoutesRenderer } from './utils/RoutesRenderer';
 import { wait } from './utils/wait';
@@ -30,7 +30,7 @@ describe('Resolvers in route', () => {
             path: '/',
             element: <Home />,
             resolvers: {
-              userInfo: mockResolver(workerDuration, { name: 'joe' }),
+              userInfo: mockAsyncResolver(workerDuration, { name: 'joe' }),
             },
           },
         ];
@@ -80,8 +80,8 @@ describe('Resolvers in route', () => {
             path: '/',
             element: <Home />,
             resolvers: {
-              userInfo: mockResolver(workerDuration, { name: 'joe' }),
-              productInfo: mockResolver(workerDuration, { price: 50 }),
+              userInfo: mockAsyncResolver(workerDuration, { name: 'joe' }),
+              productInfo: mockAsyncResolver(workerDuration, { price: 50 }),
             },
           },
         ];
@@ -134,8 +134,8 @@ describe('Resolvers in route', () => {
             path: '/',
             element: <Home />,
             resolvers: {
-              userInfo: mockResolver(workerDuration, { name: 'joe' }),
-              productInfo: mockResolver(workerDuration),
+              userInfo: mockAsyncResolver(workerDuration, { name: 'joe' }),
+              productInfo: mockAsyncResolver(workerDuration),
             },
           },
         ];
@@ -184,7 +184,7 @@ describe('Resolvers in route', () => {
             path: '/',
             element: <Home />,
             resolvers: {
-              userInfo: mockResolver(workerDuration, { name: 'joe' }),
+              userInfo: mockAsyncResolver(workerDuration, { name: 'joe' }),
             },
             children: [
               {
@@ -251,7 +251,7 @@ describe('Resolvers in route', () => {
                 path: 'child',
                 element: <Child />,
                 resolvers: {
-                  userInfo: mockResolver(workerDuration, { name: 'joe' }),
+                  userInfo: mockAsyncResolver(workerDuration, { name: 'joe' }),
                 },
               },
             ],
@@ -318,8 +318,8 @@ describe('Resolvers in route', () => {
                 path: 'child',
                 element: <Child />,
                 resolvers: {
-                  userInfo: mockResolver(workerDuration, { name: 'joe' }),
-                  productInfo: mockResolver(workerDuration, { price: 50 }),
+                  userInfo: mockAsyncResolver(workerDuration, { name: 'joe' }),
+                  productInfo: mockAsyncResolver(workerDuration, { price: 50 }),
                 },
               },
             ],
@@ -392,14 +392,14 @@ describe('Resolvers in route', () => {
             path: '/',
             element: <Home />,
             resolvers: {
-              userInfo: mockResolver(workerDuration, { name: 'joe' }),
+              userInfo: mockAsyncResolver(workerDuration, { name: 'joe' }),
             },
             children: [
               {
                 path: 'child',
                 element: <Child />,
                 resolvers: {
-                  userInfo: mockResolver(workerDuration, { name: 'john' }),
+                  userInfo: mockAsyncResolver(workerDuration, { name: 'john' }),
                 },
               },
             ],
@@ -484,16 +484,16 @@ describe('Resolvers in route', () => {
             path: '/',
             element: <Home />,
             resolvers: {
-              userInfo: mockResolver(workerDuration, { name: 'joe' }),
-              productInfo: mockResolver(workerDuration, { price: 50 }),
+              userInfo: mockAsyncResolver(workerDuration, { name: 'joe' }),
+              productInfo: mockAsyncResolver(workerDuration, { price: 50 }),
             },
             children: [
               {
                 path: 'child',
                 element: <Child />,
                 resolvers: {
-                  userInfo: mockResolver(workerDuration, { name: 'john' }),
-                  productInfo: mockResolver(workerDuration, { price: 100 }),
+                  userInfo: mockAsyncResolver(workerDuration, { name: 'john' }),
+                  productInfo: mockAsyncResolver(workerDuration, { price: 100 }),
                 },
               },
             ],
@@ -648,10 +648,10 @@ describe('Resolvers in route', () => {
             path: '/',
             element: <Home />,
             resolvers: {
-              name: mockResolver(workerDuration, 'joe'),
-              lastName: mockResolver(workerDuration, 'doe'),
-              authInfo: mockResolver(workerDuration, { permission: 'admin' }),
-              avatar: mockResolver(workerDuration, 'url'),
+              name: mockAsyncResolver(workerDuration, 'joe'),
+              lastName: mockAsyncResolver(workerDuration, 'doe'),
+              authInfo: mockAsyncResolver(workerDuration, { permission: 'admin' }),
+              avatar: mockAsyncResolver(workerDuration, 'url'),
             },
           },
         ];
@@ -724,10 +724,10 @@ describe('Resolvers in route', () => {
                 path: 'child',
                 element: <Child />,
                 resolvers: {
-                  name: mockResolver(workerDuration, 'joe'),
-                  lastName: mockResolver(workerDuration, 'doe'),
-                  authInfo: mockResolver(workerDuration, { permission: 'admin' }),
-                  avatar: mockResolver(workerDuration, 'url'),
+                  name: mockAsyncResolver(workerDuration, 'joe'),
+                  lastName: mockAsyncResolver(workerDuration, 'doe'),
+                  authInfo: mockAsyncResolver(workerDuration, { permission: 'admin' }),
+                  avatar: mockAsyncResolver(workerDuration, 'url'),
                 },
               },
             ],
@@ -796,7 +796,7 @@ describe('Resolvers in route', () => {
             element: <div>Home</div>,
             resolvers: {
               name: resolverWithException,
-              lastName: mockResolver(workerDuration, 'doe'),
+              lastName: mockAsyncResolver(workerDuration, 'doe'),
             },
           },
         ];
@@ -826,7 +826,7 @@ describe('Resolvers in route', () => {
             element: <div>Home</div>,
             resolvers: {
               name: resolverWithExceptionAsync,
-              lastName: mockResolver(workerDuration, 'doe'),
+              lastName: mockAsyncResolver(workerDuration, 'doe'),
             },
           },
         ];
@@ -862,7 +862,7 @@ describe('Resolvers in route', () => {
                 element: <div>Child</div>,
                 resolvers: {
                   name: resolverWithException,
-                  lastName: mockResolver(workerDuration, 'doe'),
+                  lastName: mockAsyncResolver(workerDuration, 'doe'),
                 },
               },
             ],
@@ -906,7 +906,7 @@ describe('Resolvers in route', () => {
                 element: <div>Child</div>,
                 resolvers: {
                   name: resolverWithExceptionAsync,
-                  lastName: mockResolver(workerDuration, 'doe'),
+                  lastName: mockAsyncResolver(workerDuration, 'doe'),
                 },
               },
             ],

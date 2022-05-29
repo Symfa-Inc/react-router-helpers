@@ -8,6 +8,9 @@ import { HelperRouteObjectProps, OnlyHelperFields, RouteHelperStatus } from './t
 
 //   // TODO: Add metadata (title)
 //   // TODO: Add metadata (title) tests
+
+//  // TODO: Add preserve query params strategy for Link component
+//  // TODO: Add preserve query params strategy for Link component tests
 //
 //   // TODO: Add lazy loading
 //   // TODO: Add lazy loading tests
