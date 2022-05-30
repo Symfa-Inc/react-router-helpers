@@ -1162,6 +1162,7 @@ describe('on status change', () => {
       describe('for parent route', () => {
         it('1 resolver sync throw an exception', async () => {
           const statuses: RouteHelperStatus[] = [];
+          const expectedStatuses = [RouteHelperStatus.Loading, RouteHelperStatus.Failed];
 
           const routes: HelperRouteObject[] = [
             {
@@ -1187,9 +1188,14 @@ describe('on status change', () => {
 
           await wait(workerDuration + workerDurationTimeBeforeCheck);
           expect(statuses.length).toBe(2);
+
+          statuses.forEach((status, index) => {
+            expect(status).toBe(expectedStatuses[index]);
+          });
         });
         it('1 resolver async throw an exception', async () => {
           const statuses: RouteHelperStatus[] = [];
+          const expectedStatuses = [RouteHelperStatus.Loading, RouteHelperStatus.Failed];
 
           const routes: HelperRouteObject[] = [
             {
@@ -1215,6 +1221,9 @@ describe('on status change', () => {
 
           await wait(workerDuration + workerDurationTimeBeforeCheck);
           expect(statuses.length).toBe(2);
+          statuses.forEach((status, index) => {
+            expect(status).toBe(expectedStatuses[index]);
+          });
         });
       });
     });
