@@ -1,2 +1,2 @@
 export const workerDuration = 200;
-export const workerDurationTimeBeforeCheck = 50;
+export const workerDurationTimeBeforeCheck = 30;
