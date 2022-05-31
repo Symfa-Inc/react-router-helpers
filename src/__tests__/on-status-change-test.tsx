@@ -2,7 +2,7 @@ import * as React from 'react';
 import { MemoryRouter, Outlet, useNavigate } from 'react-router-dom';
 import * as TestRenderer from 'react-test-renderer';
 import { HelperRouteObject, RouteHelperStatus } from '../types';
-import { workerDurationTimeBeforeCheck, workerDuration } from './utils/general-utils';
+import { workerDuration, workerDurationTimeBeforeCheck } from './utils/general-utils';
 import { mockAsyncGuard } from './utils/mock-async-guard';
 import { mockAsyncResolver } from './utils/mock-async-resolver';
 import { mockSyncResolver } from './utils/mock-resolver';
@@ -492,6 +492,7 @@ describe('on status change', () => {
           let renderer: TestRenderer.ReactTestRenderer;
 
           let status: RouteHelperStatus;
+
           function RoutesWrapper() {
             const navigate = useNavigate();
             const routes: HelperRouteObject[] = [
@@ -1230,6 +1231,208 @@ describe('on status change', () => {
   });
 
   describe('onGuardStatusChange with onResolverStatusChange functions mush work sequentially', () => {
-    // TODO: Add tests
+    describe('parent route', () => {
+      it('2 guards and 2 resolvers on parent', async () => {
+        const guardStatuses: RouteHelperStatus[] = [];
+        const resolverStatuses: RouteHelperStatus[] = [];
+
+        const expectedStatuses = [RouteHelperStatus.Loading, RouteHelperStatus.Loaded];
+
+        const Home = () => {
+          return (
+            <div>
+              Home
+              <Outlet />
+            </div>
+          );
+        };
+
+        const routes: HelperRouteObject[] = [
+          {
+            path: '/',
+            element: <Home />,
+            guards: [mockAsyncGuard(true, workerDuration), mockAsyncGuard(true, workerDuration)],
+            resolvers: {
+              userInfo: mockAsyncResolver(workerDuration, 'john'),
+              authInfo: mockAsyncResolver(workerDuration, 'admin'),
+            },
+            onGuardStatusChange: (status: RouteHelperStatus) => {
+              guardStatuses.push(status);
+            },
+            onResolverStatusChange: (status: RouteHelperStatus) => {
+              resolverStatuses.push(status);
+            },
+          },
+        ];
+
+        TestRenderer.act(() => {
+          TestRenderer.create(
+            <MemoryRouter initialEntries={['/']}>
+              <RoutesRenderer routes={routes} />
+            </MemoryRouter>,
+          );
+        });
+
+        await wait(1);
+        expect(guardStatuses.length).toBe(1);
+        expect(guardStatuses[0]).toBe(RouteHelperStatus.Loading);
+        expect(resolverStatuses.length).toBe(0);
+
+        await wait(workerDuration + workerDurationTimeBeforeCheck);
+        expect(guardStatuses.length).toBe(1);
+        expect(guardStatuses[0]).toBe(RouteHelperStatus.Loading);
+        expect(resolverStatuses.length).toBe(0);
+
+        await wait(workerDuration + workerDurationTimeBeforeCheck);
+        expect(guardStatuses.length).toBe(2);
+        guardStatuses.forEach((s, index) => {
+          expect(s).toBe(expectedStatuses[index]);
+        });
+
+        expect(resolverStatuses.length).toBe(1);
+        expect(resolverStatuses[0]).toBe(RouteHelperStatus.Loading);
+
+        await wait(workerDuration + workerDurationTimeBeforeCheck);
+        expect(guardStatuses.length).toBe(2);
+        guardStatuses.forEach((s, index) => {
+          expect(s).toBe(expectedStatuses[index]);
+        });
+
+        expect(resolverStatuses.length).toBe(2);
+        resolverStatuses.forEach((s, index) => {
+          expect(s).toBe(expectedStatuses[index]);
+        });
+      });
+    });
+    describe('child route', () => {
+      it('2 guards and 2 resolvers on parent and child', async () => {
+        const parentGuardStatuses: RouteHelperStatus[] = [];
+        const parentResolverStatuses: RouteHelperStatus[] = [];
+
+        const childGuardStatuses: RouteHelperStatus[] = [];
+        const childResolverStatuses: RouteHelperStatus[] = [];
+
+        const expectedStatuses = [RouteHelperStatus.Loading, RouteHelperStatus.Loaded];
+
+        const routes: HelperRouteObject[] = [
+          {
+            path: '/',
+            element: (
+              <div>
+                Home
+                <Outlet />
+              </div>
+            ),
+            guards: [mockAsyncGuard(true, workerDuration), mockAsyncGuard(true, workerDuration)],
+            resolvers: {
+              userInfo: mockAsyncResolver(workerDuration, 'john'),
+              authInfo: mockAsyncResolver(workerDuration, 'admin'),
+            },
+            onGuardStatusChange: (status: RouteHelperStatus) => {
+              parentGuardStatuses.push(status);
+            },
+            onResolverStatusChange: (status: RouteHelperStatus) => {
+              parentResolverStatuses.push(status);
+            },
+            children: [
+              {
+                path: 'child',
+                element: <div>Child</div>,
+                guards: [mockAsyncGuard(true, workerDuration), mockAsyncGuard(true, workerDuration)],
+                resolvers: {
+                  userInfo: mockAsyncResolver(workerDuration, 'john - child'),
+                  authInfo: mockAsyncResolver(workerDuration, 'admin - child'),
+                },
+                onGuardStatusChange: (status: RouteHelperStatus) => {
+                  childGuardStatuses.push(status);
+                },
+                onResolverStatusChange: (status: RouteHelperStatus) => {
+                  childResolverStatuses.push(status);
+                },
+              },
+            ],
+          },
+        ];
+
+        TestRenderer.act(() => {
+          TestRenderer.create(
+            <MemoryRouter initialEntries={['/child']}>
+              <RoutesRenderer routes={routes} location={{ pathname: '/child' }} />
+            </MemoryRouter>,
+          );
+        });
+
+        await wait(1);
+        expect(parentGuardStatuses.length).toBe(1);
+        expect(parentGuardStatuses[0]).toBe(RouteHelperStatus.Loading);
+        expect(parentResolverStatuses.length).toBe(0);
+
+        expect(childGuardStatuses.length).toBe(0);
+        expect(childResolverStatuses.length).toBe(0);
+
+        await wait(workerDuration + workerDurationTimeBeforeCheck);
+        expect(parentGuardStatuses.length).toBe(1);
+        expect(parentGuardStatuses[0]).toBe(RouteHelperStatus.Loading);
+        expect(parentResolverStatuses.length).toBe(0);
+
+        expect(childGuardStatuses.length).toBe(0);
+        expect(childResolverStatuses.length).toBe(0);
+
+        await wait(workerDuration + workerDurationTimeBeforeCheck);
+        expect(parentGuardStatuses.length).toBe(2);
+        parentGuardStatuses.forEach((s, index) => {
+          expect(s).toBe(expectedStatuses[index]);
+        });
+        expect(parentResolverStatuses.length).toBe(1);
+        expect(parentResolverStatuses[0]).toBe(RouteHelperStatus.Loading);
+
+        expect(childGuardStatuses.length).toBe(0);
+        expect(childResolverStatuses.length).toBe(0);
+
+        await wait(workerDuration + workerDurationTimeBeforeCheck);
+        expect(parentGuardStatuses.length).toBe(2);
+        parentGuardStatuses.forEach((s, index) => {
+          expect(s).toBe(expectedStatuses[index]);
+        });
+
+        expect(parentResolverStatuses.length).toBe(2);
+        parentResolverStatuses.forEach((s, index) => {
+          expect(s).toBe(expectedStatuses[index]);
+        });
+
+        expect(childGuardStatuses.length).toBe(1);
+        expect(childGuardStatuses[0]).toBe(RouteHelperStatus.Loading);
+        expect(childResolverStatuses.length).toBe(0);
+
+        await wait(workerDuration + workerDurationTimeBeforeCheck);
+
+        expect(childGuardStatuses.length).toBe(1);
+        expect(childGuardStatuses[0]).toBe(RouteHelperStatus.Loading);
+        expect(childResolverStatuses.length).toBe(0);
+
+        await wait(workerDuration + workerDurationTimeBeforeCheck);
+        expect(childGuardStatuses.length).toBe(2);
+        childGuardStatuses.forEach((s, index) => {
+          expect(s).toBe(expectedStatuses[index]);
+        });
+        expect(childResolverStatuses.length).toBe(1);
+        expect(childResolverStatuses[0]).toBe(RouteHelperStatus.Loading);
+
+        expect(parentGuardStatuses.length).toBe(2);
+        expect(parentResolverStatuses.length).toBe(2);
+
+        await wait(workerDuration + workerDurationTimeBeforeCheck);
+
+        expect(childGuardStatuses.length).toBe(2);
+        expect(childResolverStatuses.length).toBe(2);
+
+        childResolverStatuses.forEach((s, index) => {
+          expect(s).toBe(expectedStatuses[index]);
+        });
+
+        expect(parentGuardStatuses.length).toBe(2);
+        expect(parentResolverStatuses.length).toBe(2);
+      });
+    });
   });
 });
