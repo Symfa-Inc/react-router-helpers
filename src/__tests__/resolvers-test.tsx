@@ -30,7 +30,7 @@ describe('Resolvers in route', () => {
         const routes: HelperRouteObject[] = [
           {
             path: '/',
-            element: <Home/>,
+            element: <Home />,
             resolvers: {
               userInfo: mockAsyncResolver(workerDuration, { name: 'joe' }),
             },
@@ -40,7 +40,7 @@ describe('Resolvers in route', () => {
         TestRenderer.act(() => {
           renderer = TestRenderer.create(
             <MemoryRouter initialEntries={['/']}>
-              <RoutesRenderer routes={routes}/>
+              <RoutesRenderer routes={routes} />
             </MemoryRouter>,
           );
         });
@@ -80,7 +80,7 @@ describe('Resolvers in route', () => {
         const routes: HelperRouteObject[] = [
           {
             path: '/',
-            element: <Home/>,
+            element: <Home />,
             resolvers: {
               userInfo: mockAsyncResolver(workerDuration, { name: 'joe' }),
               productInfo: mockAsyncResolver(workerDuration, { price: 50 }),
@@ -91,7 +91,7 @@ describe('Resolvers in route', () => {
         TestRenderer.act(() => {
           renderer = TestRenderer.create(
             <MemoryRouter initialEntries={['/']}>
-              <RoutesRenderer routes={routes}/>
+              <RoutesRenderer routes={routes} />
             </MemoryRouter>,
           );
         });
@@ -134,7 +134,7 @@ describe('Resolvers in route', () => {
         const routes: HelperRouteObject[] = [
           {
             path: '/',
-            element: <Home/>,
+            element: <Home />,
             resolvers: {
               userInfo: mockAsyncResolver(workerDuration, { name: 'joe' }),
               productInfo: mockAsyncResolver(workerDuration),
@@ -145,7 +145,7 @@ describe('Resolvers in route', () => {
         TestRenderer.act(() => {
           renderer = TestRenderer.create(
             <MemoryRouter initialEntries={['/']}>
-              <RoutesRenderer routes={routes}/>
+              <RoutesRenderer routes={routes} />
             </MemoryRouter>,
           );
         });
@@ -184,7 +184,7 @@ describe('Resolvers in route', () => {
         const routes: HelperRouteObject[] = [
           {
             path: '/',
-            element: <Home/>,
+            element: <Home />,
             resolvers: {
               userInfo: mockAsyncResolver(workerDuration, { name: 'joe' }),
             },
@@ -203,7 +203,7 @@ describe('Resolvers in route', () => {
         TestRenderer.act(() => {
           renderer = TestRenderer.create(
             <MemoryRouter initialEntries={['/']}>
-              <RoutesRenderer routes={routes}/>
+              <RoutesRenderer routes={routes} />
             </MemoryRouter>,
           );
         });
@@ -245,13 +245,13 @@ describe('Resolvers in route', () => {
             path: '/',
             element: (
               <div>
-                Home <Outlet/>
+                Home <Outlet />
               </div>
             ),
             children: [
               {
                 path: 'child',
-                element: <Child/>,
+                element: <Child />,
                 resolvers: {
                   userInfo: mockAsyncResolver(workerDuration, { name: 'joe' }),
                 },
@@ -263,7 +263,7 @@ describe('Resolvers in route', () => {
         TestRenderer.act(() => {
           renderer = TestRenderer.create(
             <MemoryRouter initialEntries={['/child']}>
-              <RoutesRenderer routes={routes} location={{ pathname: '/child' }}/>
+              <RoutesRenderer routes={routes} location={{ pathname: '/child' }} />
             </MemoryRouter>,
           );
         });
@@ -312,13 +312,13 @@ describe('Resolvers in route', () => {
             path: '/',
             element: (
               <div>
-                Home <Outlet/>
+                Home <Outlet />
               </div>
             ),
             children: [
               {
                 path: 'child',
-                element: <Child/>,
+                element: <Child />,
                 resolvers: {
                   userInfo: mockAsyncResolver(workerDuration, { name: 'joe' }),
                   productInfo: mockAsyncResolver(workerDuration, { price: 50 }),
@@ -331,7 +331,7 @@ describe('Resolvers in route', () => {
         TestRenderer.act(() => {
           renderer = TestRenderer.create(
             <MemoryRouter initialEntries={['/child']}>
-              <RoutesRenderer routes={routes} location={{ pathname: '/child' }}/>
+              <RoutesRenderer routes={routes} location={{ pathname: '/child' }} />
             </MemoryRouter>,
           );
         });
@@ -373,7 +373,7 @@ describe('Resolvers in route', () => {
             <div>
               Home
               <h2>{userInfo.name}</h2>
-              <Outlet/>
+              <Outlet />
             </div>
           );
         }
@@ -392,14 +392,14 @@ describe('Resolvers in route', () => {
         const routes: HelperRouteObject[] = [
           {
             path: '/',
-            element: <Home/>,
+            element: <Home />,
             resolvers: {
               userInfo: mockAsyncResolver(workerDuration, { name: 'joe' }),
             },
             children: [
               {
                 path: 'child',
-                element: <Child/>,
+                element: <Child />,
                 resolvers: {
                   userInfo: mockAsyncResolver(workerDuration, { name: 'john' }),
                 },
@@ -411,7 +411,7 @@ describe('Resolvers in route', () => {
         TestRenderer.act(() => {
           renderer = TestRenderer.create(
             <MemoryRouter initialEntries={['/child']}>
-              <RoutesRenderer routes={routes} location={{ pathname: '/child' }}/>
+              <RoutesRenderer routes={routes} location={{ pathname: '/child' }} />
             </MemoryRouter>,
           );
         });
@@ -461,7 +461,7 @@ describe('Resolvers in route', () => {
               Home
               <h2>{userInfo.name}</h2>
               <h2>{productInfo.price}</h2>
-              <Outlet/>
+              <Outlet />
             </div>
           );
         }
@@ -484,7 +484,7 @@ describe('Resolvers in route', () => {
         const routes: HelperRouteObject[] = [
           {
             path: '/',
-            element: <Home/>,
+            element: <Home />,
             resolvers: {
               userInfo: mockAsyncResolver(workerDuration, { name: 'joe' }),
               productInfo: mockAsyncResolver(workerDuration, { price: 50 }),
@@ -492,7 +492,7 @@ describe('Resolvers in route', () => {
             children: [
               {
                 path: 'child',
-                element: <Child/>,
+                element: <Child />,
                 resolvers: {
                   userInfo: mockAsyncResolver(workerDuration, { name: 'john' }),
                   productInfo: mockAsyncResolver(workerDuration, { price: 100 }),
@@ -505,7 +505,7 @@ describe('Resolvers in route', () => {
         TestRenderer.act(() => {
           renderer = TestRenderer.create(
             <MemoryRouter initialEntries={['/child']}>
-              <RoutesRenderer routes={routes} location={{ pathname: '/child' }}/>
+              <RoutesRenderer routes={routes} location={{ pathname: '/child' }} />
             </MemoryRouter>,
           );
         });
@@ -567,19 +567,19 @@ describe('Resolvers in route', () => {
           return <button onClick={handleClick}>{title}</button>;
         };
 
-        const LinkToFirstChild = () => <GeneralLink link="./child" title="Link to first child"/>;
+        const LinkToFirstChild = () => <GeneralLink link="./child" title="Link to first child" />;
 
-        const LinkToSecondChild = () => <GeneralLink link="./child2" title="Link to second child"/>;
+        const LinkToSecondChild = () => <GeneralLink link="./child2" title="Link to second child" />;
 
-        const LinkToThirdChild = () => <GeneralLink link="./child3" title="Link to third child"/>;
+        const LinkToThirdChild = () => <GeneralLink link="./child3" title="Link to third child" />;
 
         const Home = () => {
           const { userName } = useResolver<{ userName: string }>();
           return (
             <div>
               <h1>Home test {userName}</h1>
-              <LinkToFirstChild/>
-              <Outlet/>
+              <LinkToFirstChild />
+              <Outlet />
             </div>
           );
         };
@@ -589,8 +589,8 @@ describe('Resolvers in route', () => {
           return (
             <div>
               <h1>Child {userName}</h1>
-              <LinkToSecondChild/>
-              <Outlet/>
+              <LinkToSecondChild />
+              <Outlet />
             </div>
           );
         };
@@ -600,8 +600,8 @@ describe('Resolvers in route', () => {
           return (
             <div>
               <h1>Child 2 {userName}</h1>
-              <LinkToThirdChild/>
-              <Outlet/>
+              <LinkToThirdChild />
+              <Outlet />
             </div>
           );
         };
@@ -617,28 +617,28 @@ describe('Resolvers in route', () => {
             resolvers: {
               userName: mockAsyncResolver(workerDuration, 'jack - home'),
             },
-            element: <Home/>,
+            element: <Home />,
             children: [
               {
                 path: 'child',
                 resolvers: {
                   userName: mockAsyncResolver(workerDuration, 'jack - child'),
                 },
-                element: <Child/>,
+                element: <Child />,
                 children: [
                   {
                     path: 'child2',
                     resolvers: {
                       userName: mockAsyncResolver(workerDuration, 'jack - child2'),
                     },
-                    element: <Child2/>,
+                    element: <Child2 />,
                     children: [
                       {
                         path: 'child3',
                         resolvers: {
                           userName: mockAsyncResolver(workerDuration, 'jack - child3'),
                         },
-                        element: <Child3/>,
+                        element: <Child3 />,
                       },
                     ],
                   },
@@ -651,7 +651,7 @@ describe('Resolvers in route', () => {
         TestRenderer.act(() => {
           renderer = TestRenderer.create(
             <MemoryRouter initialEntries={['/']}>
-              <RoutesRenderer routes={routes}/>
+              <RoutesRenderer routes={routes} />
             </MemoryRouter>,
           );
         });
@@ -999,13 +999,13 @@ describe('Resolvers in route', () => {
           path: '/home',
           element: (
             <div>
-              Home <Outlet/>
+              Home <Outlet />
             </div>
           ),
           children: [
             {
               path: ':id',
-              element: <Child/>,
+              element: <Child />,
               resolvers: {
                 routeParams: resolverWithParams,
               },
@@ -1020,7 +1020,7 @@ describe('Resolvers in route', () => {
         TestRenderer.act(() => {
           renderer = TestRenderer.create(
             <MemoryRouter initialEntries={['/home/1234']}>
-              <RoutesRenderer routes={routes} location={{ pathname: '/home/1234' }}/>
+              <RoutesRenderer routes={routes} location={{ pathname: '/home/1234' }} />
             </MemoryRouter>,
           );
         });
@@ -1068,7 +1068,7 @@ describe('Resolvers in route', () => {
         const routes: HelperRouteObject[] = [
           {
             path: '/',
-            element: <Home/>,
+            element: <Home />,
             resolvers: {
               name: mockAsyncResolver(workerDuration, 'joe'),
               lastName: mockAsyncResolver(workerDuration, 'doe'),
@@ -1081,7 +1081,7 @@ describe('Resolvers in route', () => {
         TestRenderer.act(() => {
           renderer = TestRenderer.create(
             <MemoryRouter initialEntries={['/']}>
-              <RoutesRenderer routes={routes}/>
+              <RoutesRenderer routes={routes} />
             </MemoryRouter>,
           );
         });
@@ -1138,13 +1138,13 @@ describe('Resolvers in route', () => {
             path: '/',
             element: (
               <div>
-                Home <Outlet/>
+                Home <Outlet />
               </div>
             ),
             children: [
               {
                 path: 'child',
-                element: <Child/>,
+                element: <Child />,
                 resolvers: {
                   name: mockAsyncResolver(workerDuration, 'joe'),
                   lastName: mockAsyncResolver(workerDuration, 'doe'),
@@ -1159,7 +1159,7 @@ describe('Resolvers in route', () => {
         TestRenderer.act(() => {
           renderer = TestRenderer.create(
             <MemoryRouter initialEntries={['/child']}>
-              <RoutesRenderer routes={routes} location={{ pathname: '/child' }}/>
+              <RoutesRenderer routes={routes} location={{ pathname: '/child' }} />
             </MemoryRouter>,
           );
         });
@@ -1226,7 +1226,7 @@ describe('Resolvers in route', () => {
         TestRenderer.act(() => {
           renderer = TestRenderer.create(
             <MemoryRouter initialEntries={['/']}>
-              <RoutesRenderer routes={routes}/>
+              <RoutesRenderer routes={routes} />
             </MemoryRouter>,
           );
         });
@@ -1256,7 +1256,7 @@ describe('Resolvers in route', () => {
         TestRenderer.act(() => {
           renderer = TestRenderer.create(
             <MemoryRouter initialEntries={['/']}>
-              <RoutesRenderer routes={routes}/>
+              <RoutesRenderer routes={routes} />
             </MemoryRouter>,
           );
         });
@@ -1294,7 +1294,7 @@ describe('Resolvers in route', () => {
         TestRenderer.act(() => {
           renderer = TestRenderer.create(
             <MemoryRouter initialEntries={['/']}>
-              <RoutesRenderer routes={routes}/>
+              <RoutesRenderer routes={routes} />
             </MemoryRouter>,
           );
         });
@@ -1338,7 +1338,7 @@ describe('Resolvers in route', () => {
         TestRenderer.act(() => {
           renderer = TestRenderer.create(
             <MemoryRouter initialEntries={['/']}>
-              <RoutesRenderer routes={routes}/>
+              <RoutesRenderer routes={routes} />
             </MemoryRouter>,
           );
         });

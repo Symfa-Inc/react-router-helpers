@@ -77,9 +77,7 @@ describe('route helper component', () => {
             <Routes>
               <Route
                 path="/"
-                element={
-                  <RouteHelper guards={[mockAsyncGuard(true, workerDuration)]} element={<div>Home</div>} />
-                }
+                element={<RouteHelper guards={[mockAsyncGuard(true, workerDuration)]} element={<div>Home</div>} />}
               />
             </Routes>
           </MemoryRouter>,
@@ -118,7 +116,10 @@ describe('route helper component', () => {
                   />
                 }
               >
-                <Route path="child" element={<RouteHelper guards={[mockAsyncGuard(true, workerDuration)]} element={<div>Child</div>} />}></Route>
+                <Route
+                  path="child"
+                  element={<RouteHelper guards={[mockAsyncGuard(true, workerDuration)]} element={<div>Child</div>} />}
+                ></Route>
               </Route>
             </Routes>
           </MemoryRouter>,

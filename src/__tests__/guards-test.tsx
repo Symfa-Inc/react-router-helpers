@@ -27,7 +27,7 @@ describe('Guards in route', () => {
       TestRenderer.act(() => {
         renderer = TestRenderer.create(
           <MemoryRouter initialEntries={['/']}>
-            <RoutesRenderer routes={routes}/>
+            <RoutesRenderer routes={routes} />
           </MemoryRouter>,
         );
       });
@@ -54,7 +54,7 @@ describe('Guards in route', () => {
       TestRenderer.act(() => {
         renderer = TestRenderer.create(
           <MemoryRouter initialEntries={['/']}>
-            <RoutesRenderer routes={routes}/>
+            <RoutesRenderer routes={routes} />
           </MemoryRouter>,
         );
       });
@@ -77,7 +77,7 @@ describe('Guards in route', () => {
       TestRenderer.act(() => {
         renderer = TestRenderer.create(
           <MemoryRouter initialEntries={['/']}>
-            <RoutesRenderer routes={routes}/>
+            <RoutesRenderer routes={routes} />
           </MemoryRouter>,
         );
       });
@@ -99,7 +99,7 @@ describe('Guards in route', () => {
       TestRenderer.act(() => {
         renderer = TestRenderer.create(
           <MemoryRouter initialEntries={['/']}>
-            <RoutesRenderer routes={routes}/>
+            <RoutesRenderer routes={routes} />
           </MemoryRouter>,
         );
       });
@@ -122,7 +122,7 @@ describe('Guards in route', () => {
       TestRenderer.act(() => {
         renderer = TestRenderer.create(
           <MemoryRouter initialEntries={['/']}>
-            <RoutesRenderer routes={routes}/>
+            <RoutesRenderer routes={routes} />
           </MemoryRouter>,
         );
       });
@@ -147,7 +147,7 @@ describe('Guards in route', () => {
       TestRenderer.act(() => {
         renderer = TestRenderer.create(
           <MemoryRouter initialEntries={['/']}>
-            <RoutesRenderer routes={routes}/>
+            <RoutesRenderer routes={routes} />
           </MemoryRouter>,
         );
       });
@@ -173,7 +173,7 @@ describe('Guards in route', () => {
       TestRenderer.act(() => {
         renderer = TestRenderer.create(
           <MemoryRouter initialEntries={['/']}>
-            <RoutesRenderer routes={routes}/>
+            <RoutesRenderer routes={routes} />
           </MemoryRouter>,
         );
       });
@@ -196,7 +196,7 @@ describe('Guards in route', () => {
       TestRenderer.act(() => {
         renderer = TestRenderer.create(
           <MemoryRouter initialEntries={['/']}>
-            <RoutesRenderer routes={routes}/>
+            <RoutesRenderer routes={routes} />
           </MemoryRouter>,
         );
       });
@@ -222,7 +222,7 @@ describe('Guards in route', () => {
       TestRenderer.act(() => {
         renderer = TestRenderer.create(
           <MemoryRouter initialEntries={['/']}>
-            <RoutesRenderer routes={routes}/>
+            <RoutesRenderer routes={routes} />
           </MemoryRouter>,
         );
       });
@@ -245,7 +245,7 @@ describe('Guards in route', () => {
       TestRenderer.act(() => {
         renderer = TestRenderer.create(
           <MemoryRouter initialEntries={['/']}>
-            <RoutesRenderer routes={routes}/>
+            <RoutesRenderer routes={routes} />
           </MemoryRouter>,
         );
       });
@@ -268,7 +268,7 @@ describe('Guards in route', () => {
       TestRenderer.act(() => {
         renderer = TestRenderer.create(
           <MemoryRouter initialEntries={['/']}>
-            <RoutesRenderer routes={routes}/>
+            <RoutesRenderer routes={routes} />
           </MemoryRouter>,
         );
       });
@@ -295,7 +295,7 @@ describe('Guards in route', () => {
         TestRenderer.act(() => {
           renderer = TestRenderer.create(
             <MemoryRouter initialEntries={['/']}>
-              <RoutesRenderer routes={routes}/>
+              <RoutesRenderer routes={routes} />
             </MemoryRouter>,
           );
         });
@@ -322,7 +322,7 @@ describe('Guards in route', () => {
         TestRenderer.act(() => {
           renderer = TestRenderer.create(
             <MemoryRouter initialEntries={['/']}>
-              <RoutesRenderer routes={routes}/>
+              <RoutesRenderer routes={routes} />
             </MemoryRouter>,
           );
         });
@@ -346,7 +346,7 @@ describe('Guards in route', () => {
               path: '/',
               element: (
                 <div>
-                  Home <Outlet/>
+                  Home <Outlet />
                 </div>
               ),
               guards: [mockAsyncGuard(true, workerDuration), mockSyncGuard(true)],
@@ -363,7 +363,7 @@ describe('Guards in route', () => {
           TestRenderer.act(() => {
             renderer = TestRenderer.create(
               <MemoryRouter initialEntries={['/']}>
-                <RoutesRenderer routes={routes} location={{ pathname: '/child' }}/>
+                <RoutesRenderer routes={routes} location={{ pathname: '/child' }} />
               </MemoryRouter>,
             );
           });
@@ -398,7 +398,7 @@ describe('Guards in route', () => {
               path: '/',
               element: (
                 <div>
-                  Home <Outlet/>
+                  Home <Outlet />
                 </div>
               ),
               guards: [mockSyncGuard(true), mockAsyncGuard(true, workerDuration)],
@@ -415,7 +415,7 @@ describe('Guards in route', () => {
           TestRenderer.act(() => {
             renderer = TestRenderer.create(
               <MemoryRouter initialEntries={['/child']}>
-                <RoutesRenderer routes={routes} location={{ pathname: '/child' }}/>
+                <RoutesRenderer routes={routes} location={{ pathname: '/child' }} />
               </MemoryRouter>,
             );
           });
@@ -452,7 +452,7 @@ describe('Guards in route', () => {
               path: '/',
               element: (
                 <div>
-                  Home <Outlet/>
+                  Home <Outlet />
                 </div>
               ),
               children: [
@@ -468,7 +468,7 @@ describe('Guards in route', () => {
           TestRenderer.act(() => {
             renderer = TestRenderer.create(
               <MemoryRouter initialEntries={['/']}>
-                <RoutesRenderer routes={routes} location={{ pathname: '/child' }}/>
+                <RoutesRenderer routes={routes} location={{ pathname: '/child' }} />
               </MemoryRouter>,
             );
           });
@@ -499,7 +499,7 @@ describe('Guards in route', () => {
               path: '/',
               element: (
                 <div>
-                  Home <Outlet/>
+                  Home <Outlet />
                 </div>
               ),
               children: [
@@ -515,7 +515,7 @@ describe('Guards in route', () => {
           TestRenderer.act(() => {
             renderer = TestRenderer.create(
               <MemoryRouter initialEntries={['/child']}>
-                <RoutesRenderer routes={routes} location={{ pathname: '/child' }}/>
+                <RoutesRenderer routes={routes} location={{ pathname: '/child' }} />
               </MemoryRouter>,
             );
           });
@@ -557,7 +557,7 @@ describe('Guards in route', () => {
         TestRenderer.act(() => {
           TestRenderer.create(
             <MemoryRouter initialEntries={['/']}>
-              <RoutesRenderer routes={routes}/>
+              <RoutesRenderer routes={routes} />
             </MemoryRouter>,
           );
         });
@@ -579,7 +579,7 @@ describe('Guards in route', () => {
         TestRenderer.act(() => {
           TestRenderer.create(
             <MemoryRouter initialEntries={['/']}>
-              <RoutesRenderer routes={routes}/>
+              <RoutesRenderer routes={routes} />
             </MemoryRouter>,
           );
         });
@@ -603,7 +603,7 @@ describe('Guards in route', () => {
         TestRenderer.act(() => {
           TestRenderer.create(
             <MemoryRouter initialEntries={['/']}>
-              <RoutesRenderer routes={routes}/>
+              <RoutesRenderer routes={routes} />
             </MemoryRouter>,
           );
         });
@@ -629,7 +629,7 @@ describe('Guards in route', () => {
         TestRenderer.act(() => {
           TestRenderer.create(
             <MemoryRouter initialEntries={['/']}>
-              <RoutesRenderer routes={routes}/>
+              <RoutesRenderer routes={routes} />
             </MemoryRouter>,
           );
         });
@@ -651,7 +651,7 @@ describe('Guards in route', () => {
                 path: '/',
                 element: (
                   <div>
-                    Home <Outlet/>
+                    Home <Outlet />
                   </div>
                 ),
                 children: [{ path: 'child', element: <div>Child</div> }],
@@ -677,7 +677,7 @@ describe('Guards in route', () => {
                 path: '/',
                 element: (
                   <div>
-                    Home <Outlet/>
+                    Home <Outlet />
                   </div>
                 ),
                 children: [{ path: 'child', element: <div>Child</div> }],
@@ -703,7 +703,7 @@ describe('Guards in route', () => {
                 path: '/',
                 element: (
                   <div>
-                    Home <Outlet/>
+                    Home <Outlet />
                   </div>
                 ),
                 children: [
@@ -738,7 +738,7 @@ describe('Guards in route', () => {
                 path: '/',
                 element: (
                   <div>
-                    Home <Outlet/>
+                    Home <Outlet />
                   </div>
                 ),
                 children: [
@@ -777,7 +777,7 @@ describe('Guards in route', () => {
                 path: '/',
                 element: (
                   <div>
-                    Home <Outlet/>
+                    Home <Outlet />
                   </div>
                 ),
                 guards: [mockAsyncGuard(true, workerDuration)],
@@ -809,7 +809,7 @@ describe('Guards in route', () => {
                 path: '/',
                 element: (
                   <div>
-                    Home <Outlet/>
+                    Home <Outlet />
                   </div>
                 ),
                 guards: [mockAsyncGuard(true, workerDuration)],
@@ -820,7 +820,7 @@ describe('Guards in route', () => {
                     element: (
                       <div>
                         Child
-                        <Outlet/>
+                        <Outlet />
                       </div>
                     ),
                     children: [
@@ -856,7 +856,7 @@ describe('Guards in route', () => {
                 path: '/',
                 element: (
                   <div>
-                    Home <Outlet/>
+                    Home <Outlet />
                   </div>
                 ),
                 guards: [mockAsyncGuard(true, workerDuration)],
@@ -867,7 +867,7 @@ describe('Guards in route', () => {
                     element: (
                       <div>
                         Child
-                        <Outlet/>
+                        <Outlet />
                       </div>
                     ),
                     children: [
@@ -877,7 +877,7 @@ describe('Guards in route', () => {
                         element: (
                           <div>
                             Child 2
-                            <Outlet/>
+                            <Outlet />
                           </div>
                         ),
                         children: [
@@ -918,7 +918,7 @@ describe('Guards in route', () => {
                 path: '/',
                 element: (
                   <div>
-                    Home <Outlet/>
+                    Home <Outlet />
                   </div>
                 ),
                 guards: [mockAsyncGuard(false, workerDuration)],
@@ -950,7 +950,7 @@ describe('Guards in route', () => {
               path: '/',
               element: (
                 <div>
-                  Home <Outlet/>
+                  Home <Outlet />
                 </div>
               ),
               children: [
@@ -979,7 +979,7 @@ describe('Guards in route', () => {
               path: '/',
               element: (
                 <div>
-                  Home <Outlet/>
+                  Home <Outlet />
                 </div>
               ),
               children: [
@@ -1009,7 +1009,7 @@ describe('Guards in route', () => {
             path: '/',
             element: (
               <div>
-                Home <Outlet/>
+                Home <Outlet />
               </div>
             ),
             guards: [mockAsyncGuard(true, workerDuration)],
@@ -1020,7 +1020,7 @@ describe('Guards in route', () => {
                 element: (
                   <div>
                     Child
-                    <Outlet/>
+                    <Outlet />
                   </div>
                 ),
                 children: [
@@ -1030,7 +1030,7 @@ describe('Guards in route', () => {
                     element: (
                       <div>
                         Child 2
-                        <Outlet/>
+                        <Outlet />
                       </div>
                     ),
                     children: [
@@ -1051,7 +1051,7 @@ describe('Guards in route', () => {
         TestRenderer.act(() => {
           renderer = TestRenderer.create(
             <MemoryRouter initialEntries={['/child/child2/child3']}>
-              <RoutesRenderer routes={routes} location={{ pathname: '/child/child2/child3' }}/>
+              <RoutesRenderer routes={routes} location={{ pathname: '/child/child2/child3' }} />
             </MemoryRouter>,
           );
         });
@@ -1137,18 +1137,18 @@ describe('Guards in route', () => {
           return <button onClick={handleClick}>{title}</button>;
         };
 
-        const LinkToFirstChild = () => <GeneralLink link="./child" title="Link to first child"/>;
+        const LinkToFirstChild = () => <GeneralLink link="./child" title="Link to first child" />;
 
-        const LinkToSecondChild = () => <GeneralLink link="./child2" title="Link to second child"/>;
+        const LinkToSecondChild = () => <GeneralLink link="./child2" title="Link to second child" />;
 
-        const LinkToThirdChild = () => <GeneralLink link="./child3" title="Link to third child"/>;
+        const LinkToThirdChild = () => <GeneralLink link="./child3" title="Link to third child" />;
 
         const Home = () => {
           return (
             <div>
               <h1>Home test</h1>
-              <LinkToFirstChild/>
-              <Outlet/>
+              <LinkToFirstChild />
+              <Outlet />
             </div>
           );
         };
@@ -1156,16 +1156,16 @@ describe('Guards in route', () => {
         const Child = () => (
           <div>
             <h1>Child</h1>
-            <LinkToSecondChild/>
-            <Outlet/>
+            <LinkToSecondChild />
+            <Outlet />
           </div>
         );
 
         const Child2 = () => (
           <div>
             <h1>Child 2</h1>
-            <LinkToThirdChild/>
-            <Outlet/>
+            <LinkToThirdChild />
+            <Outlet />
           </div>
         );
 
@@ -1175,22 +1175,22 @@ describe('Guards in route', () => {
           {
             path: '/',
             guards: [mockAsyncGuard(true, workerDuration)],
-            element: <Home/>,
+            element: <Home />,
             children: [
               {
                 path: 'child',
                 guards: [mockAsyncGuard(true, workerDuration)],
-                element: <Child/>,
+                element: <Child />,
                 children: [
                   {
                     path: 'child2',
                     guards: [mockAsyncGuard(true, workerDuration)],
-                    element: <Child2/>,
+                    element: <Child2 />,
                     children: [
                       {
                         path: 'child3',
                         guards: [mockAsyncGuard(true, workerDuration)],
-                        element: <Child3/>,
+                        element: <Child3 />,
                       },
                     ],
                   },
@@ -1203,7 +1203,7 @@ describe('Guards in route', () => {
         TestRenderer.act(() => {
           renderer = TestRenderer.create(
             <MemoryRouter initialEntries={['/']}>
-              <RoutesRenderer routes={routes}/>
+              <RoutesRenderer routes={routes} />
             </MemoryRouter>,
           );
         });
@@ -1518,7 +1518,7 @@ describe('Guards in route', () => {
           path: '/home',
           element: (
             <div>
-              Home <Outlet/>
+              Home <Outlet />
             </div>
           ),
           children: [
@@ -1537,7 +1537,7 @@ describe('Guards in route', () => {
         TestRenderer.act(() => {
           renderer = TestRenderer.create(
             <MemoryRouter initialEntries={['/home/1234']}>
-              <RoutesRenderer routes={routes} location={{ pathname: '/home/1234' }}/>
+              <RoutesRenderer routes={routes} location={{ pathname: '/home/1234' }} />
             </MemoryRouter>,
           );
         });
@@ -1560,7 +1560,7 @@ describe('Guards in route', () => {
         TestRenderer.act(() => {
           renderer = TestRenderer.create(
             <MemoryRouter initialEntries={['/home/12345']}>
-              <RoutesRenderer routes={routes} location={{ pathname: '/home/12345' }}/>
+              <RoutesRenderer routes={routes} location={{ pathname: '/home/12345' }} />
             </MemoryRouter>,
           );
         });
@@ -1599,7 +1599,7 @@ describe('Guards in route', () => {
         TestRenderer.act(() => {
           renderer = TestRenderer.create(
             <MemoryRouter initialEntries={['/']}>
-              <RoutesRenderer routes={routes}/>
+              <RoutesRenderer routes={routes} />
             </MemoryRouter>,
           );
         });
@@ -1618,7 +1618,7 @@ describe('Guards in route', () => {
             path: '/',
             element: (
               <div>
-                Home <Outlet/>
+                Home <Outlet />
               </div>
             ),
             children: [
@@ -1637,7 +1637,7 @@ describe('Guards in route', () => {
         TestRenderer.act(() => {
           renderer = TestRenderer.create(
             <MemoryRouter initialEntries={['/child']}>
-              <RoutesRenderer routes={routes} location={{ pathname: '/child' }}/>
+              <RoutesRenderer routes={routes} location={{ pathname: '/child' }} />
             </MemoryRouter>,
           );
         });
@@ -1660,7 +1660,7 @@ async function renderTest({ routes, path, waitTimeBeforeCheck, expectedResult, e
   TestRenderer.act(() => {
     renderer = TestRenderer.create(
       <MemoryRouter initialEntries={[path]}>
-        <RoutesRenderer routes={routes} location={{ pathname: path }}/>
+        <RoutesRenderer routes={routes} location={{ pathname: path }} />
       </MemoryRouter>,
     );
   });

@@ -6,6 +6,8 @@ import { HelperRouteObject } from '../types';
 import { workerDuration, workerDurationTimeBeforeCheck } from './utils/general-utils';
 import { mockAsyncGuard } from './utils/mock-async-guard';
 import { mockAsyncResolver } from './utils/mock-async-resolver';
+import { mockShouldNeverBeCalledGuard } from './utils/mock-should-never-be-called-guard';
+import { mockShouldNeverBeCalledResolver } from './utils/mock-should-never-be-called-resolver';
 import { RoutesRenderer } from './utils/RoutesRenderer';
 import { wait } from './utils/wait';
 
@@ -66,6 +68,41 @@ describe('resolvers with guards', () => {
           admin
         </div>
       `);
+    });
+    it('1 guard fails resolver should not be called', async () => {
+      let renderer: TestRenderer.ReactTestRenderer;
+      const counter = { amount: 0 };
+
+      const Home = () => {
+        return <div>Home</div>;
+      };
+
+      const routes: HelperRouteObject[] = [
+        {
+          path: '/',
+          element: <Home />,
+          guards: [mockAsyncGuard(false, workerDuration)],
+          resolvers: {
+            mock: mockShouldNeverBeCalledResolver(counter),
+          },
+        },
+      ];
+
+      TestRenderer.act(() => {
+        renderer = TestRenderer.create(
+          <MemoryRouter initialEntries={['/']}>
+            <RoutesRenderer routes={routes} />
+          </MemoryRouter>,
+        );
+      });
+
+      await wait(1);
+      expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
+
+      await wait(workerDuration + workerDurationTimeBeforeCheck);
+
+      expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
+      expect(counter.amount).toBe(0);
     });
   });
   describe('child route', () => {
@@ -181,6 +218,64 @@ describe('resolvers with guards', () => {
           </div>
         </div>
       `);
+    });
+
+    it('1 parent guard fails guard and resolver for child should not be called', async () => {
+      let renderer: TestRenderer.ReactTestRenderer;
+      const childGuardCounter = { amount: 0 };
+      const childResolverCounter = { amount: 0 };
+
+      const Home = () => {
+        return (
+          <div>
+            Home
+            <Outlet />
+          </div>
+        );
+      };
+
+      const routes: HelperRouteObject[] = [
+        {
+          path: '/',
+          element: <Home />,
+          guards: [mockAsyncGuard(false, workerDuration)],
+          children: [
+            {
+              path: 'child',
+              element: <div>Child</div>,
+              guards: [mockShouldNeverBeCalledGuard(childGuardCounter)],
+              resolvers: {
+                mock: mockShouldNeverBeCalledResolver(childResolverCounter),
+              },
+            },
+          ],
+        },
+      ];
+
+      TestRenderer.act(() => {
+        renderer = TestRenderer.create(
+          <MemoryRouter initialEntries={['/child']}>
+            <RoutesRenderer routes={routes} location={{ pathname: '/child' }} />
+          </MemoryRouter>,
+        );
+      });
+
+      await wait(1);
+      expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
+
+      await wait(workerDuration + workerDurationTimeBeforeCheck);
+
+      expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
+
+      expect(childGuardCounter.amount).toBe(0);
+      expect(childResolverCounter.amount).toBe(0);
+
+      await wait(workerDuration + workerDurationTimeBeforeCheck);
+
+      expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
+
+      expect(childGuardCounter.amount).toBe(0);
+      expect(childResolverCounter.amount).toBe(0);
     });
   });
 });
