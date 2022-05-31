@@ -1404,13 +1404,13 @@ describe('on status change', () => {
         expect(childGuardStatuses[0]).toBe(RouteHelperStatus.Loading);
         expect(childResolverStatuses.length).toBe(0);
 
-        await wait(workerDuration + workerDurationTimeBeforeCheck);
+        await wait(workerDuration);
 
         expect(childGuardStatuses.length).toBe(1);
         expect(childGuardStatuses[0]).toBe(RouteHelperStatus.Loading);
         expect(childResolverStatuses.length).toBe(0);
 
-        await wait(workerDuration + workerDurationTimeBeforeCheck);
+        await wait(workerDuration);
         expect(childGuardStatuses.length).toBe(2);
         childGuardStatuses.forEach((s, index) => {
           expect(s).toBe(expectedStatuses[index]);
@@ -1421,7 +1421,7 @@ describe('on status change', () => {
         expect(parentGuardStatuses.length).toBe(2);
         expect(parentResolverStatuses.length).toBe(2);
 
-        await wait(workerDuration + workerDurationTimeBeforeCheck);
+        await wait(workerDuration);
 
         expect(childGuardStatuses.length).toBe(2);
         expect(childResolverStatuses.length).toBe(2);

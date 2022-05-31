@@ -184,7 +184,7 @@ describe('resolvers with guards', () => {
         </div>
       `);
 
-      await wait(workerDuration + workerDurationTimeBeforeCheck);
+      await wait(workerDuration);
 
       expect(renderer.toJSON()).toMatchInlineSnapshot(`
         <div>
@@ -194,7 +194,7 @@ describe('resolvers with guards', () => {
         </div>
       `);
 
-      await wait(workerDuration + workerDurationTimeBeforeCheck);
+      await wait(workerDuration);
 
       expect(renderer.toJSON()).toMatchInlineSnapshot(`
         <div>
