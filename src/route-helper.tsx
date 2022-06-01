@@ -1,10 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import { RouteContext } from './context';
-import { useManager, useStatusNotification } from './inner-hooks';
-import { HelperRouteObjectProps, OnlyHelperFields, RouteHelperStatus } from './types';
-
-//   // TODO: Add resolvers
-//   // TODO: Add resolvers tests
+import React, { useEffect, useState } from "react";
+import { RouteContext } from "./context";
+import { useManager, useStatusNotification } from "./inner-hooks";
+import { HelperManager, HelperRouteObjectProps, OnlyHelperFields, RouteHelperStatus } from "./types";
 
 //   // TODO: Add metadata (title)
 //   // TODO: Add metadata (title) tests
@@ -20,13 +17,8 @@ import { HelperRouteObjectProps, OnlyHelperFields, RouteHelperStatus } from './t
 //
 
 export const RouteHelper = (props: HelperRouteObjectProps) => {
-  const guards = props.guards || [];
-  const resolvers = props.resolvers || {};
 
-  const manager = useManager({
-    guards: guards.map(g => g()),
-    resolvers: Object.keys(resolvers).reduce((acc, next) => ({ ...acc, [next]: resolvers[next]() }), {}),
-  });
+  const manager = useManager(initializeManagerParams());
 
   const [guardsStatus, setGuardsStatus] = useState<RouteHelperStatus>(RouteHelperStatus.Initial);
   const [resolversStatus, setResolversStatus] = useState<RouteHelperStatus>(RouteHelperStatus.Initial);
@@ -41,6 +33,15 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
     notification.notifyResolversStatusChange(initialStatus);
 
     const { status, infos } = await manager.evaluateResolvers();
+    console.log('before title');
+
+    if (status === RouteHelperStatus.Loaded) {
+
+      // TODO: BUG if titleResolver works for too long need to block UI?
+      // TODO: IF you hit direct path, should parents set their own titles?
+      // TODO: Navigate back, BUG with setting title back do we need to solve it?
+      await manager.resolveTitle();
+    }
     setLoadedResolverInfos(infos);
     setResolversStatus(status);
 
@@ -64,6 +65,19 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
     setGuardsStatus(guardStatus);
   };
 
+  function initializeManagerParams(): HelperManager {
+    const guards = props.guards || [];
+    const resolvers = props.resolvers || {};
+    const titleResolver = props.titleResolver || null;
+
+    return {
+      guards: guards.map(g => g()),
+      resolvers: Object.keys(resolvers).reduce((acc, next) => ({ ...acc, [next]: resolvers[next]() }), {}),
+      title: props.title,
+      titleResolver: titleResolver !== null ? titleResolver() : null,
+    };
+  }
+
   useEffect(() => {
     (async () => {
       await evaluateGuardsAndResolvers();
@@ -74,7 +88,7 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
     return (
       <RouteContext.Provider
         value={{
-          routeResolverInfos: loadedResolverInfos,
+          routeResolverInfos: loadedResolverInfos
         }}
       >
         <RouteContext.Consumer>{() => props.element}</RouteContext.Consumer>

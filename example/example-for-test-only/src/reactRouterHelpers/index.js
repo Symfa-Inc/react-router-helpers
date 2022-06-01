@@ -1,5 +1,5 @@
 /* eslint-disable */
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useRoutes } from 'react-router-dom';
 
 /*! *****************************************************************************
@@ -68,6 +68,7 @@ function __generator(thisArg, body) {
 var RouteContext = React.createContext({
     routeResolverInfos: {},
 });
+//# sourceMappingURL=context.js.map
 
 var RouteHelperStatus;
 (function (RouteHelperStatus) {
@@ -76,9 +77,24 @@ var RouteHelperStatus;
     RouteHelperStatus[RouteHelperStatus["Loaded"] = 2] = "Loaded";
     RouteHelperStatus[RouteHelperStatus["Failed"] = 3] = "Failed";
 })(RouteHelperStatus || (RouteHelperStatus = {}));
+//# sourceMappingURL=types.js.map
 
+var isNullOrUndefined = function (obj) {
+    return obj === null || obj === undefined;
+};
 function useManager(_a) {
-    var guards = _a.guards, resolvers = _a.resolvers;
+    var guards = _a.guards, resolvers = _a.resolvers, title = _a.title, titleResolver = _a.titleResolver;
+    useEffect(function () {
+        if (hasRouteTitle()) {
+            var prevTitle_1 = document.title;
+            document.title = title;
+            return function () {
+                if (hasRouteTitle()) {
+                    document.title = prevTitle_1;
+                }
+            };
+        }
+    }, []);
     function evaluateGuards() {
         return __awaiter(this, void 0, void 0, function () {
             var _i, guards_1, guard, canActivate, e_1;
@@ -102,7 +118,7 @@ function useManager(_a) {
                         return [3 /*break*/, 5];
                     case 4:
                         e_1 = _a.sent();
-                        console.error('Error in guards');
+                        console.error("Error in guards");
                         console.error(e_1);
                         return [2 /*return*/, RouteHelperStatus.Failed];
                     case 5:
@@ -132,7 +148,7 @@ function useManager(_a) {
                             }
                         }
                         return [4 /*yield*/, Promise.all(promises).catch(function (e) {
-                                console.error('Error in resolvers');
+                                console.error("Error in resolvers");
                                 console.error(e);
                                 status = RouteHelperStatus.Failed;
                             })];
@@ -141,7 +157,7 @@ function useManager(_a) {
                         if (status === RouteHelperStatus.Failed) {
                             return [2 /*return*/, {
                                     status: status,
-                                    infos: {},
+                                    infos: {}
                                 }];
                         }
                         infos = resultOfResolvers.reduce(function (acc, next, index) {
@@ -163,11 +179,38 @@ function useManager(_a) {
     function getResolversStatusBeforeEvaluating() {
         return Object.keys(resolvers).length === 0 ? RouteHelperStatus.Loaded : RouteHelperStatus.Loading;
     }
+    function setTitle(title) {
+        document.title = title;
+    }
+    function hasRouteTitle() {
+        return !isNullOrUndefined(title) || typeof titleResolver == "function";
+    }
+    function resolveTitle() {
+        return __awaiter(this, void 0, void 0, function () {
+            var titleFromResolver;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        if (!isNullOrUndefined(title)) {
+                            setTitle(title);
+                        }
+                        if (!(typeof titleResolver == "function")) return [3 /*break*/, 2];
+                        return [4 /*yield*/, titleResolver()];
+                    case 1:
+                        titleFromResolver = _a.sent();
+                        setTitle(titleFromResolver);
+                        _a.label = 2;
+                    case 2: return [2 /*return*/];
+                }
+            });
+        });
+    }
     return {
         evaluateGuards: evaluateGuards,
         getGuardsStatusBeforeEvaluating: getGuardsStatusBeforeEvaluating,
         evaluateResolvers: evaluateResolvers,
-        getResolversStatusBeforeEvaluating: getResolversStatusBeforeEvaluating
+        getResolversStatusBeforeEvaluating: getResolversStatusBeforeEvaluating,
+        resolveTitle: resolveTitle
     };
 }
 function useStatusNotification(guardsStatusChangeReceiver, resolversStatusChangeReceiver) {
@@ -185,7 +228,7 @@ function useStatusNotification(guardsStatusChangeReceiver, resolversStatusChange
                 stackResolversRef.current.push(status);
                 resolversStatusChangeReceiver(status);
             }
-        },
+        }
     };
 }
 
@@ -193,6 +236,8 @@ function useStatusNotification(guardsStatusChangeReceiver, resolversStatusChange
 //   // TODO: Add resolvers tests
 //   // TODO: Add metadata (title)
 //   // TODO: Add metadata (title) tests
+//  // TODO: Add preserve query params strategy for Link component
+//  // TODO: Add preserve query params strategy for Link component tests
 //
 //   // TODO: Add lazy loading
 //   // TODO: Add lazy loading tests
@@ -201,15 +246,7 @@ function useStatusNotification(guardsStatusChangeReceiver, resolversStatusChange
 //   // TODO: Add server side plug tests
 //
 var RouteHelper = function (props) {
-    var guards = props.guards || [];
-    var resolvers = props.resolvers || {};
-    var manager = useManager({
-        guards: guards.map(function (g) { return g(); }),
-        resolvers: Object.keys(resolvers).reduce(function (acc, next) {
-            var _a;
-            return (__assign(__assign({}, acc), (_a = {}, _a[next] = resolvers[next](), _a)));
-        }, {}),
-    });
+    var manager = useManager(initializeManagerParams());
     var _a = useState(RouteHelperStatus.Initial), guardsStatus = _a[0], setGuardsStatus = _a[1];
     var _b = useState(RouteHelperStatus.Initial), resolversStatus = _b[0], setResolversStatus = _b[1];
     var _c = useState({}), loadedResolverInfos = _c[0], setLoadedResolverInfos = _c[1];
@@ -225,8 +262,15 @@ var RouteHelper = function (props) {
                     return [4 /*yield*/, manager.evaluateResolvers()];
                 case 1:
                     _a = _b.sent(), status = _a.status, infos = _a.infos;
+                    console.log('before title');
+                    if (!(status === RouteHelperStatus.Loaded)) return [3 /*break*/, 3];
+                    return [4 /*yield*/, manager.resolveTitle()];
+                case 2:
+                    _b.sent();
+                    _b.label = 3;
+                case 3:
                     setLoadedResolverInfos(infos);
-                    setResolversStatus(status);
+                    // setResolversStatus(status);
                     notification.notifyResolversStatusChange(status);
                     return [2 /*return*/];
             }
@@ -255,6 +299,20 @@ var RouteHelper = function (props) {
             }
         });
     }); };
+    function initializeManagerParams() {
+        var guards = props.guards || [];
+        var resolvers = props.resolvers || {};
+        var titleResolver = props.titleResolver || null;
+        return {
+            guards: guards.map(function (g) { return g(); }),
+            resolvers: Object.keys(resolvers).reduce(function (acc, next) {
+                var _a;
+                return (__assign(__assign({}, acc), (_a = {}, _a[next] = resolvers[next](), _a)));
+            }, {}),
+            title: props.title,
+            titleResolver: titleResolver !== null ? titleResolver() : null,
+        };
+    }
     useEffect(function () {
         (function () { return __awaiter(void 0, void 0, void 0, function () {
             return __generator(this, function (_a) {
@@ -269,7 +327,7 @@ var RouteHelper = function (props) {
     }, []);
     if (guardsStatus == RouteHelperStatus.Loaded && resolversStatus === RouteHelperStatus.Loaded) {
         return (React.createElement(RouteContext.Provider, { value: {
-                routeResolverInfos: loadedResolverInfos,
+                routeResolverInfos: loadedResolverInfos
             } },
             React.createElement(RouteContext.Consumer, null, function () { return props.element; })));
     }
@@ -292,5 +350,6 @@ var useRoutesWithHelper = function (routes, locationArg) {
 function useResolver() {
     return React.useContext(RouteContext).routeResolverInfos;
 }
+//# sourceMappingURL=hooks.js.map
 
 export { RouteHelper, RouteHelperStatus, useResolver, useRoutesWithHelper };

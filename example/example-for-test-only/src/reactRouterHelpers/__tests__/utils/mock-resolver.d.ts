@@ -1,1 +1,1 @@
-export declare const mockResolver: (ms?: number, objToReturn?: any) => () => () => Promise<any>;
+export declare const mockSyncResolver: (objToReturn?: any) => () => () => any;

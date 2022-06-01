@@ -1,7 +1,24 @@
-import { useRef } from 'react';
-import { HelperManager, RouteHelperStatus, StatusChangeReceiver } from './types';
+import { useEffect, useRef } from "react";
+import { HelperManager, RouteHelperStatus, StatusChangeReceiver } from "./types";
 
-export function useManager({ guards, resolvers }: HelperManager) {
+const isNullOrUndefined = (obj?: any) => {
+  return obj === null || obj === undefined;
+};
+
+export function useManager({ guards, resolvers, title, titleResolver }: HelperManager) {
+  useEffect(() => {
+    if (hasRouteTitle()) {
+      const prevTitle = document.title;
+      document.title = title!;
+
+      return () => {
+        if (hasRouteTitle()) {
+          document.title = prevTitle;
+        }
+      };
+    }
+  }, []);
+
   async function evaluateGuards(): Promise<RouteHelperStatus> {
     for (const guard of guards) {
       try {
@@ -10,7 +27,7 @@ export function useManager({ guards, resolvers }: HelperManager) {
           return RouteHelperStatus.Failed;
         }
       } catch (e) {
-        console.error('Error in guards');
+        console.error("Error in guards");
         console.error(e);
         return RouteHelperStatus.Failed;
       }
@@ -27,13 +44,13 @@ export function useManager({ guards, resolvers }: HelperManager) {
     for (const resolverKey of Object.keys(resolvers)) {
       try {
         promises.push(resolvers[resolverKey]());
-      } catch  {
+      } catch {
         status = RouteHelperStatus.Failed;
       }
     }
 
     const resultOfResolvers = await Promise.all(promises).catch(e => {
-      console.error('Error in resolvers');
+      console.error("Error in resolvers");
       console.error(e);
       status = RouteHelperStatus.Failed;
     });
@@ -41,7 +58,7 @@ export function useManager({ guards, resolvers }: HelperManager) {
     if (status === RouteHelperStatus.Failed) {
       return {
         status,
-        infos: {},
+        infos: {}
       };
     }
 
@@ -64,11 +81,30 @@ export function useManager({ guards, resolvers }: HelperManager) {
     return Object.keys(resolvers).length === 0 ? RouteHelperStatus.Loaded : RouteHelperStatus.Loading;
   }
 
+  function setTitle(title: string) {
+    document.title = title;
+  }
+
+  function hasRouteTitle(): boolean {
+    return !isNullOrUndefined(title) || typeof titleResolver == "function";
+  }
+
+  async function resolveTitle() {
+    if (!isNullOrUndefined(title)) {
+      setTitle(title!);
+    }
+    if (typeof titleResolver == "function") {
+      const titleFromResolver = await titleResolver();
+      setTitle(titleFromResolver);
+    }
+  }
+
   return {
     evaluateGuards,
     getGuardsStatusBeforeEvaluating,
     evaluateResolvers,
-    getResolversStatusBeforeEvaluating
+    getResolversStatusBeforeEvaluating,
+    resolveTitle
   };
 }
 
@@ -91,6 +127,6 @@ export function useStatusNotification(
         stackResolversRef.current.push(status);
         resolversStatusChangeReceiver(status);
       }
-    },
+    }
   };
 }

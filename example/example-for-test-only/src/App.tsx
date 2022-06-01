@@ -116,9 +116,9 @@ const RoutesWrapper = () => {
     {
       path: "/",
       element: <Home />,
-      resolvers: {
-        userInfo: useGetUserInfoResolver,
-      },
+      // resolvers: {
+      //   userInfo: useGetUserInfoResolver,
+      // },
 
       // guards: [mockGuard()],
       // resolvers: {
@@ -134,7 +134,12 @@ const RoutesWrapper = () => {
         {
           path: "child",
           element: <Child />,
-          guards: [mockGuard(false)],
+          title: "1 test title",
+          titleResolver: () => async () => {
+            await wait(2000);
+            return 'BUG';
+          },
+          // guards: [mockGuard(false)],
           onGuardStatusChange: (status: RouteHelperStatus) => {
             // const nav = useNavigate();
             console.log('status', RouteHelperStatus[status]);
@@ -152,7 +157,8 @@ const RoutesWrapper = () => {
             {
               path: ":id",
               element: <Child2 />,
-
+              title: "2 test title",
+              titleResolver: () => () => 'title from ',
 
               children: [
                 {
