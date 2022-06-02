@@ -1,6 +1,6 @@
 /* eslint-disable */
-import React, { useEffect, useRef, useState } from 'react';
-import { useRoutes } from 'react-router-dom';
+import React, { useRef, useContext, useState, useEffect } from 'react';
+import { useLocation, Outlet, useRoutes } from 'react-router-dom';
 
 /*! *****************************************************************************
 Copyright (c) Microsoft Corporation. All rights reserved.
@@ -67,6 +67,8 @@ function __generator(thisArg, body) {
 
 var RouteContext = React.createContext({
     routeResolverInfos: {},
+    doWork: true,
+    setCancelTitleResolverForParent: function (_) { },
 });
 //# sourceMappingURL=context.js.map
 
@@ -83,18 +85,19 @@ var isNullOrUndefined = function (obj) {
     return obj === null || obj === undefined;
 };
 function useManager(_a) {
+    // useEffect(() => {
+    //   if (hasRouteTitle()) {
+    //     const prevTitle = document.title;
+    //     document.title = title!;
+    //
+    //     return () => {
+    //       if (hasRouteTitle()) {
+    //         document.title = prevTitle;
+    //       }
+    //     };
+    //   }
+    // }, []);
     var guards = _a.guards, resolvers = _a.resolvers, title = _a.title, titleResolver = _a.titleResolver;
-    useEffect(function () {
-        if (hasRouteTitle()) {
-            var prevTitle_1 = document.title;
-            document.title = title;
-            return function () {
-                if (hasRouteTitle()) {
-                    document.title = prevTitle_1;
-                }
-            };
-        }
-    }, []);
     function evaluateGuards() {
         return __awaiter(this, void 0, void 0, function () {
             var _i, guards_1, guard, canActivate, e_1;
@@ -182,9 +185,6 @@ function useManager(_a) {
     function setTitle(title) {
         document.title = title;
     }
-    function hasRouteTitle() {
-        return !isNullOrUndefined(title) || typeof titleResolver == "function";
-    }
     function resolveTitle() {
         return __awaiter(this, void 0, void 0, function () {
             var titleFromResolver;
@@ -231,9 +231,8 @@ function useStatusNotification(guardsStatusChangeReceiver, resolversStatusChange
         }
     };
 }
+//# sourceMappingURL=inner-hooks.js.map
 
-//   // TODO: Add resolvers
-//   // TODO: Add resolvers tests
 //   // TODO: Add metadata (title)
 //   // TODO: Add metadata (title) tests
 //  // TODO: Add preserve query params strategy for Link component
@@ -246,11 +245,41 @@ function useStatusNotification(guardsStatusChangeReceiver, resolversStatusChange
 //   // TODO: Add server side plug tests
 //
 var RouteHelper = function (props) {
+    var parentContext = useContext(RouteContext);
+    var location = useLocation();
+    var wasWorkStarted = useRef(false);
+    var wasParentTitleResolveCanceledRef = useRef(false);
+    var wasTitleResolveCanceledRef = useRef(false);
+    // const isFirstLoadRef = useRef(true);
+    var lastLocationRef = useRef('');
+    var lastCancellationKey = useRef('');
+    var lastCancellationKeyFromChild = useRef('');
     var manager = useManager(initializeManagerParams());
     var _a = useState(RouteHelperStatus.Initial), guardsStatus = _a[0], setGuardsStatus = _a[1];
     var _b = useState(RouteHelperStatus.Initial), resolversStatus = _b[0], setResolversStatus = _b[1];
     var _c = useState({}), loadedResolverInfos = _c[0], setLoadedResolverInfos = _c[1];
+    // const [isCancelTitleResolver, setCancelTitleResolver] = useState(false);
+    var _d = useState(false), childNeedToDoWork = _d[0], setChildNeedToDoWork = _d[1];
     var notification = useStatusNotification(props.onGuardStatusChange, props.onResolverStatusChange);
+    var cancelTitleResolver = function (cancellationKey) {
+        wasTitleResolveCanceledRef.current = true;
+        lastCancellationKeyFromChild.current = cancellationKey;
+    };
+    useEffect(function () {
+        if (lastLocationRef.current !== '' && lastLocationRef.current !== location.key) {
+            // if () {}
+            lastLocationRef.current = location.key;
+            if (lastLocationRef.current !== lastCancellationKeyFromChild.current) {
+                console.log('UPDDATE ' + props.element.type.name);
+                resetCancellationTitleResolver();
+                initCanc(lastLocationRef.current);
+            }
+        }
+    }, [location]);
+    var resetCancellationTitleResolver = function () {
+        wasParentTitleResolveCanceledRef.current = false;
+        wasTitleResolveCanceledRef.current = false;
+    };
     var evaluateResolvers = function () { return __awaiter(void 0, void 0, void 0, function () {
         var initialStatus, _a, status, infos;
         return __generator(this, function (_b) {
@@ -262,16 +291,11 @@ var RouteHelper = function (props) {
                     return [4 /*yield*/, manager.evaluateResolvers()];
                 case 1:
                     _a = _b.sent(), status = _a.status, infos = _a.infos;
-                    console.log('before title');
-                    if (!(status === RouteHelperStatus.Loaded)) return [3 /*break*/, 3];
-                    return [4 /*yield*/, manager.resolveTitle()];
-                case 2:
-                    _b.sent();
-                    _b.label = 3;
-                case 3:
+                    console.log('before call resolveTitle ' + props.element.type.name);
                     setLoadedResolverInfos(infos);
-                    // setResolversStatus(status);
+                    setResolversStatus(status);
                     notification.notifyResolversStatusChange(status);
+                    setChildNeedToDoWork(true);
                     return [2 /*return*/];
             }
         });
@@ -314,24 +338,54 @@ var RouteHelper = function (props) {
         };
     }
     useEffect(function () {
-        (function () { return __awaiter(void 0, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, evaluateGuardsAndResolvers()];
-                    case 1:
-                        _a.sent();
-                        return [2 /*return*/];
-                }
-            });
-        }); })();
+        initCanc(location.key);
+        lastLocationRef.current = location.key;
+        // isFirstLoadRef.current = false;
+        // (async () => {
+        //   await evaluateGuardsAndResolvers();
+        // })();
     }, []);
-    if (guardsStatus == RouteHelperStatus.Loaded && resolversStatus === RouteHelperStatus.Loaded) {
-        return (React.createElement(RouteContext.Provider, { value: {
-                routeResolverInfos: loadedResolverInfos
-            } },
-            React.createElement(RouteContext.Consumer, null, function () { return props.element; })));
-    }
-    return React.createElement(React.Fragment, null);
+    var initCanc = function (cancellationKey) {
+        if (!wasParentTitleResolveCanceledRef.current) {
+            // console.log('cancel from ' + (props.element as any).type.name);
+            wasParentTitleResolveCanceledRef.current = true;
+            parentContext.setCancelTitleResolverForParent(cancellationKey);
+        }
+        if (!wasTitleResolveCanceledRef.current) {
+            //   // TODO: BUG if titleResolver works for too long need to block UI?
+            //   // TODO: IF you hit direct path, should parents set their own titles?
+            //   // TODO: Navigate back, BUG with setting title back do we need to solve it?
+            //   console.log('call resolveTitle ' + (props.element as any).type.name);
+            manager.resolveTitle();
+        }
+    };
+    useEffect(function () {
+        // parentContext.setCancelTitleResolverForParent();
+        if (parentContext.doWork && !wasWorkStarted.current) {
+            wasWorkStarted.current = true;
+            evaluateGuardsAndResolvers();
+        }
+        // console.log(parentContext.doWork, (props.element as any).type.name);
+    }, [parentContext]);
+    // if (guardsStatus == RouteHelperStatus.Loaded && resolversStatus === RouteHelperStatus.Loaded) {
+    //   return (
+    //     <RouteContext.Provider
+    //       value={{
+    //         routeResolverInfos: loadedResolverInfos,
+    //         doWork: childNeedToDoWork,
+    //       }}
+    //     >
+    //       <RouteContext.Consumer>{() => props.element}</RouteContext.Consumer>
+    //     </RouteContext.Provider>
+    //   );
+    // }
+    var elementToRender = parentContext.doWork && guardsStatus === RouteHelperStatus.Loaded && resolversStatus === RouteHelperStatus.Loaded ? (props.element) : (React.createElement(Outlet, null));
+    return (React.createElement(RouteContext.Provider, { value: {
+            routeResolverInfos: loadedResolverInfos,
+            doWork: childNeedToDoWork,
+            setCancelTitleResolverForParent: cancelTitleResolver,
+        } },
+        React.createElement(RouteContext.Consumer, null, function () { return elementToRender; })));
 };
 var wrapRouteToHelper = function (props) {
     return React.createElement(RouteHelper, __assign({}, props));

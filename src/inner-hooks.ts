@@ -6,18 +6,18 @@ const isNullOrUndefined = (obj?: any) => {
 };
 
 export function useManager({ guards, resolvers, title, titleResolver }: HelperManager) {
-  useEffect(() => {
-    if (hasRouteTitle()) {
-      const prevTitle = document.title;
-      document.title = title!;
-
-      return () => {
-        if (hasRouteTitle()) {
-          document.title = prevTitle;
-        }
-      };
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (hasRouteTitle()) {
+  //     const prevTitle = document.title;
+  //     document.title = title!;
+  //
+  //     return () => {
+  //       if (hasRouteTitle()) {
+  //         document.title = prevTitle;
+  //       }
+  //     };
+  //   }
+  // }, []);
 
   async function evaluateGuards(): Promise<RouteHelperStatus> {
     for (const guard of guards) {

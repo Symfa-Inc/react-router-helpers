@@ -1,5 +1,13 @@
-import React, { useEffect } from 'react';
-import { BrowserRouter as Router, Link, Outlet, useNavigate, useParams } from 'react-router-dom';
+import React, { useContext, useEffect } from "react";
+import {
+  BrowserRouter as Router,
+  Link,
+  Outlet,
+  UNSAFE_NavigationContext,
+  useLocation,
+  useNavigate,
+  useParams
+} from "react-router-dom";
 import './App.css';
 import { mockGuard, useGetUserInfoResolver, useGuardWithParams } from './guards/mock-guard';
 import { RouteHelperStatus, useResolver, useRoutesWithHelper } from './reactRouterHelpers';
@@ -18,6 +26,7 @@ import { RouteHelperStatus, useResolver, useRoutesWithHelper } from './reactRout
 //
 //   };
 // };
+
 
 function Home() {
 
@@ -105,9 +114,21 @@ function wait(number = 1000) {
   });
 }
 
+
 const RoutesWrapper = () => {
   const nav = useNavigate();
+  const navigator = useContext(UNSAFE_NavigationContext).navigator;
+  useEffect(() => {
+    const listener = ({ location, action }: any) => {
+      console.log('listener', { location, action });
+      if (action === 'POP') {
+        console.log({ location, action });
+      }
+    };
 
+    const unlisten = (navigator as any).listen(listener);
+    return unlisten;
+  }, [navigator]);
   return useRoutesWithHelper([
     {
       path: 'login',
@@ -116,11 +137,12 @@ const RoutesWrapper = () => {
     {
       path: "/",
       element: <Home />,
+      title: 'HOME',
       // resolvers: {
       //   userInfo: useGetUserInfoResolver,
       // },
 
-      // guards: [mockGuard()],
+      guards: [mockGuard(true)],
       // resolvers: {
       //   test: useResolverForHome
       // },
@@ -134,11 +156,12 @@ const RoutesWrapper = () => {
         {
           path: "child",
           element: <Child />,
-          title: "1 test title",
-          titleResolver: () => async () => {
-            await wait(2000);
-            return 'BUG';
-          },
+          title: "CHILD",
+          guards: [mockGuard(true)],
+          // titleResolver: () => async () => {
+          //   await wait(2000);
+          //   return 'BUG';
+          // },
           // guards: [mockGuard(false)],
           onGuardStatusChange: (status: RouteHelperStatus) => {
             // const nav = useNavigate();

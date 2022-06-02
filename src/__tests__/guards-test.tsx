@@ -791,7 +791,7 @@ describe('Guards in route', () => {
               },
             ],
             path: '/child',
-            waitTimeBeforeCheck: workerDuration * 2 + workerDurationTimeBeforeCheck,
+            waitTimeBeforeCheck: workerDuration * 2 + workerDurationTimeBeforeCheck * 2,
             expectedResultBeforeGuardWord: `null`,
             expectedResult: `
               <div>
@@ -835,7 +835,7 @@ describe('Guards in route', () => {
               },
             ],
             path: '/child/child2',
-            waitTimeBeforeCheck: workerDuration * 3 + workerDurationTimeBeforeCheck,
+            waitTimeBeforeCheck: workerDuration * 3 + workerDurationTimeBeforeCheck * 2,
             expectedResultBeforeGuardWord: `null`,
             expectedResult: `
               <div>
