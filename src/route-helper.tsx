@@ -1,8 +1,9 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { Outlet, useLocation } from 'react-router-dom';
 import { RouteContext } from './context';
 import { useManager, useStatusNotification } from './inner-hooks';
 import { HelperManager, HelperRouteObjectProps, OnlyHelperFields, RouteHelperStatus } from './types';
+/* eslint no-use-before-define: 0 */
 
 //   // TODO: Add metadata (title)
 //   // TODO: Add metadata (title) tests
@@ -21,14 +22,13 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
   const parentContext = useContext(RouteContext);
   const location = useLocation();
 
-  const wasWorkStarted = useRef(false);
-  const wasParentTitleResolveCanceledRef = useRef(false);
-  const wasTitleResolveCanceledRef = useRef(false);
-  // const isFirstLoadRef = useRef(true);
-  const lastLocationRef = useRef<string>('');
+  const wereWorkersStarted = useRef(false);
 
-  const lastCancellationKey = useRef('');
+  const wasParentTitleResolveCanceled = useRef(false);
+
+  const lastLocationRef = useRef<string>('');
   const lastCancellationKeyFromChild = useRef('');
+
 
   const manager = useManager(initializeManagerParams());
 
@@ -36,33 +36,30 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
   const [resolversStatus, setResolversStatus] = useState<RouteHelperStatus>(RouteHelperStatus.Initial);
   const [loadedResolverInfos, setLoadedResolverInfos] = useState({});
 
-  // const [isCancelTitleResolver, setCancelTitleResolver] = useState(false);
 
-  const [childNeedToDoWork, setChildNeedToDoWork] = useState(false);
+  const [canChildStartWorkers, setCanChildStartWorkers] = useState(false);
 
   const notification = useStatusNotification(props.onGuardStatusChange, props.onResolverStatusChange);
 
   const cancelTitleResolver = (cancellationKey: string) => {
-    wasTitleResolveCanceledRef.current = true;
     lastCancellationKeyFromChild.current = cancellationKey;
   };
 
-  useEffect(() => {
-    if (lastLocationRef.current !== '' && lastLocationRef.current !== location.key) {
-      // if () {}
+  function isUpdateOnNewLocation() {
+    const isNew = lastLocationRef.current !== '' && lastLocationRef.current !== location.key;
+    if (isNew) {
       lastLocationRef.current = location.key;
-      if (lastLocationRef.current !== lastCancellationKeyFromChild.current) {
-        console.log('UPDDATE ' + (props.element as any).type.name);
-        resetCancellationTitleResolver();
-        initCanc(lastLocationRef.current);
-      }
     }
+    return isNew;
+  }
 
-  }, [location]);
+  function isLastChild() {
+    return lastLocationRef.current !== lastCancellationKeyFromChild.current;
+  }
 
-  const resetCancellationTitleResolver = () => {
-    wasParentTitleResolveCanceledRef.current = false;
-    wasTitleResolveCanceledRef.current = false;
+
+  const resetCancellationTitleResolve = () => {
+    wasParentTitleResolveCanceled.current = false;
   };
 
   const evaluateResolvers = async () => {
@@ -73,13 +70,22 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
 
     const { status, infos } = await manager.evaluateResolvers();
 
-    console.log('before call resolveTitle ' + (props.element as any).type.name);
 
     setLoadedResolverInfos(infos);
     setResolversStatus(status);
 
     notification.notifyResolversStatusChange(status);
-    setChildNeedToDoWork(true);
+    setCanChildStartWorkers(true);
+
+    if (status === RouteHelperStatus.Loaded) {
+      if (isLastChild()) {
+        applyResolveTitle();
+      }
+    }
+  };
+
+  const applyResolveTitle = () => {
+    manager.resolveTitle();
   };
 
   const evaluateGuardsAndResolvers = async () => {
@@ -112,64 +118,56 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
     };
   }
 
-  useEffect(() => {
-    initCanc(location.key);
-    lastLocationRef.current = location.key;
-    // isFirstLoadRef.current = false;
-    // (async () => {
-    //   await evaluateGuardsAndResolvers();
-    // })();
-  }, []);
-
-  const initCanc = (cancellationKey: string) => {
-    if (!wasParentTitleResolveCanceledRef.current) {
-      // console.log('cancel from ' + (props.element as any).type.name);
-      wasParentTitleResolveCanceledRef.current = true;
+  const initCancellation = (cancellationKey: string) => {
+    if (!wasParentTitleResolveCanceled.current) {
+      wasParentTitleResolveCanceled.current = true;
       parentContext.setCancelTitleResolverForParent(cancellationKey);
     }
 
-    if (!wasTitleResolveCanceledRef.current) {
-      //   // TODO: BUG if titleResolver works for too long need to block UI?
-      //   // TODO: IF you hit direct path, should parents set their own titles?
-      //   // TODO: Navigate back, BUG with setting title back do we need to solve it?
-      //   console.log('call resolveTitle ' + (props.element as any).type.name);
-      manager.resolveTitle();
+    if (isLastChild()) {
+      manager.setTitle();
+
+      // If route was already loaded
+      if (resolversStatus === RouteHelperStatus.Loaded) {
+        // TODO: Navigate back, BUG with setting title back do we need to solve it?
+        applyResolveTitle();
+      }
     }
   };
 
   useEffect(() => {
-    // parentContext.setCancelTitleResolverForParent();
-    if (parentContext.doWork && !wasWorkStarted.current) {
-      wasWorkStarted.current = true;
+    initCancellation(location.key);
+    lastLocationRef.current = location.key;
+  }, []);
+
+  useEffect(() => {
+    if (parentContext.canStartToLoadWorkers && !wereWorkersStarted.current) {
+      wereWorkersStarted.current = true;
       evaluateGuardsAndResolvers();
     }
-    // console.log(parentContext.doWork, (props.element as any).type.name);
   }, [parentContext]);
 
-  // if (guardsStatus == RouteHelperStatus.Loaded && resolversStatus === RouteHelperStatus.Loaded) {
-  //   return (
-  //     <RouteContext.Provider
-  //       value={{
-  //         routeResolverInfos: loadedResolverInfos,
-  //         doWork: childNeedToDoWork,
-  //       }}
-  //     >
-  //       <RouteContext.Consumer>{() => props.element}</RouteContext.Consumer>
-  //     </RouteContext.Provider>
-  //   );
-  // }
+  useEffect(() => {
+    if (isUpdateOnNewLocation() && isLastChild()) {
+      resetCancellationTitleResolve();
+      initCancellation(lastLocationRef.current);
+    }
+  }, [location]);
+
 
   const elementToRender =
-    parentContext.doWork && guardsStatus === RouteHelperStatus.Loaded && resolversStatus === RouteHelperStatus.Loaded ? (
+    parentContext.canStartToLoadWorkers &&
+    guardsStatus === RouteHelperStatus.Loaded &&
+    resolversStatus === RouteHelperStatus.Loaded ? (
       props.element
     ) : (
-      <Outlet />
+      <Outlet/>
     );
   return (
     <RouteContext.Provider
       value={{
         routeResolverInfos: loadedResolverInfos,
-        doWork: childNeedToDoWork,
+        canStartToLoadWorkers: canChildStartWorkers,
         setCancelTitleResolverForParent: cancelTitleResolver,
       }}
     >

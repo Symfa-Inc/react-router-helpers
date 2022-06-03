@@ -11,6 +11,7 @@ export declare function useManager({ guards, resolvers, title, titleResolver }: 
     }>;
     getResolversStatusBeforeEvaluating: () => RouteHelperStatus;
     resolveTitle: () => Promise<void>;
+    setTitle: () => void;
 };
 export declare function useStatusNotification(guardsStatusChangeReceiver?: StatusChangeReceiver, resolversStatusChangeReceiver?: StatusChangeReceiver): {
     notifyGuardStatusChange: (status: RouteHelperStatus) => void;

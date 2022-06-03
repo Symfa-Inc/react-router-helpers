@@ -12,6 +12,7 @@ export interface OnlyHelperFields {
     onResolverStatusChange?: (status: RouteHelperStatus) => void;
     title?: string;
     titleResolver?: TitleResolver;
+    loadingTitle?: string;
 }
 export interface HelperRouteObject extends RouteObject, OnlyHelperFields {
     children?: HelperRouteObject[];
@@ -27,6 +28,7 @@ export interface HelperManager {
     resolvers: Record<string, InnerResolver>;
     guards: InnerGuard[];
     title?: string;
+    loadingTitle?: string;
     titleResolver: InnerTitleResolver | null;
 }
 export declare type StatusChangeReceiver = (status: RouteHelperStatus) => void;

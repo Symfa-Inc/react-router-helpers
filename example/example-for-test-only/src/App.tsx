@@ -41,6 +41,7 @@ function Home() {
       <h1>Home</h1>
       <nav>
         <Link to="/">Home</Link> |{" "}
+        <Link to="/login">Login</Link> |{" "}
         <Link to="/child">Child</Link> |{" "}
         <Link to="/child/1234">Child 2</Link> |{" "}
         <Link to="/child/child2/child3">Child 3</Link>
@@ -138,11 +139,12 @@ const RoutesWrapper = () => {
       path: "/",
       element: <Home />,
       title: 'HOME',
+      guards: [mock],
       // resolvers: {
       //   userInfo: useGetUserInfoResolver,
       // },
 
-      guards: [mockGuard(true)],
+      // guards: [mockGuard(true, 'HOME 1'), mockGuard(true, 'HOME 2')],
       // resolvers: {
       //   test: useResolverForHome
       // },
@@ -156,8 +158,12 @@ const RoutesWrapper = () => {
         {
           path: "child",
           element: <Child />,
-          title: "CHILD",
-          guards: [mockGuard(true)],
+          title: "loading...",
+          guards: [mockGuard(false, 'HOME 1'), mockGuard(true, 'HOME 2')],
+          titleResolver: () => async () => {
+            await wait(2000);
+            return "RESOLVED TITLE";
+          },
           // titleResolver: () => async () => {
           //   await wait(2000);
           //   return 'BUG';

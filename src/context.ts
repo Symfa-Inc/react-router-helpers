@@ -2,10 +2,10 @@ import React from 'react';
 
 export const RouteContext = React.createContext<{
   routeResolverInfos: any;
-  doWork: boolean;
+  canStartToLoadWorkers: boolean;
   setCancelTitleResolverForParent: (cancellationKey: string) => void;
 }>({
   routeResolverInfos: {},
-  doWork: true,
+  canStartToLoadWorkers: true,
   setCancelTitleResolverForParent: (_: string) => {},
 });

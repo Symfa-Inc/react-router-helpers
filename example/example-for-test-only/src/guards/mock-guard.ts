@@ -4,7 +4,8 @@ import { useParams } from 'react-router-dom';
 import { AppDispatch, fetchUserById } from '../store';
 
 
-export const mockGuard = (canActivate: boolean = true) => () => async () => {
+export const mockGuard = (canActivate: boolean = true, message: string = "") => () => async () => {
+  console.log(message);
   await wait(2000);
   return canActivate;
 };

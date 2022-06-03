@@ -6,6 +6,8 @@ const isNullOrUndefined = (obj?: any) => {
 };
 
 export function useManager({ guards, resolvers, title, titleResolver }: HelperManager) {
+
+  const previouslyResolvedTitleRef = useRef<string>('');
   // useEffect(() => {
   //   if (hasRouteTitle()) {
   //     const prevTitle = document.title;
@@ -81,7 +83,7 @@ export function useManager({ guards, resolvers, title, titleResolver }: HelperMa
     return Object.keys(resolvers).length === 0 ? RouteHelperStatus.Loaded : RouteHelperStatus.Loading;
   }
 
-  function setTitle(title: string) {
+  function setTitleWithName(title: string) {
     document.title = title;
   }
 
@@ -89,13 +91,23 @@ export function useManager({ guards, resolvers, title, titleResolver }: HelperMa
     return !isNullOrUndefined(title) || typeof titleResolver == "function";
   }
 
-  async function resolveTitle() {
+  function setTitle() {
     if (!isNullOrUndefined(title)) {
-      setTitle(title!);
+      setTitleWithName(title!);
     }
+  }
+
+  async function resolveTitle() {
     if (typeof titleResolver == "function") {
+      if (previouslyResolvedTitleRef.current !== '') {
+        setTitleWithName(previouslyResolvedTitleRef.current);
+        return;
+      }
+
       const titleFromResolver = await titleResolver();
-      setTitle(titleFromResolver);
+      previouslyResolvedTitleRef.current = titleFromResolver;
+
+      setTitleWithName(titleFromResolver);
     }
   }
 
@@ -104,7 +116,8 @@ export function useManager({ guards, resolvers, title, titleResolver }: HelperMa
     getGuardsStatusBeforeEvaluating,
     evaluateResolvers,
     getResolversStatusBeforeEvaluating,
-    resolveTitle
+    resolveTitle,
+    setTitle
   };
 }
 
