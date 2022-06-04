@@ -54,9 +54,13 @@ function Home() {
 function Child() {
   const resolverInfos = useResolver<{ userName: string; lastName: string; }>();
 
-  // useEffect(() => {
-  //   console.log('rendered Child', resolverInfos);
-  // }, []);
+  useEffect(() => {
+    // console.log('rendered Child', resolverInfos);
+
+    return () => {
+      console.log('child destroyed');
+    };
+  }, []);
 
   return (
     <div>
@@ -139,7 +143,7 @@ const RoutesWrapper = () => {
       path: "/",
       element: <Home />,
       title: 'HOME',
-      guards: [mock],
+      // guards: [mock],
       // resolvers: {
       //   userInfo: useGetUserInfoResolver,
       // },
@@ -159,7 +163,7 @@ const RoutesWrapper = () => {
           path: "child",
           element: <Child />,
           title: "loading...",
-          guards: [mockGuard(false, 'HOME 1'), mockGuard(true, 'HOME 2')],
+          guards: [mockGuard(true, 'HOME 1'), mockGuard(true, 'HOME 2')],
           titleResolver: () => async () => {
             await wait(2000);
             return "RESOLVED TITLE";

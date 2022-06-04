@@ -278,4 +278,124 @@ describe('resolvers with guards', () => {
       expect(childResolverCounter.amount).toBe(0);
     });
   });
+
+  describe('with an exception', () => {
+    const workerWithAnException = () => () => {
+      throw new Error();
+    };
+    it("parent route guard throw an exception, child guard and resolvers should not be called", async () => {
+      const parentResolverCounter = { amount: 0 };
+      const childGuardCounter = { amount: 0 };
+      const childResolverCounter = { amount: 0 };
+
+      const Home = () => {
+        return (
+          <div>
+            Home
+            <Outlet />
+          </div>
+        );
+      };
+
+      const Child = () => {
+        return (
+          <div>
+            Child
+          </div>
+        );
+      };
+
+      const routes: HelperRouteObject[] = [
+        {
+          path: '/',
+          element: <Home />,
+          guards: [workerWithAnException],
+          resolvers: {
+            counter: mockShouldNeverBeCalledResolver(parentResolverCounter),
+          },
+          children: [
+            {
+              path: 'child',
+              element: <Child />,
+              guards: [mockShouldNeverBeCalledGuard(childGuardCounter)],
+              resolvers: {
+                counter: mockShouldNeverBeCalledResolver(childResolverCounter),
+              },
+            },
+          ],
+        },
+      ];
+
+      TestRenderer.act(() => {
+        TestRenderer.create(
+          <MemoryRouter initialEntries={['/child']}>
+            <RoutesRenderer routes={routes} location={{ pathname: '/child' }} />
+          </MemoryRouter>,
+        );
+      });
+
+      await wait(1);
+
+      expect(parentResolverCounter.amount).toBe(0);
+      expect(childGuardCounter.amount).toBe(0);
+      expect(childResolverCounter.amount).toBe(0);
+
+    });
+
+    it("parent route resolver throw an exception, child guard and resolvers should not be called", async () => {
+      const childGuardCounter = { amount: 0 };
+      const childResolverCounter = { amount: 0 };
+
+      const Home = () => {
+        return (
+          <div>
+            Home
+            <Outlet />
+          </div>
+        );
+      };
+
+      const Child = () => {
+        return (
+          <div>
+            Child
+          </div>
+        );
+      };
+
+      const routes: HelperRouteObject[] = [
+        {
+          path: '/',
+          element: <Home />,
+          resolvers: {
+            counter: workerWithAnException,
+          },
+          children: [
+            {
+              path: 'child',
+              element: <Child />,
+              guards: [mockShouldNeverBeCalledGuard(childGuardCounter)],
+              resolvers: {
+                counter: mockShouldNeverBeCalledResolver(childResolverCounter),
+              },
+            },
+          ],
+        },
+      ];
+
+      TestRenderer.act(() => {
+        TestRenderer.create(
+          <MemoryRouter initialEntries={['/child']}>
+            <RoutesRenderer routes={routes} location={{ pathname: '/child' }} />
+          </MemoryRouter>,
+        );
+      });
+
+      await wait(1);
+
+      expect(childGuardCounter.amount).toBe(0);
+      expect(childResolverCounter.amount).toBe(0);
+
+    });
+  })
 });

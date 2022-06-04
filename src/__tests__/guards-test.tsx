@@ -1113,29 +1113,17 @@ describe('Guards in route', () => {
     });
 
     describe('scenario', () => {
-      // let node: HTMLDivElement;
-      // beforeEach(() => {
-      //   node = document.createElement('div');
-      //   document.body.appendChild(node);
-      // });
-      //
-      // afterEach(() => {
-      //   document.body.removeChild(node);
-      //   node = null!;
-      // });
+      const GeneralLink: FC<{ title: string; link: string }> = ({ title, link }) => {
+        const navigate = useNavigate();
 
+        function handleClick() {
+          navigate(link);
+        }
+
+        return <button onClick={handleClick}>{title}</button>;
+      };
       it('with 3 children, check guards to be correctly rendered and should not be rendered twice for parents', async () => {
         let renderer: TestRenderer.ReactTestRenderer;
-
-        const GeneralLink: FC<{ title: string; link: string }> = ({ title, link }) => {
-          const navigate = useNavigate();
-
-          function handleClick() {
-            navigate(link);
-          }
-
-          return <button onClick={handleClick}>{title}</button>;
-        };
 
         const LinkToFirstChild = () => <GeneralLink link="./child" title="Link to first child" />;
 
@@ -1500,6 +1488,61 @@ describe('Guards in route', () => {
             </div>
           </div>
         `);
+      });
+
+      it('quick navigation to different route, next guard should be cancelled', async () => {
+        let renderer: TestRenderer.ReactTestRenderer;
+
+        const counter = { amount: 0 };
+
+        const LinkToLoginPage = () => <GeneralLink link="/login" title="Link to login page" />;
+
+        const Home = () => {
+          return (
+            <div>
+              <h1>Home test</h1>
+              <LinkToLoginPage />
+              <Outlet />
+            </div>
+          );
+        };
+
+        const routes: HelperRouteObject[] = [
+          {
+            element: <div>Login page</div>,
+            path: 'login',
+          },
+          {
+            path: '/',
+            element: <Home />,
+            children: [
+              {
+                path: 'child',
+                element: <div>child</div>,
+                guards: [mockAsyncGuard(true, workerDuration), mockShouldNeverBeCalledGuard(counter)],
+              }
+            ]
+          },
+        ];
+
+        TestRenderer.act(() => {
+          renderer = TestRenderer.create(
+            <MemoryRouter initialEntries={['/child']}>
+              <RoutesRenderer routes={routes} />
+            </MemoryRouter>,
+          );
+        });
+
+        await wait(workerDuration);
+
+        const linkToLoginPage = renderer.root.findByType(LinkToLoginPage);
+
+        TestRenderer.act(() => {
+          linkToLoginPage.findByType('button').props.onClick();
+        });
+
+        await wait(workerDuration);
+        expect(counter.amount).toBe(0);
       });
     });
   });

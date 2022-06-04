@@ -1,3 +1,4 @@
+import React from "react";
 import { HelperManager, RouteHelperStatus, StatusChangeReceiver } from "./types";
 export declare function useManager({ guards, resolvers, title, titleResolver }: HelperManager): {
     evaluateGuards: () => Promise<RouteHelperStatus>;
@@ -10,7 +11,7 @@ export declare function useManager({ guards, resolvers, title, titleResolver }: 
         status: RouteHelperStatus.Loaded;
     }>;
     getResolversStatusBeforeEvaluating: () => RouteHelperStatus;
-    resolveTitle: () => Promise<void>;
+    resolveTitle: (isComponentAliveRef: React.MutableRefObject<boolean>) => Promise<void>;
     setTitle: () => void;
 };
 export declare function useStatusNotification(guardsStatusChangeReceiver?: StatusChangeReceiver, resolversStatusChangeReceiver?: StatusChangeReceiver): {

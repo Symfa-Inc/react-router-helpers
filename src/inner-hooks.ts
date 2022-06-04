@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { HelperManager, RouteHelperStatus, StatusChangeReceiver } from "./types";
 
 const isNullOrUndefined = (obj?: any) => {
@@ -21,9 +21,12 @@ export function useManager({ guards, resolvers, title, titleResolver }: HelperMa
   //   }
   // }, []);
 
-  async function evaluateGuards(): Promise<RouteHelperStatus> {
+  async function evaluateGuards(isComponentAliveRef: React.MutableRefObject<boolean>): Promise<RouteHelperStatus | null> {
     for (const guard of guards) {
       try {
+        if (!isComponentAliveRef.current) {
+          return null;
+        }
         const canActivate = await guard();
         if (!canActivate) {
           return RouteHelperStatus.Failed;
@@ -97,7 +100,7 @@ export function useManager({ guards, resolvers, title, titleResolver }: HelperMa
     }
   }
 
-  async function resolveTitle() {
+  async function resolveTitle(isComponentAliveRef: React.MutableRefObject<boolean>) {
     if (typeof titleResolver == "function") {
       if (previouslyResolvedTitleRef.current !== '') {
         setTitleWithName(previouslyResolvedTitleRef.current);
@@ -107,7 +110,9 @@ export function useManager({ guards, resolvers, title, titleResolver }: HelperMa
       const titleFromResolver = await titleResolver();
       previouslyResolvedTitleRef.current = titleFromResolver;
 
-      setTitleWithName(titleFromResolver);
+      if (isComponentAliveRef.current) {
+        setTitleWithName(titleFromResolver);
+      }
     }
   }
 
