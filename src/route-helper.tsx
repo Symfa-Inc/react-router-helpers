@@ -8,6 +8,10 @@ import { HelperManager, HelperRouteObjectProps, OnlyHelperFields, RouteHelperSta
 //   // TODO: Add metadata (title)
 //   // TODO: Add metadata (title) tests
 
+// TODO: BUG if press on the same link again
+// TODO: BUG if press on the last link - title was set from first parent
+// TODO: BUG if first press on child1 and then second press on child 2 - title was set from child1
+
 //  // TODO: Add preserve query params strategy for Link component
 //  // TODO: Add preserve query params strategy for Link component tests
 //
