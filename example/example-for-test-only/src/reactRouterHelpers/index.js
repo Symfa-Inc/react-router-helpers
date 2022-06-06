@@ -70,7 +70,6 @@ var RouteContext = React.createContext({
     canStartToLoadWorkers: true,
     setCancelTitleResolverForParent: function (_) { },
 });
-//# sourceMappingURL=context.js.map
 
 var RouteHelperStatus;
 (function (RouteHelperStatus) {
@@ -79,7 +78,6 @@ var RouteHelperStatus;
     RouteHelperStatus[RouteHelperStatus["Loaded"] = 2] = "Loaded";
     RouteHelperStatus[RouteHelperStatus["Failed"] = 3] = "Failed";
 })(RouteHelperStatus || (RouteHelperStatus = {}));
-//# sourceMappingURL=types.js.map
 
 var isNullOrUndefined = function (obj) {
     return obj === null || obj === undefined;
@@ -99,7 +97,7 @@ function useManager(_a) {
     //     };
     //   }
     // }, []);
-    function evaluateGuards() {
+    function evaluateGuards(isComponentAliveRef) {
         return __awaiter(this, void 0, void 0, function () {
             var _i, guards_1, guard, canActivate, e_1;
             return __generator(this, function (_a) {
@@ -113,6 +111,9 @@ function useManager(_a) {
                         _a.label = 2;
                     case 2:
                         _a.trys.push([2, 4, , 5]);
+                        if (!isComponentAliveRef.current) {
+                            return [2 /*return*/, null];
+                        }
                         return [4 /*yield*/, guard()];
                     case 3:
                         canActivate = _a.sent();
@@ -206,7 +207,6 @@ function useManager(_a) {
                     case 1:
                         titleFromResolver = _a.sent();
                         previouslyResolvedTitleRef.current = titleFromResolver;
-                        console.log(isComponentAliveRef);
                         if (isComponentAliveRef.current) {
                             setTitleWithName(titleFromResolver);
                         }
@@ -243,11 +243,13 @@ function useStatusNotification(guardsStatusChangeReceiver, resolversStatusChange
         }
     };
 }
-//# sourceMappingURL=inner-hooks.js.map
 
 /* eslint no-use-before-define: 0 */
 //   // TODO: Add metadata (title)
 //   // TODO: Add metadata (title) tests
+// TODO: BUG if press on the same link again
+// TODO: BUG if press on the last link - title was set from first parent
+// TODO: BUG if first press on child1 and then second press on child 2 - title was set from child1
 //  // TODO: Add preserve query params strategy for Link component
 //  // TODO: Add preserve query params strategy for Link component tests
 //
@@ -257,9 +259,14 @@ function useStatusNotification(guardsStatusChangeReceiver, resolversStatusChange
 //   // TODO: Add server side plug
 //   // TODO: Add server side plug tests
 //
+var amount = 0;
+var OwnContext = React.createContext({
+    wasTriggered: false,
+});
 var RouteHelper = function (props) {
     var parentContext = useContext(RouteContext);
     var location = useLocation();
+    var COMPONENT_NAME = props.element.type.name;
     //#region initialize helpers
     var initializeManagerParams = function () {
         var guards = props.guards || [];
@@ -343,6 +350,7 @@ var RouteHelper = function (props) {
                     setLoadedResolverInfos(infos);
                     setResolversStatus(status);
                     notification.notifyResolversStatusChange(status);
+                    console.log('AFTER RESOLVERS ' + RouteHelperStatus[status] + COMPONENT_NAME);
                     if (status === RouteHelperStatus.Loaded) {
                         setCanChildStartWorkers(true);
                         if (isLastChild()) {
@@ -358,12 +366,18 @@ var RouteHelper = function (props) {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
+                    console.log('evaluateGuardsAndResolvers calls ' + amount + ' ' + Date.now());
+                    amount++;
                     initialStatus = manager.getGuardsStatusBeforeEvaluating();
+                    console.log('send initial status ' + RouteHelperStatus[initialStatus] + " " + COMPONENT_NAME);
                     setGuardsStatus(initialStatus);
                     notification.notifyGuardStatusChange(initialStatus);
-                    return [4 /*yield*/, manager.evaluateGuards()];
+                    return [4 /*yield*/, manager.evaluateGuards(isComponentStillAlive)];
                 case 1:
                     guardStatus = _a.sent();
+                    if (guardStatus === null) {
+                        return [2 /*return*/];
+                    }
                     notification.notifyGuardStatusChange(guardStatus);
                     if (!(guardStatus == RouteHelperStatus.Loaded)) return [3 /*break*/, 3];
                     return [4 /*yield*/, evaluateResolvers()];
@@ -378,12 +392,12 @@ var RouteHelper = function (props) {
     }); };
     //#region Triggers
     useEffect(function () {
-        console.log('mount ' + props.element.type.name);
-        lastLocationKey.current = location.key;
+        console.log('mount ' + COMPONENT_NAME);
         initCancellation(location.key);
+        lastLocationKey.current = location.key;
         isComponentStillAlive.current = true;
         return function () {
-            console.log('unmount ' + props.element.type.name);
+            console.log('unmount ' + COMPONENT_NAME);
             isComponentStillAlive.current = false;
         };
     }, []);
@@ -427,6 +441,5 @@ var useRoutesWithHelper = function (routes, locationArg) {
 function useResolver() {
     return React.useContext(RouteContext).routeResolverInfos;
 }
-//# sourceMappingURL=hooks.js.map
 
 export { RouteHelper, RouteHelperStatus, useResolver, useRoutesWithHelper };

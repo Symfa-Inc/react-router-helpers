@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { HelperManager, RouteHelperStatus, StatusChangeReceiver } from "./types";
+import { HelperManager, RouteHelperStatus, OnStatusChange } from "./types";
 
 const isNullOrUndefined = (obj?: any) => {
   return obj === null || obj === undefined;
@@ -127,8 +127,8 @@ export function useManager({ guards, resolvers, title, titleResolver }: HelperMa
 }
 
 export function useStatusNotification(
-  guardsStatusChangeReceiver?: StatusChangeReceiver,
-  resolversStatusChangeReceiver?: StatusChangeReceiver
+  guardsStatusChangeReceiver?: OnStatusChange,
+  resolversStatusChangeReceiver?: OnStatusChange
 ) {
   const stackGuardsRef = useRef<RouteHelperStatus[]>([]);
   const stackResolversRef = useRef<RouteHelperStatus[]>([]);

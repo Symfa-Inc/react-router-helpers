@@ -3,7 +3,6 @@ import { Outlet, useLocation } from "react-router-dom";
 import { RouteContext } from "./context";
 import { useManager, useStatusNotification } from "./inner-hooks";
 import { HelperManager, HelperRouteObjectProps, OnlyHelperFields, RouteHelperStatus } from "./types";
-/* eslint no-use-before-define: 0 */
 
 //   // TODO: Add metadata (title)
 //   // TODO: Add metadata (title) tests
@@ -23,11 +22,15 @@ import { HelperManager, HelperRouteObjectProps, OnlyHelperFields, RouteHelperSta
 //
 
 export const RouteHelper = (props: HelperRouteObjectProps) => {
+
+  //#region hooks usage
   const parentContext = useContext(RouteContext);
   const location = useLocation();
+  const notification = useStatusNotification(props.onGuardStatusChange, props.onResolverStatusChange);
+  //#endregion hooks usage
 
+  const COMPONENT_NAME = (props.element as any).type.name;
 
-  //#region initialize helpers
   const initializeManagerParams = (): HelperManager => {
     const guards = props.guards || [];
     const resolvers = props.resolvers || {};
@@ -40,19 +43,15 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
       titleResolver: titleResolver !== null ? titleResolver() : null,
     };
   }
-  //#endregion initialize helpers
-
   const manager = useManager(initializeManagerParams());
+
+  const isComponentStillAlive = useRef(true);
+  const lastLocationKey = useRef<string>("");
 
   //#region Refs to prevent double calls
   const wereWorkersStarted = useRef(false);
-  const wasParentTitleResolveCanceled = useRef(false);
+  const wasParentTitleResolvingCanceled = useRef(false);
   //#endregion Refs to prevent double calls
-
-  const isComponentStillAlive = useRef(true);
-
-  const lastLocationKey = useRef<string>("");
-  const lastCancellationKeyFromChild = useRef("");
 
   //#region Workers infos
   const [guardsStatus, setGuardsStatus] = useState<RouteHelperStatus>(RouteHelperStatus.Initial);
@@ -62,31 +61,30 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
 
   const [canChildStartWorkers, setCanChildStartWorkers] = useState(false);
 
-  const notification = useStatusNotification(props.onGuardStatusChange, props.onResolverStatusChange);
-
-
   //#region titleResolve
-  const cancelTitleResolveForCurrentRoute = (cancellationKey: string) => {
+  const lastCancellationKeyFromChild = useRef("");
+
+  const setCancellationKeyForCurrentRoute = (cancellationKey: string) => {
     lastCancellationKeyFromChild.current = cancellationKey;
   };
 
-  const applyResolveTitle = () => {
+  const resolveTitle = () => {
     manager.resolveTitle(isComponentStillAlive);
   };
 
-  const resetCancellationTitleResolve = () => {
-    wasParentTitleResolveCanceled.current = false;
+  const resetCancellationTitleResolvingForParent = () => {
+    wasParentTitleResolvingCanceled.current = false;
   };
 
-  const bubbleUpResolveCancellationToParent = (cancellationKey: string) => {
-    if (!wasParentTitleResolveCanceled.current) {
-      wasParentTitleResolveCanceled.current = true;
-      parentContext.setCancelTitleResolverForParent(cancellationKey);
+  const cancelParentTitleResolving = (cancellationKey: string) => {
+    if (!wasParentTitleResolvingCanceled.current) {
+      wasParentTitleResolvingCanceled.current = true;
+      parentContext.cancelTitleResolvingForParent(cancellationKey);
     }
   };
 
-  const initCancellation = (cancellationKey: string) => {
-    bubbleUpResolveCancellationToParent(cancellationKey);
+  const initCancellationTitleResolvingForParent = (cancellationKey: string) => {
+    cancelParentTitleResolving(cancellationKey);
 
     if (isLastChild()) {
       manager.setTitle();
@@ -94,7 +92,7 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
       // If route was already loaded
       if (resolversStatus === RouteHelperStatus.Loaded) {
         // TODO: Navigate back, BUG with setting title back do we need to solve it?
-        applyResolveTitle();
+        resolveTitle();
       }
     }
   };
@@ -113,6 +111,8 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
     return lastLocationKey.current !== lastCancellationKeyFromChild.current;
   };
 
+  //#region workers
+
   const evaluateResolvers = async () => {
     const initialStatus = manager.getResolversStatusBeforeEvaluating();
 
@@ -127,17 +127,21 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
 
     notification.notifyResolversStatusChange(status);
 
+    console.log('AFTER RESOLVERS ' + RouteHelperStatus[status] + COMPONENT_NAME);
+
     if (status === RouteHelperStatus.Loaded) {
       setCanChildStartWorkers(true);
 
       if (isLastChild()) {
-        applyResolveTitle();
+        resolveTitle();
       }
     }
   };
 
   const evaluateGuardsAndResolvers = async () => {
     const initialStatus = manager.getGuardsStatusBeforeEvaluating();
+
+    console.log('send initial status ' + RouteHelperStatus[initialStatus] + " " + COMPONENT_NAME);
 
     setGuardsStatus(initialStatus);
     notification.notifyGuardStatusChange(initialStatus);
@@ -156,19 +160,21 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
     setGuardsStatus(guardStatus);
   };
 
+  //#endregion workers
+
 
 
   //#region Triggers
   useEffect(() => {
-    console.log('mount ' + (props.element as any).type.name);
+    console.log('mount ' + COMPONENT_NAME);
 
-    initCancellation(location.key);
+    initCancellationTitleResolvingForParent(location.key);
 
     lastLocationKey.current = location.key;
     isComponentStillAlive.current = true;
 
     return () => {
-      console.log('unmount ' + (props.element as any).type.name);
+      console.log('unmount ' + COMPONENT_NAME);
       isComponentStillAlive.current = false;
     };
   }, []);
@@ -182,8 +188,8 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
 
   useEffect(() => {
     if (isUpdateOnNewLocation() && isLastChild()) {
-      resetCancellationTitleResolve();
-      initCancellation(lastLocationKey.current);
+      resetCancellationTitleResolvingForParent();
+      initCancellationTitleResolvingForParent(lastLocationKey.current);
     }
   }, [location]);
 
@@ -203,7 +209,7 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
       value={{
         routeResolverInfos: loadedResolverInfos,
         canStartToLoadWorkers: canChildStartWorkers,
-        setCancelTitleResolverForParent: cancelTitleResolveForCurrentRoute
+        cancelTitleResolvingForParent: setCancellationKeyForCurrentRoute
       }}
     >
       <RouteContext.Consumer>{() => elementToRender}</RouteContext.Consumer>

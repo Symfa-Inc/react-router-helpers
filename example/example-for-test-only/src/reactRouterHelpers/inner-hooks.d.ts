@@ -1,7 +1,7 @@
 import React from "react";
 import { HelperManager, RouteHelperStatus, StatusChangeReceiver } from "./types";
 export declare function useManager({ guards, resolvers, title, titleResolver }: HelperManager): {
-    evaluateGuards: () => Promise<RouteHelperStatus>;
+    evaluateGuards: (isComponentAliveRef: React.MutableRefObject<boolean>) => Promise<RouteHelperStatus | null>;
     getGuardsStatusBeforeEvaluating: () => RouteHelperStatus;
     evaluateResolvers: () => Promise<{
         status: RouteHelperStatus.Failed;

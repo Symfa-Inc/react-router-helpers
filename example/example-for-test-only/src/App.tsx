@@ -121,19 +121,19 @@ function wait(number = 1000) {
 
 
 const RoutesWrapper = () => {
-  const nav = useNavigate();
-  const navigator = useContext(UNSAFE_NavigationContext).navigator;
-  useEffect(() => {
-    const listener = ({ location, action }: any) => {
-      console.log('listener', { location, action });
-      if (action === 'POP') {
-        console.log({ location, action });
-      }
-    };
-
-    const unlisten = (navigator as any).listen(listener);
-    return unlisten;
-  }, [navigator]);
+  // const nav = useNavigate();
+  // const navigator = useContext(UNSAFE_NavigationContext).navigator;
+  // useEffect(() => {
+  //   const listener = ({ location, action }: any) => {
+  //     console.log('listener', { location, action });
+  //     if (action === 'POP') {
+  //       console.log({ location, action });
+  //     }
+  //   };
+  //
+  //   const unlisten = (navigator as any).listen(listener);
+  //   return unlisten;
+  // }, [navigator]);
   return useRoutesWithHelper([
     {
       path: 'login',
@@ -173,13 +173,6 @@ const RoutesWrapper = () => {
           //   return 'BUG';
           // },
           // guards: [mockGuard(false)],
-          onGuardStatusChange: (status: RouteHelperStatus) => {
-            // const nav = useNavigate();
-            console.log('status', RouteHelperStatus[status]);
-            if (status === RouteHelperStatus.Failed) {
-              nav('/login');
-            }
-          },
           // guards: [mockGuard()],
           // resolvers: {
           //   'userInfo': () => {
