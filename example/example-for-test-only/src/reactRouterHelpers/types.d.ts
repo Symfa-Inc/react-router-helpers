@@ -5,11 +5,12 @@ export declare type Resolver = () => () => Promise<any> | Promise<void> | any | 
 export declare type InnerResolver = () => Promise<any> | Promise<void> | any | void;
 export declare type TitleResolver = () => () => Promise<string> | string;
 export declare type InnerTitleResolver = () => Promise<string> | string;
+export declare type OnStatusChange = (status: RouteHelperStatus) => void;
 export interface OnlyHelperFields {
     guards?: Guard[];
     resolvers?: Record<string, Resolver>;
-    onGuardStatusChange?: (status: RouteHelperStatus) => void;
-    onResolverStatusChange?: (status: RouteHelperStatus) => void;
+    onGuardStatusChange?: OnStatusChange;
+    onResolverStatusChange?: OnStatusChange;
     title?: string;
     titleResolver?: TitleResolver;
     loadingTitle?: string;
@@ -31,4 +32,3 @@ export interface HelperManager {
     loadingTitle?: string;
     titleResolver: InnerTitleResolver | null;
 }
-export declare type StatusChangeReceiver = (status: RouteHelperStatus) => void;

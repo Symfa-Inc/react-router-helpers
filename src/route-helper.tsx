@@ -85,8 +85,9 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
 
   const initCancellationTitleResolvingForParent = (cancellationKey: string) => {
     cancelParentTitleResolving(cancellationKey);
-
+    // console.log('initCancellationTitleResolvingForParent +++++++++++++++++++++++ ');
     if (isLastChild()) {
+      console.log('initCancellationTitleResolvingForParent +++++++++++++++++++++++ ');
       manager.setTitle();
 
       // If route was already loaded
@@ -108,6 +109,7 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
   };
 
   const isLastChild = () => {
+    console.log('isLastChild +++++++++++++++++++++++ ');
     return lastLocationKey.current !== lastCancellationKeyFromChild.current;
   };
 
@@ -167,10 +169,10 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
   //#region Triggers
   useEffect(() => {
     console.log('mount ' + COMPONENT_NAME);
+    lastLocationKey.current = location.key;
 
     initCancellationTitleResolvingForParent(location.key);
 
-    lastLocationKey.current = location.key;
     isComponentStillAlive.current = true;
 
     return () => {

@@ -163,11 +163,11 @@ const RoutesWrapper = () => {
           path: "child",
           element: <Child />,
           title: "loading...",
-          guards: [mockGuard(true, 'HOME 1'), mockGuard(true, 'HOME 2')],
-          titleResolver: () => async () => {
-            await wait(2000);
-            return "RESOLVED TITLE";
-          },
+          // guards: [mockGuard(true, 'HOME 1'), mockGuard(true, 'HOME 2')],
+          // titleResolver: () => async () => {
+          //   await wait(2000);
+          //   return "RESOLVED TITLE";
+          // },
           // titleResolver: () => async () => {
           //   await wait(2000);
           //   return 'BUG';
@@ -184,7 +184,7 @@ const RoutesWrapper = () => {
               path: ":id",
               element: <Child2 />,
               title: "2 test title",
-              titleResolver: () => () => 'title from ',
+              // titleResolver: () => () => 'title from ',
 
               children: [
                 {
