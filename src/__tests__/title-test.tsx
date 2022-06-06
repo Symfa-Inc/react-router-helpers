@@ -166,69 +166,37 @@ describe('title in route', () => {
         describe('click to the same link again with absolute path', () => {
           const LinkToSecondChild = () => <GeneralLink replace={true} id="link-to-second-child" link="/"  />;
 
-          // const routes: HelperRouteObject[] = [
-          //   {
-          //     path: '/',
-          //     element: <div>
-          //       Home
-          //       <LinkToSecondChild />
-          //       <Outlet />
-          //     </div>,
-          //     title: 'Home - Title',
-          //     children: [
-          //       {
-          //         path: 'child',
-          //         element: <div>
-          //           Child
-          //           <Outlet />
-          //         </div>,
-          //         title: 'Child - Title',
-          //         children: [
-          //           {
-          //             path: ':id',
-          //             element: <div>Child2</div>,
-          //             title: 'Child2 - Title',
-          //           },
-          //         ],
-          //       },
-          //     ],
-          //   },
-          // ];
-
-          const createRoutes = (): HelperRouteObject[] => {
-            return [
-              {
-                path: '/',
-                element: <div>
-                  Home
-                  <LinkToSecondChild />
-                  <Outlet />
-                </div>,
-                title: 'Home - Title',
-                children: [
-                  {
-                    path: 'child',
-                    element: <div>
-                      Child
-                      <Outlet />
-                    </div>,
-                    title: 'Child - Title',
-                    children: [
-                      {
-                        path: ':id',
-                        element: <div>Child2</div>,
-                        title: 'Child2 - Title',
-                      },
-                    ],
-                  },
-                ],
-              },
-            ]
-          };
+          const routes: HelperRouteObject[] = [
+            {
+              path: '/',
+              element: <div>
+                Home
+                <LinkToSecondChild />
+                <Outlet />
+              </div>,
+              title: 'Home - Title',
+              children: [
+                {
+                  path: 'child',
+                  element: <div>
+                    Child
+                    <Outlet />
+                  </div>,
+                  title: 'Child - Title',
+                  children: [
+                    {
+                      path: ':id',
+                      element: <div>Child2</div>,
+                      title: 'Child2 - Title',
+                    },
+                  ],
+                },
+              ],
+            },
+          ];
 
           checkIn3DifferentModes({
-            createRoutes,
-            // routes,
+            routes,
             initialPath: '/child/1234',
             validateInTestEnvResult: async (renderer) => {
               await wait(1);
@@ -289,7 +257,7 @@ async function checkIn3DifferentModes(options: RenderInModesOptions) {
     act(() => {
       renderer = TestRenderer.create(
         <MemoryRouter initialEntries={[options.initialPath]}>
-          <RoutesRenderer routes={options.createRoutes()} />
+          <RoutesRenderer routes={options.routes} />
         </MemoryRouter>,
       );
     });
@@ -309,9 +277,9 @@ async function checkIn3DifferentModes(options: RenderInModesOptions) {
     act(() => {
       rootToMount.render(
         <React.StrictMode>
-          <BrowserRouter>
-            <RoutesRenderer routes={options.createRoutes()} location={{ pathname: options.initialPath }}/>
-          </BrowserRouter>,
+          <MemoryRouter initialEntries={[options.initialPath]}>
+            <RoutesRenderer routes={options.routes} />
+          </MemoryRouter>,
         </React.StrictMode>,
       );
     });
@@ -330,9 +298,9 @@ async function checkIn3DifferentModes(options: RenderInModesOptions) {
 
     act(() => {
       rootToMount.render(
-        <BrowserRouter>
-          <RoutesRenderer routes={options.createRoutes()} location={{ pathname: options.initialPath }}/>
-        </BrowserRouter>,
+        <MemoryRouter initialEntries={[options.initialPath]}>
+          <RoutesRenderer routes={options.routes} />
+        </MemoryRouter>,
       );
     });
     if (typeof options.validate === 'function') {
@@ -345,8 +313,7 @@ async function checkIn3DifferentModes(options: RenderInModesOptions) {
 }
 
 interface RenderInModesOptions {
-  createRoutes: () => HelperRouteObject[];
-  // routes: HelperRouteObject[],
+  routes: HelperRouteObject[],
   initialPath: string,
   validate?: () => void;
   validateInTestEnvResult?: (renderer: TestRenderer.ReactTestRenderer) => void;
