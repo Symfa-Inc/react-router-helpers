@@ -70,7 +70,6 @@ var RouteContext = React.createContext({
     canStartToLoadWorkers: true,
     cancelTitleResolvingForParent: function (_) { },
 });
-//# sourceMappingURL=context.js.map
 
 var RouteHelperStatus;
 (function (RouteHelperStatus) {
@@ -79,7 +78,6 @@ var RouteHelperStatus;
     RouteHelperStatus[RouteHelperStatus["Loaded"] = 2] = "Loaded";
     RouteHelperStatus[RouteHelperStatus["Failed"] = 3] = "Failed";
 })(RouteHelperStatus || (RouteHelperStatus = {}));
-//# sourceMappingURL=types.js.map
 
 var isNullOrUndefined = function (obj) {
     return obj === null || obj === undefined;
@@ -246,7 +244,6 @@ function useStatusNotification(guardsStatusChangeReceiver, resolversStatusChange
         }
     };
 }
-//# sourceMappingURL=inner-hooks.js.map
 
 //   // TODO: Add metadata (title)
 //   // TODO: Add metadata (title) tests
@@ -443,6 +440,5 @@ var useRoutesWithHelper = function (routes, locationArg) {
 function useResolver() {
     return React.useContext(RouteContext).routeResolverInfos;
 }
-//# sourceMappingURL=hooks.js.map
 
 export { RouteHelper, RouteHelperStatus, useResolver, useRoutesWithHelper };

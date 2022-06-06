@@ -6,6 +6,7 @@ import * as TestRenderer from 'react-test-renderer';
 import { useResolver } from '../hooks';
 import { HelperRouteObject } from '../types';
 import { workerDuration, workerDurationTimeBeforeCheck } from './utils/general-utils';
+import { GeneralLink } from './utils/GeneralLink';
 import { mockAsyncResolver } from './utils/mock-async-resolver';
 import { mockShouldNeverBeCalledResolver } from './utils/mock-should-never-be-called-resolver';
 import { RoutesRenderer } from './utils/RoutesRenderer';
@@ -556,16 +557,6 @@ describe('Resolvers in route', () => {
     describe('scenario', () => {
       it('with 3 children, check resolvers to be correctly rendered and should not be rendered twice for parents', async () => {
         let renderer: TestRenderer.ReactTestRenderer;
-
-        const GeneralLink: FC<{ title: string; link: string }> = ({ title, link }) => {
-          const navigate = useNavigate();
-
-          function handleClick() {
-            navigate(link);
-          }
-
-          return <button onClick={handleClick}>{title}</button>;
-        };
 
         const LinkToFirstChild = () => <GeneralLink link="./child" title="Link to first child" />;
 
