@@ -1,9 +1,11 @@
 import * as React from 'react';
 import { FC } from 'react';
+import ReactDOM from 'react-dom/client';
 import { act } from 'react-dom/test-utils';
 import { MemoryRouter, Outlet, useNavigate, useParams } from 'react-router-dom';
 import * as TestRenderer from 'react-test-renderer';
 import { HelperRouteObject, RouteHelperStatus } from '../types';
+import { testIn3DifferentModes } from './utils/check-with-3-different-envs';
 import { workerDuration, workerDurationTimeBeforeCheck } from './utils/general-utils';
 import { mockAsyncGuard } from './utils/mock-async-guard';
 import { mockShouldNeverBeCalledGuard } from './utils/mock-should-never-be-called-guard';
@@ -640,7 +642,7 @@ describe('Guards in route', () => {
     });
   });
 
-  describe('check guard render', () => {
+  describe('check guard render complicated cases', () => {
     describe('path direct to the child', () => {
       describe('guard on parent only', () => {
         const testDatas = [
@@ -1693,6 +1695,86 @@ describe('Guards in route', () => {
         `);
         expect(status).toBe(RouteHelperStatus.Failed);
       });
+    });
+  });
+
+  describe('parent route does not have Outlet child guards should not be called', () => {
+    describe('second nesting route', () => {
+      const counter = { amount: 0 };
+      const routes: HelperRouteObject[] = [
+        {
+          path: '/',
+          element: (
+            <div>
+              Home
+            </div>
+          ),
+          guards: [mockAsyncGuard(true, workerDuration)],
+          children: [
+            {
+              path: 'child',
+              element: <div>Child</div>,
+              guards: [mockShouldNeverBeCalledGuard(counter)],
+            },
+          ],
+        },
+      ];
+
+      testIn3DifferentModes({
+        afterEach: () => {
+          counter.amount = 0;
+        },
+        routes,
+        initialPath: '/child',
+        validate: async () => {
+          await wait(workerDuration + workerDurationTimeBeforeCheck);
+
+          expect(counter.amount).toBe(0);
+        },
+      });
+    });
+    describe('third nesting route', () => {
+      const counter = { amount: 0 };
+
+      const routes: HelperRouteObject[] = [
+        {
+          path: '/',
+          element: (
+            <div>
+              Home
+              <Outlet />
+            </div>
+          ),
+          children: [
+            {
+              path: 'child',
+              element: <div>Child</div>,
+              guards: [mockAsyncGuard(true, workerDuration)],
+              children: [
+                {
+                  path: 'child2',
+                  element: <div>Child2</div>,
+                  guards: [mockShouldNeverBeCalledGuard(counter)],
+                },
+              ],
+            },
+          ],
+        },
+      ];
+
+      testIn3DifferentModes({
+        afterEach: () => {
+          counter.amount = 0;
+        },
+        routes,
+        initialPath: '/child/child2',
+        validate: async () => {
+          await wait(workerDuration + workerDurationTimeBeforeCheck);
+
+          expect(counter.amount).toBe(0);
+        },
+      });
+
     });
   });
 });

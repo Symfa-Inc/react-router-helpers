@@ -4,7 +4,11 @@ import { act } from 'react-dom/test-utils';
 import { BrowserRouter, MemoryRouter, Outlet } from 'react-router-dom';
 import * as TestRenderer from 'react-test-renderer';
 import { HelperRouteObject } from '../types';
+import { testIn3DifferentModes } from './utils/check-with-3-different-envs';
+import { workerDuration, workerDurationTimeBeforeCheck } from './utils/general-utils';
 import { GeneralLink } from './utils/GeneralLink';
+import { mockAsyncGuard } from './utils/mock-async-guard';
+import { mockShouldNeverBeCalledGuard } from './utils/mock-should-never-be-called-guard';
 import { RoutesRenderer } from './utils/RoutesRenderer';
 import { wait } from './utils/wait';
 
@@ -20,7 +24,7 @@ describe('title in route', () => {
           },
         ];
 
-        checkIn3DifferentModes({
+        testIn3DifferentModes({
           routes,
           initialPath: '/',
           validate: async () => {
@@ -49,7 +53,7 @@ describe('title in route', () => {
               ],
             },
           ];
-          checkIn3DifferentModes({
+          testIn3DifferentModes({
             routes,
             initialPath: '/child',
             validate: async () => {
@@ -78,7 +82,7 @@ describe('title in route', () => {
             },
           ];
 
-          checkIn3DifferentModes({
+          testIn3DifferentModes({
             routes,
             initialPath: '/child',
             validate: async () => {
@@ -116,7 +120,7 @@ describe('title in route', () => {
             },
           ];
 
-          checkIn3DifferentModes({
+          testIn3DifferentModes({
             routes,
             initialPath: '/child/child2',
             validate: async () => {
@@ -151,7 +155,7 @@ describe('title in route', () => {
             },
           ];
 
-          checkIn3DifferentModes({
+          testIn3DifferentModes({
             routes,
             initialPath: '/child/child2',
             validate: async () => {
@@ -195,10 +199,10 @@ describe('title in route', () => {
             },
           ];
 
-          checkIn3DifferentModes({
+          testIn3DifferentModes({
             routes,
             initialPath: '/child/1234',
-            validateInTestEnvResult: async (renderer) => {
+            validateResultInTestEnv: async (renderer) => {
               await wait(1);
               expect(global.window.document.title).toBe('Child2 - Title');
 
@@ -211,7 +215,7 @@ describe('title in route', () => {
               await wait(1);
               expect(global.window.document.title).toBe('Child2 - Title');
             },
-            validateInRealEnvResult: async (root) => {
+            validateResultInRealEnv: async (root) => {
               await wait(1);
               expect(global.window.document.title).toBe('Child2 - Title');
 
@@ -249,76 +253,80 @@ describe('title in route', () => {
   describe('titleResolver must be applied after workers', () => {
     // TODO: Add tests
   });
+
+  describe('parent route does not have Outlet child title should not be set', () => {
+    describe('second nesting route', () => {
+      const routes: HelperRouteObject[] = [
+        {
+          path: '/',
+          element: (
+            <div>
+              Home
+            </div>
+          ),
+          title: "Home - Title",
+          children: [
+            {
+              path: 'child',
+              element: <div>Child</div>,
+              title: "Child - Title"
+            },
+          ],
+        },
+      ];
+
+      testIn3DifferentModes({
+        routes,
+        initialPath: '/child',
+        validate: async () => {
+          await wait(1);
+
+          expect(global.window.document.title).toBe('');
+        },
+      });
+    });
+    describe('third nesting route', () => {
+
+      const routes: HelperRouteObject[] = [
+        {
+          path: '/',
+          element: (
+            <div>
+              Home
+            </div>
+          ),
+          title: "Home - Title",
+          children: [
+            {
+              path: 'child',
+              element: <div>Child</div>,
+              title: "Child - Title",
+              children: [
+                {
+                  path: 'child2',
+                  element: <div>Child2</div>,
+                  title: "Child2 - Title",
+                },
+              ],
+            },
+          ],
+        },
+      ];
+
+      testIn3DifferentModes({
+        routes,
+        initialPath: '/child/child2',
+        validate: async () => {
+          await wait(workerDuration + workerDurationTimeBeforeCheck);
+
+          expect(global.window.document.title).toBe('');
+        },
+      });
+
+    });
+  });
 });
 
-async function checkIn3DifferentModes(options: RenderInModesOptions) {
-  it('render in test mode', async () => {
-    let renderer: TestRenderer.ReactTestRenderer;
-    act(() => {
-      renderer = TestRenderer.create(
-        <MemoryRouter initialEntries={[options.initialPath]}>
-          <RoutesRenderer routes={options.routes} />
-        </MemoryRouter>,
-      );
-    });
-
-    if (typeof options.validate === 'function') {
-      await options.validate();
-    }
-    if (typeof options.validateInTestEnvResult === 'function') {
-      await options.validateInTestEnvResult(renderer!);
-    }
-  });
-
-  it('render in real dev mode', async () => {
-    const rootNode = document.createElement('div') as HTMLElement;
-    const rootToMount = ReactDOM.createRoot(rootNode as HTMLElement);
-
-    act(() => {
-      rootToMount.render(
-        <React.StrictMode>
-          <MemoryRouter initialEntries={[options.initialPath]}>
-            <RoutesRenderer routes={options.routes} />
-          </MemoryRouter>,
-        </React.StrictMode>,
-      );
-    });
-
-    if (typeof options.validate === 'function') {
-      await options.validate();
-    }
-    if (typeof options.validateInRealEnvResult === 'function') {
-      await options.validateInRealEnvResult(rootNode);
-    }
-  });
-
-  it('render in real production mode', async () => {
-    const rootNode = document.createElement('div') as HTMLElement;
-    const rootToMount = ReactDOM.createRoot(rootNode as HTMLElement);
-
-    act(() => {
-      rootToMount.render(
-        <MemoryRouter initialEntries={[options.initialPath]}>
-          <RoutesRenderer routes={options.routes} />
-        </MemoryRouter>,
-      );
-    });
-    if (typeof options.validate === 'function') {
-      await options.validate();
-    }
-    if (typeof options.validateInRealEnvResult === 'function') {
-      await options.validateInRealEnvResult(rootNode);
-    }
-  });
-}
-
-interface RenderInModesOptions {
-  routes: HelperRouteObject[],
-  initialPath: string,
-  validate?: () => void;
-  validateInTestEnvResult?: (renderer: TestRenderer.ReactTestRenderer) => void;
-  validateInRealEnvResult?: (root: HTMLElement) => void;
-}
 
 
 function click(anchor: HTMLAnchorElement, eventInit?: MouseEventInit) {

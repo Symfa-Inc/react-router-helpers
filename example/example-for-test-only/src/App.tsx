@@ -1,4 +1,4 @@
-import React, { FC, useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
   BrowserRouter as Router,
   Link,
@@ -9,23 +9,8 @@ import {
   useParams
 } from "react-router-dom";
 import './App.css';
-// import { GeneralLink } from '../../../src/__tests__/utils/GeneralLink';
 import { mockGuard, useGetUserInfoResolver, useGuardWithParams } from './guards/mock-guard';
 import { RouteHelperStatus, useResolver, useRoutesWithHelper } from './reactRouterHelpers';
-const GeneralLink: FC<{ title?: string; link: string; id?: string; replace?: boolean }> = ({
-                                                                                             title,
-                                                                                             link,
-                                                                                             id,
-                                                                                             replace,
-                                                                                           }) => {
-  const navigate = useNavigate();
-
-  function handleClick() {
-    navigate(link, { replace });
-  }
-
-  return <button id={id} onClick={handleClick}>{title}</button>;
-};
 
 // const useResolverForHome = () => {
 //   const test = useParams();
@@ -45,12 +30,16 @@ const GeneralLink: FC<{ title?: string; link: string; id?: string; replace?: boo
 
 function Home() {
 
+  const [needToShow, setNeedToShow] = useState(false);
 
-  // useEffect(() => {
-  //   console.log('rendered HOME', resolverInfos);
-  //   // useResolverForHome();
-  //   // manager();
-  // }, []);
+  useEffect(() => {
+    setTimeout(() => {
+      setNeedToShow(true);
+    }, 2000);
+    // console.log('rendered HOME', resolverInfos);
+    // useResolverForHome();
+    // manager();
+  }, []);
   return (
     <div>
       <h1>Home</h1>
@@ -58,10 +47,10 @@ function Home() {
         <Link to="/">Home</Link> |{" "}
         <Link to="/login">Login</Link> |{" "}
         <Link to="/child">Child</Link> |{" "}
-        {/*<Link to="/child/1234">Child 2</Link> |{" "}*/}
-        <GeneralLink id="link-to-second-child" link="/child/1234" title="click"  />
+        <Link to="/child/1234">Child 2</Link> |{" "}
         <Link to="/child/child2/child3">Child 3</Link>
       </nav>
+      {/*{needToShow && <Outlet/>}*/}
       {/*<Outlet/>*/}
     </div>
   );
@@ -179,7 +168,7 @@ const RoutesWrapper = () => {
           path: "child",
           element: <Child />,
           title: "loading...",
-          // guards: [mockGuard(true, 'HOME 1'), mockGuard(true, 'HOME 2')],
+          guards: [mockGuard(true, 'CHILD 1 =========================='), mockGuard(true, 'CHILD 2 CHILD 1 ==========================')],
           // titleResolver: () => async () => {
           //   await wait(2000);
           //   return "RESOLVED TITLE";
