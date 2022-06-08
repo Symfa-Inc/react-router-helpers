@@ -10,7 +10,7 @@ import {
 } from "react-router-dom";
 import './App.css';
 import { mockGuard, useGetUserInfoResolver, useGuardWithParams } from './guards/mock-guard';
-import { RouteHelperStatus, useResolver, useRoutesWithHelper } from './reactRouterHelpers';
+import { RouteHelperStatus, useResolver, useRoutesWithHelper, HelperOutlet } from './reactRouterHelpers';
 
 // const useResolverForHome = () => {
 //   const test = useParams();
@@ -33,9 +33,10 @@ function Home() {
   const [needToShow, setNeedToShow] = useState(false);
 
   useEffect(() => {
-    setTimeout(() => {
-      setNeedToShow(true);
-    }, 2000);
+    // setTimeout(() => {
+    //   console.log('SET OUTLET');
+    //   setNeedToShow(true);
+    // }, 2000);
     // console.log('rendered HOME', resolverInfos);
     // useResolverForHome();
     // manager();
@@ -50,8 +51,6 @@ function Home() {
         <Link to="/child/1234">Child 2</Link> |{" "}
         <Link to="/child/child2/child3">Child 3</Link>
       </nav>
-      {/*{needToShow && <Outlet/>}*/}
-      <Outlet/>
     </div>
   );
 }

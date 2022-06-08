@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { HelperOutlet } from '../route-helper';
 import { HelperRouteObject } from '../types';
 import { testIn3DifferentModes } from './utils/check-with-3-different-envs';
 import { workerDuration, workerDurationTimeBeforeCheck } from './utils/general-utils';
@@ -35,7 +36,7 @@ describe('title in route', () => {
           const routes: HelperRouteObject[] = [
             {
               path: '/',
-              element: <div>Home</div>,
+              element: <div>Home <HelperOutlet /></div>,
               children: [
                 {
                   path: 'child',
@@ -62,7 +63,7 @@ describe('title in route', () => {
           const routes: HelperRouteObject[] = [
             {
               path: '/',
-              element: <div>Home</div>,
+              element: <div>Home <HelperOutlet /></div>,
               title: 'Home - Title',
               children: [
                 {
@@ -95,7 +96,7 @@ describe('title in route', () => {
           const routes: HelperRouteObject[] = [
             {
               path: '/',
-              element: <div>Home</div>,
+              element: <div>Home <HelperOutlet /> </div>,
               children: [
                 {
                   path: 'child',
@@ -128,7 +129,7 @@ describe('title in route', () => {
           const routes: HelperRouteObject[] = [
             {
               path: '/',
-              element: <div>Home</div>,
+              element: <div>Home <HelperOutlet /></div>,
               title: 'Home - Title',
               children: [
                 {
@@ -198,6 +199,9 @@ describe('title in route', () => {
       ];
 
       testIn3DifferentModes({
+        beforeEach: () => {
+          window.document.title = "";
+        },
         routes,
         initialPath: '/child',
         validate: async () => {

@@ -1347,12 +1347,6 @@ describe('on status change', () => {
         let childGuardStatuses: RouteHelperStatus[] = [];
         let childResolverStatuses: RouteHelperStatus[] = [];
 
-        afterEach(() => {
-          parentGuardStatuses = [];
-          parentResolverStatuses = [];
-          childGuardStatuses = [];
-          childResolverStatuses = [];
-        });
 
         const expectedStatuses = [RouteHelperStatus.Loading, RouteHelperStatus.Loaded];
 

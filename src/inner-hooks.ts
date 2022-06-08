@@ -87,7 +87,7 @@ export function useManager({ guards, resolvers, title, titleResolver }: HelperMa
   }
 
   function setTitleWithName(title: string) {
-    console.log('SET TITLE +++++++++++++++++++++++ ' + title);
+    // console.log('SET TITLE +++++++++++++++++++++++ ' + title);
     document.title = title;
   }
 

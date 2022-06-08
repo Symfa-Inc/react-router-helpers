@@ -10,8 +10,8 @@ function Home() {
       <nav>
         <Link to="/">Home</Link> |{" "}
         <Link to="/login">Login</Link> |{" "}
-        <Link to="/child">Child</Link> |{" "}
-        <Link to="/child/child2" id="absolute-link-to-second-child">Child 2</Link> |{" "}
+        <Link to="/child" id="link-to-first-child">Child</Link> |{" "}
+        <Link to="/child/1234" id="absolute-link-to-second-child">Child 2</Link> |{" "}
         <Link to="/child/child2/child3">Child 3</Link>
       </nav>
       <Outlet/>
@@ -71,18 +71,17 @@ const RoutesWrapper = () => {
     {
       path: "/",
       element: <Home />,
-      title: 'HOME',
+      title: 'Home - Title',
       children: [
         {
           path: "child",
           element: <Child />,
-          title: "loading...",
+          title: "Child1 - Title",
           children: [
             {
               path: ":id",
               element: <Child2 />,
-              title: "2 test title",
-
+              title: "Child2 - Title",
               children: [
                 {
                   path: "child3",
