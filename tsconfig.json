@@ -12,7 +12,9 @@
     "outDir": "./dist",
     "target": "es5",
     "jsx": "react",
-    "inlineSourceMap": true
+    "inlineSourceMap": true,
+    "types": ["cypress", "jest"],
+    "lib": ["ES2015", "dom"]
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules"]

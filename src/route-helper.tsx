@@ -16,10 +16,7 @@ import { HelperManager, HelperRouteObjectProps, OnlyHelperFields, RouteHelperSta
 //
 //   // TODO: Add lazy loading
 //   // TODO: Add lazy loading tests
-//
-//   // TODO: Add server side plug
-//   // TODO: Add server side plug tests
-//
+
 
 export const RouteHelper = (props: HelperRouteObjectProps) => {
 
@@ -109,7 +106,8 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
   };
 
   const isLastChild = () => {
-    console.log('isLastChild +++++++++++++++++++++++ ');
+    const isLastChild = lastLocationKey.current !== lastCancellationKeyFromChild.current;
+    console.log('isLastChild +++++++++++++++++++++++ ' + COMPONENT_NAME + ' ' + isLastChild);
     return lastLocationKey.current !== lastCancellationKeyFromChild.current;
   };
 

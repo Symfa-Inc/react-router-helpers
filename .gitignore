@@ -7,3 +7,7 @@ cypress/screenshots
 .vscode
 .idea
 package-lock.json
+/coverage/
+/example/cypress-testing-app/src/reactRouterHelpers/
+/example/for-development/build/
+/example/for-development/src/reactRouterHelpers/

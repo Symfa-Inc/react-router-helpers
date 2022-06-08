@@ -1,15 +1,7 @@
 import * as React from 'react';
-import ReactDOM from 'react-dom/client';
-import { act } from 'react-dom/test-utils';
-import { BrowserRouter, MemoryRouter, Outlet } from 'react-router-dom';
-import * as TestRenderer from 'react-test-renderer';
 import { HelperRouteObject } from '../types';
 import { testIn3DifferentModes } from './utils/check-with-3-different-envs';
 import { workerDuration, workerDurationTimeBeforeCheck } from './utils/general-utils';
-import { GeneralLink } from './utils/GeneralLink';
-import { mockAsyncGuard } from './utils/mock-async-guard';
-import { mockShouldNeverBeCalledGuard } from './utils/mock-should-never-be-called-guard';
-import { RoutesRenderer } from './utils/RoutesRenderer';
 import { wait } from './utils/wait';
 
 describe('title in route', () => {
@@ -165,76 +157,6 @@ describe('title in route', () => {
             },
           });
 
-        });
-
-        describe('click to the same link again with absolute path', () => {
-          const LinkToSecondChild = () => <GeneralLink replace={true} id="link-to-second-child" link="/"  />;
-
-          const routes: HelperRouteObject[] = [
-            {
-              path: '/',
-              element: <div>
-                Home
-                <LinkToSecondChild />
-                <Outlet />
-              </div>,
-              title: 'Home - Title',
-              children: [
-                {
-                  path: 'child',
-                  element: <div>
-                    Child
-                    <Outlet />
-                  </div>,
-                  title: 'Child - Title',
-                  children: [
-                    {
-                      path: ':id',
-                      element: <div>Child2</div>,
-                      title: 'Child2 - Title',
-                    },
-                  ],
-                },
-              ],
-            },
-          ];
-
-          testIn3DifferentModes({
-            routes,
-            initialPath: '/child/1234',
-            validateResultInTestEnv: async (renderer) => {
-              await wait(1);
-              expect(global.window.document.title).toBe('Child2 - Title');
-
-              const linkToFirstChild = renderer.root.findByType(LinkToSecondChild);
-
-              TestRenderer.act(() => {
-                linkToFirstChild.findByType('button').props.onClick();
-              });
-
-              await wait(1);
-              expect(global.window.document.title).toBe('Child2 - Title');
-            },
-            validateResultInRealEnv: async (root) => {
-              await wait(1);
-              expect(global.window.document.title).toBe('Child2 - Title');
-
-              await wait(1);
-
-              const linkToFirstChild = root.querySelector('#link-to-second-child');
-              expect(linkToFirstChild).not.toBeNull();
-
-              let event: MouseEvent;
-              act(() => {
-                event = click(linkToFirstChild);
-              });
-
-              expect(event.defaultPrevented).toBe(false);
-
-              await wait(1);
-              expect(global.window.document.title).toBe('Child2 - Title');
-            }
-          });
         });
       });
     });

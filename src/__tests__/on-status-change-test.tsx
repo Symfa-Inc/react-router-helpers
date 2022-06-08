@@ -4,6 +4,7 @@ import { act } from 'react-dom/test-utils';
 import { MemoryRouter, Outlet, useNavigate } from 'react-router-dom';
 import * as TestRenderer from 'react-test-renderer';
 import { HelperRouteObject, OnStatusChange, RouteHelperStatus } from '../types';
+import { testIn3DifferentModes } from './utils/check-with-3-different-envs';
 import { workerDuration, workerDurationTimeBeforeCheck } from './utils/general-utils';
 import { mockAsyncGuard } from './utils/mock-async-guard';
 import { mockAsyncResolver } from './utils/mock-async-resolver';
@@ -33,7 +34,7 @@ describe('on status change', () => {
         TestRenderer.act(() => {
           renderer = TestRenderer.create(
             <MemoryRouter initialEntries={['/']}>
-              <RoutesRenderer routes={routes} />
+              <RoutesRenderer routes={routes}/>
             </MemoryRouter>,
           );
         });
@@ -61,7 +62,7 @@ describe('on status change', () => {
         TestRenderer.act(() => {
           renderer = TestRenderer.create(
             <MemoryRouter initialEntries={['/']}>
-              <RoutesRenderer routes={routes} />
+              <RoutesRenderer routes={routes}/>
             </MemoryRouter>,
           );
         });
@@ -92,7 +93,7 @@ describe('on status change', () => {
         TestRenderer.act(() => {
           renderer = TestRenderer.create(
             <MemoryRouter initialEntries={['/']}>
-              <RoutesRenderer routes={routes} />
+              <RoutesRenderer routes={routes}/>
             </MemoryRouter>,
           );
         });
@@ -123,7 +124,7 @@ describe('on status change', () => {
         TestRenderer.act(() => {
           renderer = TestRenderer.create(
             <MemoryRouter initialEntries={['/']}>
-              <RoutesRenderer routes={routes} />
+              <RoutesRenderer routes={routes}/>
             </MemoryRouter>,
           );
         });
@@ -157,7 +158,7 @@ describe('on status change', () => {
         TestRenderer.act(() => {
           renderer = TestRenderer.create(
             <MemoryRouter initialEntries={['/']}>
-              <RoutesRenderer routes={routes} />
+              <RoutesRenderer routes={routes}/>
             </MemoryRouter>,
           );
         });
@@ -193,7 +194,7 @@ describe('on status change', () => {
         TestRenderer.act(() => {
           renderer = TestRenderer.create(
             <MemoryRouter initialEntries={['/']}>
-              <RoutesRenderer routes={routes} />
+              <RoutesRenderer routes={routes}/>
             </MemoryRouter>,
           );
         });
@@ -228,7 +229,7 @@ describe('on status change', () => {
         TestRenderer.act(() => {
           renderer = TestRenderer.create(
             <MemoryRouter initialEntries={['/']}>
-              <RoutesRenderer routes={routes} />
+              <RoutesRenderer routes={routes}/>
             </MemoryRouter>,
           );
         });
@@ -275,7 +276,7 @@ describe('on status change', () => {
         TestRenderer.act(() => {
           renderer = TestRenderer.create(
             <MemoryRouter initialEntries={['/']}>
-              <RoutesRenderer routes={routes} />
+              <RoutesRenderer routes={routes}/>
             </MemoryRouter>,
           );
         });
@@ -307,7 +308,7 @@ describe('on status change', () => {
             path: '/',
             element: (
               <div>
-                Home <Outlet />
+                Home <Outlet/>
               </div>
             ),
             children: [
@@ -326,7 +327,7 @@ describe('on status change', () => {
         TestRenderer.act(() => {
           renderer = TestRenderer.create(
             <MemoryRouter initialEntries={['/child']}>
-              <RoutesRenderer routes={routes} location={{ pathname: '/child' }} />
+              <RoutesRenderer routes={routes} location={{ pathname: '/child' }}/>
             </MemoryRouter>,
           );
         });
@@ -349,7 +350,7 @@ describe('on status change', () => {
             path: '/',
             element: (
               <div>
-                Home <Outlet />
+                Home <Outlet/>
               </div>
             ),
             children: [
@@ -368,7 +369,7 @@ describe('on status change', () => {
         TestRenderer.act(() => {
           renderer = TestRenderer.create(
             <MemoryRouter initialEntries={['/child']}>
-              <RoutesRenderer routes={routes} location={{ pathname: '/child' }} />
+              <RoutesRenderer routes={routes} location={{ pathname: '/child' }}/>
             </MemoryRouter>,
           );
         });
@@ -388,25 +389,15 @@ describe('on status change', () => {
         let parentStatuses: RouteHelperStatus[] = [];
         let childStatuses: RouteHelperStatus[] = [];
 
-        afterEach(() => {
-          parentStatuses = [];
-          childStatuses = [];
-        });
-
-        const Parent = () => (
-          <div>
-            Home
-            <Outlet />
-          </div>
-        );
-        const Child = () => (<div>Child</div>);
-
         const expectedStatuses = [RouteHelperStatus.Loading, RouteHelperStatus.Loaded];
 
         const routes: HelperRouteObject[] = [
           {
             path: '/',
-            element: <Parent />,
+            element: <div>
+              Home
+              <Outlet/>
+            </div>,
             guards: [mockAsyncGuard(true, workerDuration), mockAsyncGuard(true, workerDuration)],
             onGuardStatusChange: status => {
               parentStatuses.push(status);
@@ -414,7 +405,7 @@ describe('on status change', () => {
             children: [
               {
                 path: 'child',
-                element: <Child />,
+                element: <div>Child</div>,
                 guards: [mockAsyncGuard(true, workerDuration), mockAsyncGuard(true, workerDuration)],
                 onGuardStatusChange: status => {
                   childStatuses.push(status);
@@ -424,58 +415,14 @@ describe('on status change', () => {
           },
         ];
 
-        describe('in real environment', () => {
-          let root: ReactDOM.Root;
-          beforeEach(() => {
-            root = ReactDOM.createRoot(
-              document.createElement("div") as HTMLElement
-            );
-          });
-
-          it('parent and child have guards, statuses should be consecutive', async () => {
-            act(() => {
-              root.render(
-                <MemoryRouter initialEntries={['/child']}>
-                  <RoutesRenderer routes={routes} />
-                </MemoryRouter>
-              );
-            });
-
-            await wait(1);
-
-            expect(parentStatuses.length).toBe(1);
-            expect(childStatuses.length).toBe(0);
-
-            expect(parentStatuses[0]).toBe(RouteHelperStatus.Loading);
-
-            await wait(workerDuration * 2 + workerDurationTimeBeforeCheck * 2);
-            expect(parentStatuses.length).toBe(2);
-
-            parentStatuses.forEach((status, index) => {
-              expect(status).toBe(expectedStatuses[index]);
-            });
-
-            expect(childStatuses.length).toBe(1);
-            expect(childStatuses[0]).toBe(RouteHelperStatus.Loading);
-
-            await wait(workerDuration * 2 + workerDurationTimeBeforeCheck * 2);
-            expect(childStatuses.length).toBe(2);
-
-            childStatuses.forEach((status, index) => {
-              expect(status).toBe(expectedStatuses[index]);
-            });
-          });
-        });
-
-        describe('in test environment', () => {
-          it('parent and child have guards, statuses should be consecutive', async () => {
-            act(() => {
-              TestRenderer.create(
-                <MemoryRouter initialEntries={['/child']}>
-                  <RoutesRenderer routes={routes} />
-                </MemoryRouter>
-              );
-            });
+        testIn3DifferentModes({
+          afterEach: () => {
+            parentStatuses = [];
+            childStatuses = [];
+          },
+          routes,
+          initialPath: '/child',
+          validateResultInTestEnv: async () => {
 
             await wait(1);
 
@@ -500,13 +447,38 @@ describe('on status change', () => {
             const expectedStatusesForChildInTestEnv = [
               RouteHelperStatus.Loading, // should be 2 loading, since in test env react does not keep refs between mount/unmount
               // but in real env does
-              ...expectedStatuses
+              ...expectedStatuses,
             ];
 
             childStatuses.forEach((status, index) => {
               expect(status).toBe(expectedStatusesForChildInTestEnv[index]);
             });
-          });
+          },
+          validateResultInRealEnv: async () => {
+            await wait(1);
+
+            expect(parentStatuses.length).toBe(1);
+            expect(childStatuses.length).toBe(0);
+
+            expect(parentStatuses[0]).toBe(RouteHelperStatus.Loading);
+
+            await wait(workerDuration * 2 + workerDurationTimeBeforeCheck * 2);
+            expect(parentStatuses.length).toBe(2);
+
+            parentStatuses.forEach((status, index) => {
+              expect(status).toBe(expectedStatuses[index]);
+            });
+
+            expect(childStatuses.length).toBe(1);
+            expect(childStatuses[0]).toBe(RouteHelperStatus.Loading);
+
+            await wait(workerDuration * 2 + workerDurationTimeBeforeCheck * 2);
+            expect(childStatuses.length).toBe(2);
+
+            childStatuses.forEach((status, index) => {
+              expect(status).toBe(expectedStatuses[index]);
+            });
+          },
         });
       });
     });
@@ -522,7 +494,7 @@ describe('on status change', () => {
             path: '/',
             element: (
               <div>
-                Home <Outlet />
+                Home <Outlet/>
               </div>
             ),
             guards: [mockSyncGuard(true), mockAsyncGuard(true, workerDuration)],
@@ -535,7 +507,7 @@ describe('on status change', () => {
         TestRenderer.act(() => {
           renderer = TestRenderer.create(
             <MemoryRouter initialEntries={['/']}>
-              <RoutesRenderer routes={routes} />
+              <RoutesRenderer routes={routes}/>
             </MemoryRouter>,
           );
         });
@@ -567,7 +539,7 @@ describe('on status change', () => {
                 path: 'home',
                 element: (
                   <div>
-                    Home <Outlet />
+                    Home <Outlet/>
                   </div>
                 ),
                 children: [
@@ -585,13 +557,13 @@ describe('on status change', () => {
                 ],
               },
             ];
-            return <RoutesRenderer routes={routes} />;
+            return <RoutesRenderer routes={routes}/>;
           }
 
           TestRenderer.act(() => {
             renderer = TestRenderer.create(
               <MemoryRouter initialEntries={['/home/child']}>
-                <RoutesWrapper />
+                <RoutesWrapper/>
               </MemoryRouter>,
             );
           });
@@ -629,7 +601,7 @@ describe('on status change', () => {
           TestRenderer.act(() => {
             renderer = TestRenderer.create(
               <MemoryRouter initialEntries={['/']}>
-                <RoutesRenderer routes={routes} />
+                <RoutesRenderer routes={routes}/>
               </MemoryRouter>,
             );
           });
@@ -659,7 +631,7 @@ describe('on status change', () => {
           TestRenderer.act(() => {
             renderer = TestRenderer.create(
               <MemoryRouter initialEntries={['/']}>
-                <RoutesRenderer routes={routes} />
+                <RoutesRenderer routes={routes}/>
               </MemoryRouter>,
             );
           });
@@ -698,7 +670,7 @@ describe('on status change', () => {
           TestRenderer.act(() => {
             renderer = TestRenderer.create(
               <MemoryRouter initialEntries={['/']}>
-                <RoutesRenderer routes={routes} />
+                <RoutesRenderer routes={routes}/>
               </MemoryRouter>,
             );
           });
@@ -726,7 +698,7 @@ describe('on status change', () => {
               path: '/',
               element: (
                 <div>
-                  Home <Outlet />
+                  Home <Outlet/>
                 </div>
               ),
               resolvers: {
@@ -754,7 +726,7 @@ describe('on status change', () => {
           TestRenderer.act(() => {
             renderer = TestRenderer.create(
               <MemoryRouter initialEntries={['/']}>
-                <RoutesRenderer routes={routes} />
+                <RoutesRenderer routes={routes}/>
               </MemoryRouter>,
             );
           });
@@ -787,7 +759,7 @@ describe('on status change', () => {
               element: (
                 <div>
                   Home
-                  <Outlet />{' '}
+                  <Outlet/>{' '}
                 </div>
               ),
               children: [
@@ -808,7 +780,7 @@ describe('on status change', () => {
           TestRenderer.act(() => {
             renderer = TestRenderer.create(
               <MemoryRouter initialEntries={['/child']}>
-                <RoutesRenderer routes={routes} location={{ pathname: '/child' }} />
+                <RoutesRenderer routes={routes} location={{ pathname: '/child' }}/>
               </MemoryRouter>,
             );
           });
@@ -836,7 +808,7 @@ describe('on status change', () => {
               element: (
                 <div>
                   Home
-                  <Outlet />{' '}
+                  <Outlet/>{' '}
                 </div>
               ),
               children: [
@@ -858,7 +830,7 @@ describe('on status change', () => {
           TestRenderer.act(() => {
             renderer = TestRenderer.create(
               <MemoryRouter initialEntries={['/child']}>
-                <RoutesRenderer routes={routes} location={{ pathname: '/child' }} />
+                <RoutesRenderer routes={routes} location={{ pathname: '/child' }}/>
               </MemoryRouter>,
             );
           });
@@ -889,7 +861,7 @@ describe('on status change', () => {
               element: (
                 <div>
                   Home
-                  <Outlet />{' '}
+                  <Outlet/>{' '}
                 </div>
               ),
               onResolverStatusChange: (status: RouteHelperStatus) => {
@@ -918,7 +890,7 @@ describe('on status change', () => {
           TestRenderer.act(() => {
             renderer = TestRenderer.create(
               <MemoryRouter initialEntries={['/child']}>
-                <RoutesRenderer routes={routes} location={{ pathname: '/child' }} />
+                <RoutesRenderer routes={routes} location={{ pathname: '/child' }}/>
               </MemoryRouter>,
             );
           });
@@ -973,7 +945,7 @@ describe('on status change', () => {
           TestRenderer.act(() => {
             renderer = TestRenderer.create(
               <MemoryRouter initialEntries={['/']}>
-                <RoutesRenderer routes={routes} />
+                <RoutesRenderer routes={routes}/>
               </MemoryRouter>,
             );
           });
@@ -1007,7 +979,7 @@ describe('on status change', () => {
           TestRenderer.act(() => {
             renderer = TestRenderer.create(
               <MemoryRouter initialEntries={['/']}>
-                <RoutesRenderer routes={routes} />
+                <RoutesRenderer routes={routes}/>
               </MemoryRouter>,
             );
           });
@@ -1032,7 +1004,7 @@ describe('on status change', () => {
               element: (
                 <div>
                   Home
-                  <Outlet />{' '}
+                  <Outlet/>{' '}
                 </div>
               ),
               children: [
@@ -1053,7 +1025,7 @@ describe('on status change', () => {
           TestRenderer.act(() => {
             renderer = TestRenderer.create(
               <MemoryRouter initialEntries={['/child']}>
-                <RoutesRenderer routes={routes} location={{ pathname: '/child' }} />
+                <RoutesRenderer routes={routes} location={{ pathname: '/child' }}/>
               </MemoryRouter>,
             );
           });
@@ -1076,7 +1048,7 @@ describe('on status change', () => {
               element: (
                 <div>
                   Home
-                  <Outlet />{' '}
+                  <Outlet/>{' '}
                 </div>
               ),
               children: [
@@ -1098,7 +1070,7 @@ describe('on status change', () => {
           TestRenderer.act(() => {
             renderer = TestRenderer.create(
               <MemoryRouter initialEntries={['/child']}>
-                <RoutesRenderer routes={routes} location={{ pathname: '/child' }} />
+                <RoutesRenderer routes={routes} location={{ pathname: '/child' }}/>
               </MemoryRouter>,
             );
           });
@@ -1124,7 +1096,7 @@ describe('on status change', () => {
             path: '/',
             element: (
               <div>
-                Home <Outlet />
+                Home <Outlet/>
               </div>
             ),
             resolvers: {
@@ -1140,7 +1112,7 @@ describe('on status change', () => {
         TestRenderer.act(() => {
           renderer = TestRenderer.create(
             <MemoryRouter initialEntries={['/']}>
-              <RoutesRenderer routes={routes} />
+              <RoutesRenderer routes={routes}/>
             </MemoryRouter>,
           );
         });
@@ -1170,7 +1142,7 @@ describe('on status change', () => {
                 path: 'home',
                 element: (
                   <div>
-                    Home <Outlet />
+                    Home <Outlet/>
                   </div>
                 ),
                 children: [
@@ -1191,13 +1163,13 @@ describe('on status change', () => {
                 ],
               },
             ];
-            return <RoutesRenderer routes={routes} />;
+            return <RoutesRenderer routes={routes}/>;
           }
 
           TestRenderer.act(() => {
             renderer = TestRenderer.create(
               <MemoryRouter initialEntries={['/home/child']}>
-                <RoutesWrapper />
+                <RoutesWrapper/>
               </MemoryRouter>,
             );
           });
@@ -1245,7 +1217,7 @@ describe('on status change', () => {
           TestRenderer.act(() => {
             TestRenderer.create(
               <MemoryRouter initialEntries={['/']}>
-                <RoutesRenderer routes={routes} />
+                <RoutesRenderer routes={routes}/>
               </MemoryRouter>,
             );
           });
@@ -1278,7 +1250,7 @@ describe('on status change', () => {
           TestRenderer.act(() => {
             TestRenderer.create(
               <MemoryRouter initialEntries={['/']}>
-                <RoutesRenderer routes={routes} />
+                <RoutesRenderer routes={routes}/>
               </MemoryRouter>,
             );
           });
@@ -1305,7 +1277,7 @@ describe('on status change', () => {
           return (
             <div>
               Home
-              <Outlet />
+              <Outlet/>
             </div>
           );
         };
@@ -1313,7 +1285,7 @@ describe('on status change', () => {
         const routes: HelperRouteObject[] = [
           {
             path: '/',
-            element: <Home />,
+            element: <Home/>,
             guards: [mockAsyncGuard(true, workerDuration), mockAsyncGuard(true, workerDuration)],
             resolvers: {
               userInfo: mockAsyncResolver(workerDuration, 'john'),
@@ -1331,7 +1303,7 @@ describe('on status change', () => {
         TestRenderer.act(() => {
           TestRenderer.create(
             <MemoryRouter initialEntries={['/']}>
-              <RoutesRenderer routes={routes} />
+              <RoutesRenderer routes={routes}/>
             </MemoryRouter>,
           );
         });
@@ -1390,7 +1362,7 @@ describe('on status change', () => {
             element: (
               <div>
                 Home
-                <Outlet />
+                <Outlet/>
               </div>
             ),
             guards: [mockAsyncGuard(true, workerDuration), mockAsyncGuard(true, workerDuration)],
@@ -1424,104 +1396,16 @@ describe('on status change', () => {
           },
         ];
 
-        describe('in real environment', () => {
-          let root: ReactDOM.Root;
-          beforeEach(() => {
-            root = ReactDOM.createRoot(
-              document.createElement("div") as HTMLElement
-            );
-          });
-
-          it('2 guards and 2 resolvers on parent and child', async () => {
-            act(() => {
-              root.render(
-                <MemoryRouter initialEntries={['/child']}>
-                  <RoutesRenderer routes={routes} />
-                </MemoryRouter>,
-              );
-            });
-
-            await wait(1);
-            expect(parentGuardStatuses.length).toBe(1);
-            expect(parentGuardStatuses[0]).toBe(RouteHelperStatus.Loading);
-            expect(parentResolverStatuses.length).toBe(0);
-
-            expect(childGuardStatuses.length).toBe(0);
-            expect(childResolverStatuses.length).toBe(0);
-
-            await wait(workerDuration + workerDurationTimeBeforeCheck);
-            expect(parentGuardStatuses.length).toBe(1);
-            expect(parentGuardStatuses[0]).toBe(RouteHelperStatus.Loading);
-            expect(parentResolverStatuses.length).toBe(0);
-
-            expect(childGuardStatuses.length).toBe(0);
-            expect(childResolverStatuses.length).toBe(0);
-
-            await wait(workerDuration + workerDurationTimeBeforeCheck);
-            expect(parentGuardStatuses.length).toBe(2);
-            parentGuardStatuses.forEach((s, index) => {
-              expect(s).toBe(expectedStatuses[index]);
-            });
-            expect(parentResolverStatuses.length).toBe(1);
-            expect(parentResolverStatuses[0]).toBe(RouteHelperStatus.Loading);
-
-            expect(childGuardStatuses.length).toBe(0);
-            expect(childResolverStatuses.length).toBe(0);
-
-            await wait(workerDuration + workerDurationTimeBeforeCheck);
-            expect(parentGuardStatuses.length).toBe(2);
-            parentGuardStatuses.forEach((s, index) => {
-              expect(s).toBe(expectedStatuses[index]);
-            });
-
-            expect(parentResolverStatuses.length).toBe(2);
-            parentResolverStatuses.forEach((s, index) => {
-              expect(s).toBe(expectedStatuses[index]);
-            });
-
-            expect(childGuardStatuses.length).toBe(1);
-            expect(childGuardStatuses[0]).toBe(RouteHelperStatus.Loading);
-            expect(childResolverStatuses.length).toBe(0);
-
-            await wait(workerDuration);
-
-            expect(childGuardStatuses.length).toBe(1);
-            expect(childGuardStatuses[0]).toBe(RouteHelperStatus.Loading);
-            expect(childResolverStatuses.length).toBe(0);
-
-            await wait(workerDuration);
-            expect(childGuardStatuses.length).toBe(2);
-            childGuardStatuses.forEach((s, index) => {
-              expect(s).toBe(expectedStatuses[index]);
-            });
-            expect(childResolverStatuses.length).toBe(1);
-            expect(childResolverStatuses[0]).toBe(RouteHelperStatus.Loading);
-
-            expect(parentGuardStatuses.length).toBe(2);
-            expect(parentResolverStatuses.length).toBe(2);
-
-            await wait(workerDuration);
-
-            expect(childGuardStatuses.length).toBe(2);
-            expect(childResolverStatuses.length).toBe(2);
-
-            childResolverStatuses.forEach((s, index) => {
-              expect(s).toBe(expectedStatuses[index]);
-            });
-
-            expect(parentGuardStatuses.length).toBe(2);
-            expect(parentResolverStatuses.length).toBe(2);
-          });
-        });
-        describe('in test environment', () => {
-          it('2 guards and 2 resolvers on parent and child', async () => {
-            TestRenderer.act(() => {
-              TestRenderer.create(
-                <MemoryRouter initialEntries={['/child']}>
-                  <RoutesRenderer routes={routes}  />
-                </MemoryRouter>,
-              );
-            });
+        testIn3DifferentModes({
+          afterEach: () => {
+            parentGuardStatuses = [];
+            parentResolverStatuses = [];
+            childGuardStatuses = [];
+            childResolverStatuses = [];
+          },
+          routes,
+          initialPath: '/child',
+          validateResultInTestEnv: async () => {
 
             await wait(1);
             expect(parentGuardStatuses.length).toBe(1);
@@ -1578,7 +1462,7 @@ describe('on status change', () => {
             const expectedStatusesForChildInTestEnv = [
               RouteHelperStatus.Loading, // should be 2 loading, since in test env react does not keep refs between mount/unmount
               // but in real env does
-              ...expectedStatuses
+              ...expectedStatuses,
             ];
 
             childGuardStatuses.forEach((s, index) => {
@@ -1601,7 +1485,79 @@ describe('on status change', () => {
 
             expect(parentGuardStatuses.length).toBe(2);
             expect(parentResolverStatuses.length).toBe(2);
-          });
+          },
+          validateResultInRealEnv: async () => {
+            await wait(1);
+            expect(parentGuardStatuses.length).toBe(1);
+            expect(parentGuardStatuses[0]).toBe(RouteHelperStatus.Loading);
+            expect(parentResolverStatuses.length).toBe(0);
+
+            expect(childGuardStatuses.length).toBe(0);
+            expect(childResolverStatuses.length).toBe(0);
+
+            await wait(workerDuration + workerDurationTimeBeforeCheck);
+            expect(parentGuardStatuses.length).toBe(1);
+            expect(parentGuardStatuses[0]).toBe(RouteHelperStatus.Loading);
+            expect(parentResolverStatuses.length).toBe(0);
+
+            expect(childGuardStatuses.length).toBe(0);
+            expect(childResolverStatuses.length).toBe(0);
+
+            await wait(workerDuration + workerDurationTimeBeforeCheck);
+            expect(parentGuardStatuses.length).toBe(2);
+            parentGuardStatuses.forEach((s, index) => {
+              expect(s).toBe(expectedStatuses[index]);
+            });
+            expect(parentResolverStatuses.length).toBe(1);
+            expect(parentResolverStatuses[0]).toBe(RouteHelperStatus.Loading);
+
+            expect(childGuardStatuses.length).toBe(0);
+            expect(childResolverStatuses.length).toBe(0);
+
+            await wait(workerDuration + workerDurationTimeBeforeCheck);
+            expect(parentGuardStatuses.length).toBe(2);
+            parentGuardStatuses.forEach((s, index) => {
+              expect(s).toBe(expectedStatuses[index]);
+            });
+
+            expect(parentResolverStatuses.length).toBe(2);
+            parentResolverStatuses.forEach((s, index) => {
+              expect(s).toBe(expectedStatuses[index]);
+            });
+
+            expect(childGuardStatuses.length).toBe(1);
+            expect(childGuardStatuses[0]).toBe(RouteHelperStatus.Loading);
+            expect(childResolverStatuses.length).toBe(0);
+
+            await wait(workerDuration);
+
+            expect(childGuardStatuses.length).toBe(1);
+            expect(childGuardStatuses[0]).toBe(RouteHelperStatus.Loading);
+            expect(childResolverStatuses.length).toBe(0);
+
+            await wait(workerDuration);
+            expect(childGuardStatuses.length).toBe(2);
+            childGuardStatuses.forEach((s, index) => {
+              expect(s).toBe(expectedStatuses[index]);
+            });
+            expect(childResolverStatuses.length).toBe(1);
+            expect(childResolverStatuses[0]).toBe(RouteHelperStatus.Loading);
+
+            expect(parentGuardStatuses.length).toBe(2);
+            expect(parentResolverStatuses.length).toBe(2);
+
+            await wait(workerDuration);
+
+            expect(childGuardStatuses.length).toBe(2);
+            expect(childResolverStatuses.length).toBe(2);
+
+            childResolverStatuses.forEach((s, index) => {
+              expect(s).toBe(expectedStatuses[index]);
+            });
+
+            expect(parentGuardStatuses.length).toBe(2);
+            expect(parentResolverStatuses.length).toBe(2);
+          },
         });
       });
     });

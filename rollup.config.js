@@ -15,7 +15,12 @@ export default [
       { file: pkg.main, format: 'cjs' },
       { file: pkg.module, format: 'esm' },
       {
-        file: 'example/example-for-test-only/src/reactRouterHelpers/index.js',
+        file: 'example/for-development/src/reactRouterHelpers/index.js',
+        format: 'es',
+        banner: '/* eslint-disable */',
+      },
+      {
+        file: 'example/cypress-testing-app/src/reactRouterHelpers/index.js',
         format: 'es',
         banner: '/* eslint-disable */',
       },

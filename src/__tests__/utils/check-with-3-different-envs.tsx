@@ -14,64 +14,72 @@ export async function testIn3DifferentModes(options: RenderInModesOptions) {
     }
   });
 
-  it('render in test mode', async () => {
-    let renderer: TestRenderer.ReactTestRenderer;
-    act(() => {
-      renderer = TestRenderer.create(
-        <MemoryRouter initialEntries={[options.initialPath]}>
-          <RoutesRenderer routes={options.routes} />
-        </MemoryRouter>,
-      );
-    });
+  const hasValidateFunction = typeof options.validate === 'function';
+  const hasTestEnvValidateFunction = typeof options.validateResultInTestEnv === 'function';
+  const hasRealEnvValidateFunction = typeof options.validateResultInRealEnv === 'function';
 
-    if (typeof options.validate === 'function') {
-      await options.validate();
-    }
-    if (typeof options.validateResultInTestEnv === 'function') {
-      await options.validateResultInTestEnv(renderer!);
-    }
-  });
-
-  it('render in real dev mode', async () => {
-    const rootNode = document.createElement('div') as HTMLElement;
-    const rootToMount = ReactDOM.createRoot(rootNode as HTMLElement);
-
-    act(() => {
-      rootToMount.render(
-        <React.StrictMode>
+  if (hasValidateFunction || hasTestEnvValidateFunction) {
+    it('render in test mode', async () => {
+      let renderer: TestRenderer.ReactTestRenderer;
+      act(() => {
+        renderer = TestRenderer.create(
           <MemoryRouter initialEntries={[options.initialPath]}>
             <RoutesRenderer routes={options.routes} />
           </MemoryRouter>,
-        </React.StrictMode>,
-      );
+        );
+      });
+
+      if (hasValidateFunction) {
+        await options.validate!();
+      }
+      if (hasTestEnvValidateFunction) {
+        await options.validateResultInTestEnv!(renderer!);
+      }
+    });
+  }
+
+  if (hasValidateFunction || hasRealEnvValidateFunction) {
+    it('render in real dev mode', async () => {
+      const rootNode = document.createElement('div') as HTMLElement;
+      const rootToMount = ReactDOM.createRoot(rootNode as HTMLElement);
+
+      act(() => {
+        rootToMount.render(
+          <React.StrictMode>
+            <MemoryRouter initialEntries={[options.initialPath]}>
+              <RoutesRenderer routes={options.routes} />
+            </MemoryRouter>,
+          </React.StrictMode>,
+        );
+      });
+
+      if (hasValidateFunction) {
+        await options.validate!();
+      }
+      if (hasRealEnvValidateFunction) {
+        await options.validateResultInRealEnv!(rootNode);
+      }
     });
 
-    if (typeof options.validate === 'function') {
-      await options.validate();
-    }
-    if (typeof options.validateResultInRealEnv === 'function') {
-      await options.validateResultInRealEnv(rootNode);
-    }
-  });
+    it('render in real production mode', async () => {
+      const rootNode = document.createElement('div') as HTMLElement;
+      const rootToMount = ReactDOM.createRoot(rootNode as HTMLElement);
 
-  it('render in real production mode', async () => {
-    const rootNode = document.createElement('div') as HTMLElement;
-    const rootToMount = ReactDOM.createRoot(rootNode as HTMLElement);
-
-    act(() => {
-      rootToMount.render(
-        <MemoryRouter initialEntries={[options.initialPath]}>
-          <RoutesRenderer routes={options.routes} />
-        </MemoryRouter>,
-      );
+      act(() => {
+        rootToMount.render(
+          <MemoryRouter initialEntries={[options.initialPath]}>
+            <RoutesRenderer routes={options.routes} />
+          </MemoryRouter>,
+        );
+      });
+      if (hasValidateFunction) {
+        await options.validate!();
+      }
+      if (hasRealEnvValidateFunction) {
+        await options.validateResultInRealEnv!(rootNode);
+      }
     });
-    if (typeof options.validate === 'function') {
-      await options.validate();
-    }
-    if (typeof options.validateResultInRealEnv === 'function') {
-      await options.validateResultInRealEnv(rootNode);
-    }
-  });
+  }
 }
 
 interface RenderInModesOptions {
