@@ -1,5 +1,5 @@
-import React, { useEffect, useRef } from "react";
-import { HelperManager, RouteHelperStatus, OnStatusChange } from "./types";
+import React, { useRef } from 'react';
+import { HelperManager, OnStatusChange, RouteHelperStatus, TitleResolverStatus } from './types';
 
 const isNullOrUndefined = (obj?: any) => {
   return obj === null || obj === undefined;
@@ -91,24 +91,24 @@ export function useManager({ guards, resolvers, title, titleResolver }: HelperMa
     document.title = title;
   }
 
-  function hasRouteTitle(): boolean {
-    return !isNullOrUndefined(title) || typeof titleResolver == "function";
+  function hasRouteTitleResolver(): boolean {
+    return typeof titleResolver == "function";
   }
 
   function setTitle() {
-    if (!isNullOrUndefined(title)) {
+    if (!isNullOrUndefined(title) && !hasRouteTitleResolver()) {
       setTitleWithName(title!);
     }
   }
 
   async function resolveTitle(isComponentAliveRef: React.MutableRefObject<boolean>) {
-    if (typeof titleResolver == "function") {
+    if (hasRouteTitleResolver()) {
       if (previouslyResolvedTitleRef.current !== '') {
         setTitleWithName(previouslyResolvedTitleRef.current);
         return;
       }
 
-      const titleFromResolver = await titleResolver();
+      const titleFromResolver = await titleResolver!(TitleResolverStatus.RouteLoaded);
       previouslyResolvedTitleRef.current = titleFromResolver;
 
       if (isComponentAliveRef.current) {

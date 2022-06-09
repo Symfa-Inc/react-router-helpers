@@ -9,6 +9,7 @@ import {
   useParams
 } from "react-router-dom";
 import './App.css';
+import { TitleResolverStatus } from '../../../src/types';
 import { mockGuard, useGetUserInfoResolver, useGuardWithParams } from './guards/mock-guard';
 import { RouteHelperStatus, useResolver, useRoutesWithHelper, HelperOutlet } from './reactRouterHelpers';
 
@@ -51,6 +52,8 @@ function Home() {
         <Link to="/child/1234">Child 2</Link> |{" "}
         <Link to="/child/child2/child3">Child 3</Link>
       </nav>
+      {/*{needToShow && <HelperOutlet/>}*/}
+      <HelperOutlet/>
     </div>
   );
 }
@@ -58,13 +61,13 @@ function Home() {
 function Child() {
   // const resolverInfos = useResolver<{ userName: string; lastName: string; }>();
 
-  useEffect(() => {
-    // console.log('rendered Child', resolverInfos);
-
-    return () => {
-      console.log('child destroyed');
-    };
-  }, []);
+  // useEffect(() => {
+  //   // console.log('rendered Child', resolverInfos);
+  //
+  //   return () => {
+  //     console.log('child destroyed');
+  //   };
+  // }, []);
 
   return (
     <div>
@@ -94,7 +97,8 @@ function Child2() {
         <Link to="/">Home</Link> |{" "}
         <Link to="/child">Child</Link> |{" "}
         <Link to="/child/child2" id="link-to-second-child">Child 2</Link> |{" "}
-        <Link to="child3">Child 3</Link>
+        <Link to="child3">Child 3</Link> |{" "}
+        <Link to="../54321">Child 2 different link</Link>
       </nav>
       <Outlet/>
     </div>
@@ -167,6 +171,7 @@ const RoutesWrapper = () => {
           path: "child",
           element: <Child />,
           title: "loading...",
+          // titleResolver: () => () => "test",
           // guards: [mockGuard(true, 'CHILD 1 =========================='), mockGuard(true, 'CHILD 2 CHILD 1 ==========================')],
           // titleResolver: () => async () => {
           //   await wait(2000);
@@ -188,7 +193,19 @@ const RoutesWrapper = () => {
               path: ":id",
               element: <Child2 />,
               title: "2 test title",
+              resolvers: {
+                  userInfo: () => () => {
+                    console.log('resolver info');
+                    return {userName: 'eugene', name: 'eugene', lastName: 'tsarenko'};
+                  }
+              },
               // titleResolver: () => () => 'title from ',
+              titleResolver: () => {
+                return async (status: TitleResolverStatus) => {
+                  await wait(2000);
+                  return "Title from resolver";
+                };
+              },
 
               children: [
                 {

@@ -162,6 +162,111 @@ describe('title in route', () => {
       });
     });
   });
+
+  describe('title field should be ignored if titleResolver is passed', () => {
+    describe('for parent route', () => {
+      describe('should set title from resolver only', () => {
+        const routes: HelperRouteObject[] = [
+          {
+            path: '/',
+            element: <div>Home</div>,
+            title: 'Home - Title',
+            titleResolver: () => async () => {
+              await wait(workerDuration);
+              return "Home - Title from resolver";
+            }
+          },
+        ];
+
+        testIn3DifferentModes({
+          beforeEach: () => {
+            global.window.document.title = "";
+          },
+          routes,
+          initialPath: '/',
+          validate: async () => {
+            await wait(1);
+
+            expect(global.window.document.title).toBe('');
+
+            await wait(workerDuration + workerDurationTimeBeforeCheck);
+
+            expect(global.window.document.title).toBe('Home - Title from resolver');
+          },
+        });
+      });
+
+      describe('second nesting layer', () => {
+        describe('should set title, parent does not have title', () => {
+
+          const routes: HelperRouteObject[] = [
+            {
+              path: '/',
+              element: <div>Home <HelperOutlet /></div>,
+              children: [
+                {
+                  path: 'child',
+                  element: <div>Child</div>,
+                  title: 'Child - Title',
+                  titleResolver: () => async () => {
+                    await wait(workerDuration);
+                    return "Child - Title from resolver";
+                  }
+                },
+              ],
+            },
+          ];
+
+          testIn3DifferentModes({
+            beforeEach: () => {
+              global.window.document.title = "";
+            },
+            routes,
+            initialPath: '/child',
+            validate: async () => {
+              await wait(1);
+
+              expect(global.window.document.title).toBe('');
+              await wait(workerDuration + workerDurationTimeBeforeCheck);
+
+              expect(global.window.document.title).toBe('Child - Title from resolver');
+            },
+          });
+
+        });
+
+        describe('should set title, parent has title', () => {
+
+          const routes: HelperRouteObject[] = [
+            {
+              path: '/',
+              element: <div>Home <HelperOutlet /></div>,
+              title: 'Home - Title',
+              children: [
+                {
+                  path: 'child',
+                  element: <div>Child</div>,
+                  title: 'Child - Title',
+                },
+              ],
+            },
+          ];
+
+          testIn3DifferentModes({
+            routes,
+            initialPath: '/child',
+            validate: async () => {
+              await wait(1);
+
+              expect(global.window.document.title).toBe('Child - Title');
+            },
+          });
+
+        });
+
+      });
+    });
+  });
   describe('titleResolver only', () => {
     // TODO: Add tests
   });

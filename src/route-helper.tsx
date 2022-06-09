@@ -53,7 +53,6 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
   //#region Refs to prevent double calls
   const wereWorkersStarted = useRef(false);
   const wasParentTitleResolvingCanceled = useRef(false);
-  const isFirstLoad = useRef(true);
   //#endregion Refs to prevent double calls
 
   //#region Workers infos
@@ -71,6 +70,8 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
 
   const setCancellationKeyForCurrentRoute = (cancellationKey: string) => {
     lastCancellationKeyFromChild.current = cancellationKey;
+
+    // lastLocationKey.current = cancellationKey;
   };
 
   const resolveTitle = () => {
@@ -84,6 +85,7 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
   const cancelParentTitleResolving = (cancellationKey: string) => {
     if (!wasParentTitleResolvingCanceled.current) {
       wasParentTitleResolvingCanceled.current = true;
+      // console.log('cancelParentTitleResolving ' + COMPONENT_NAME);
       parentContext.cancelTitleResolvingForParent(cancellationKey);
     }
   };
@@ -92,7 +94,7 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
     cancelParentTitleResolving(cancellationKey);
     // console.log('initCancellationTitleResolvingForParent +++++++++++++++++++++++ ');
     if (isComponentParentOrParentOutletWasInitialized() && isLastChild()) {
-      // console.log('initCancellationTitleResolvingForParent +++++++++++++++++++++++ ');
+      // console.log('initCancellationTitleResolvingForParent ' + COMPONENT_NAME);
       manager.setTitle();
 
       // If route was already loaded
@@ -107,6 +109,7 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
 
   const isUpdateOnNewLocation = () => {
     const isNew = lastLocationKey.current !== '' && lastLocationKey.current !== location.key;
+    // console.log(`isUpdateOnNewLocation  ${COMPONENT_NAME}  ${location.key} ${lastLocationKey.current}`);
     if (isNew) {
       lastLocationKey.current = location.key;
     }
@@ -116,6 +119,7 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
   const isLastChild = () => {
     const isLastChild = lastLocationKey.current !== lastCancellationKeyFromChild.current;
     // console.log('isLastChild +++++++++++++++++++++++ ' + COMPONENT_NAME + ' ' + isLastChild);
+    console.log(`isLastChild ${COMPONENT_NAME} curr: ${lastLocationKey.current} from child loc: ${lastCancellationKeyFromChild.current}`);
     return lastLocationKey.current !== lastCancellationKeyFromChild.current;
   };
 
@@ -174,10 +178,13 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
 
   //#endregion workers
 
+  // const startDoingWork = () => {
+  //   evaluateGuardsAndResolvers();
+  // };
 
   //#region Triggers
   useEffect(() => {
-    console.log('mount ' + COMPONENT_NAME);
+    // console.log('mount ' + COMPONENT_NAME);
     lastLocationKey.current = location.key;
 
     initCancellationTitleResolvingForParent(location.key);
@@ -198,6 +205,8 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
     }
   }, [parentContext]);
 
+
+
   // useEffect(() => {
   //   if (isComponentParentOrParentOutletWasInitialized()) {
   //     console.log('OUTLET CONTEXT CHANGED + ' + COMPONENT_NAME);
@@ -209,9 +218,17 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
   // }, [outletContext]);
 
   useEffect(() => {
-    if (isUpdateOnNewLocation() && isComponentParentOrParentOutletWasInitialized() && isLastChild()) {
+    if (isUpdateOnNewLocation() && isComponentParentOrParentOutletWasInitialized()) {
+      console.log('UPDATE AND CANCEL ' + COMPONENT_NAME);
       resetCancellationTitleResolvingForParent();
       initCancellationTitleResolvingForParent(lastLocationKey.current);
+
+      // if (parentContext.canStartToLoadWorkers) {
+      //   // wereWorkersStarted.current = false;
+      //
+      //   evaluateGuardsAndResolvers();
+      // }
+
     }
   }, [location, outletContext]);
 

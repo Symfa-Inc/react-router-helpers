@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Link, Outlet } from 'react-router-dom';
 import { useRoutesWithHelper } from './reactRouterHelpers';
+import { HelperOutlet } from './reactRouterHelpers/index';
 
 
 function Home() {
@@ -14,7 +15,7 @@ function Home() {
         <Link to="/child/1234" id="absolute-link-to-second-child">Child 2</Link> |{" "}
         <Link to="/child/child2/child3">Child 3</Link>
       </nav>
-      <Outlet/>
+      <HelperOutlet />
     </div>
   );
 }
@@ -29,7 +30,7 @@ function Child() {
         <Link to="./child2" id="relative-link-to-second-child">Child 2 R</Link> |{" "}
         <Link to="/child/child2/child3">Child 3</Link>
       </nav>
-      <Outlet/>
+      <HelperOutlet/>
     </div>
   );
 }

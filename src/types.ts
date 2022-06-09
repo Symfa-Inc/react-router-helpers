@@ -6,8 +6,8 @@ export type InnerGuard = () => Promise<boolean> | boolean;
 export type Resolver = () => () => Promise<any> | Promise<void> | any | void;
 export type InnerResolver = () => Promise<any> | Promise<void> | any | void;
 
-export type TitleResolver = () => () => Promise<string> | string;
-export type InnerTitleResolver = () => Promise<string> | string;
+export type TitleResolver = () => (status: TitleResolverStatus) => Promise<string> | string;
+export type InnerTitleResolver = (status: TitleResolverStatus) => Promise<string> | string;
 
 export type OnStatusChange = (status: RouteHelperStatus) => void;
 
@@ -18,7 +18,6 @@ export interface OnlyHelperFields {
   onResolverStatusChange?: OnStatusChange;
   title?: string;
   titleResolver?: TitleResolver;
-  loadingTitle?: string;
 }
 
 export interface HelperRouteObject extends RouteObject, OnlyHelperFields {
@@ -40,4 +39,15 @@ export interface HelperManager {
   title?: string;
   loadingTitle?: string;
   titleResolver: InnerTitleResolver | null;
+}
+
+
+export enum TitleResolverStatus {
+  BeforeRouteStartLoading,
+
+  RouteStartLoading,
+  RouteLoaded,
+  RouteFailed,
+
+  RouteUpdate
 }
