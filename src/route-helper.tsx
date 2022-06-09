@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { FC, PropsWithChildren, useContext, useEffect, useRef, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { OutletProps } from 'react-router/lib/components';
 import { RouteContext } from './context';
@@ -8,9 +8,6 @@ import { HelperManager, HelperRouteObjectProps, OnlyHelperFields, RouteHelperSta
 //   // TODO: Add metadata (title)
 //   // TODO: Add metadata (title) tests
 
-// TODO: BUG if press on the same link again
-// TODO: BUG if press on the last link - title was set from first parent
-// TODO: BUG if first press on child1 and then second press on child 2 - title was set from child1
 
 //  // TODO: Add preserve query params strategy for Link component
 //  // TODO: Add preserve query params strategy for Link component tests
@@ -31,7 +28,7 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
   const notification = useStatusNotification(props.onGuardStatusChange, props.onResolverStatusChange);
   //#endregion hooks usage
 
-  const COMPONENT_NAME = (props.element as any).type.name;
+  const COMPONENT_NAME = (props.element as any)?.type?.name;
 
   const initializeManagerParams = (): HelperManager => {
     const guards = props.guards || [];
@@ -119,7 +116,7 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
   const isLastChild = () => {
     const isLastChild = lastLocationKey.current !== lastCancellationKeyFromChild.current;
     // console.log('isLastChild +++++++++++++++++++++++ ' + COMPONENT_NAME + ' ' + isLastChild);
-    console.log(`isLastChild ${COMPONENT_NAME} curr: ${lastLocationKey.current} from child loc: ${lastCancellationKeyFromChild.current}`);
+    // console.log(`isLastChild ${COMPONENT_NAME} curr: ${lastLocationKey.current} from child loc: ${lastCancellationKeyFromChild.current}`);
     return lastLocationKey.current !== lastCancellationKeyFromChild.current;
   };
 
@@ -222,7 +219,7 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
       console.log('UPDATE AND CANCEL ' + COMPONENT_NAME);
       resetCancellationTitleResolvingForParent();
       initCancellationTitleResolvingForParent(lastLocationKey.current);
-
+      //
       // if (parentContext.canStartToLoadWorkers) {
       //   // wereWorkersStarted.current = false;
       //
@@ -235,26 +232,46 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
   //#endregion Triggers
 
 
-  const elementToRender =
-    parentContext.canStartToLoadWorkers &&
-    guardsStatus === RouteHelperStatus.Loaded &&
-    resolversStatus === RouteHelperStatus.Loaded ? (
-      props.element
-    ) : (
-      <Outlet/>
+
+  const DefaultWrapper: FC<PropsWithChildren> = (props) => {
+    const elementToRender =
+      parentContext.canStartToLoadWorkers &&
+      guardsStatus === RouteHelperStatus.Loaded &&
+      resolversStatus === RouteHelperStatus.Loaded ? (
+        props.children
+      ) : (
+        <Outlet/>
+      );
+    return (
+      <RouteContext.Provider
+        value={{
+          routeResolverInfos: loadedResolverInfos,
+          canStartToLoadWorkers: canChildStartWorkers,
+          cancelTitleResolvingForParent: setCancellationKeyForCurrentRoute,
+          isTheFirstParent: isParent,
+        }}
+      >
+        <RouteContext.Consumer>{() => elementToRender}</RouteContext.Consumer>
+      </RouteContext.Provider>
+    )
+  };
+
+
+  if (props.loadElement != undefined) {
+    const LazyComponent = React.lazy(() => props.loadElement!());
+
+    return (
+      <DefaultWrapper>
+        <React.Suspense fallback={<>Loading...</>}>
+          <LazyComponent />
+        </React.Suspense>
+      </DefaultWrapper>
     );
-  return (
-    <RouteContext.Provider
-      value={{
-        routeResolverInfos: loadedResolverInfos,
-        canStartToLoadWorkers: canChildStartWorkers,
-        cancelTitleResolvingForParent: setCancellationKeyForCurrentRoute,
-        isTheFirstParent: isParent,
-      }}
-    >
-      <RouteContext.Consumer>{() => elementToRender}</RouteContext.Consumer>
-    </RouteContext.Provider>
-  );
+  }
+
+
+
+  return <DefaultWrapper>{props.element}</DefaultWrapper>;
 };
 
 

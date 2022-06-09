@@ -18,6 +18,7 @@ export interface OnlyHelperFields {
   onResolverStatusChange?: OnStatusChange;
   title?: string;
   titleResolver?: TitleResolver;
+  loadElement?: () => Promise<{default: React.ComponentType<any>}>;
 }
 
 export interface HelperRouteObject extends RouteObject, OnlyHelperFields {

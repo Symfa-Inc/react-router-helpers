@@ -21,6 +21,7 @@ export const useGetUserInfoResolver = () => {
 
   return async () => {
     await dispatch(fetchUserById(123));
+    return "good"
   };
 };
 

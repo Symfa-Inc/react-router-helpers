@@ -2,7 +2,7 @@ import * as React from 'react';
 import { FC } from 'react';
 import ReactDOM from 'react-dom/client';
 import { act } from 'react-dom/test-utils';
-import { MemoryRouter, Outlet, useNavigate, useParams } from 'react-router-dom';
+import { MemoryRouter, useNavigate, useParams } from 'react-router-dom';
 import * as TestRenderer from 'react-test-renderer';
 import { HelperRouteObject, RouteHelperStatus } from '../types';
 import { testIn3DifferentModes } from './utils/check-with-3-different-envs';
@@ -12,6 +12,7 @@ import { mockShouldNeverBeCalledGuard } from './utils/mock-should-never-be-calle
 import { mockSyncGuard } from './utils/mock-sync-guard';
 import { RoutesRenderer } from './utils/RoutesRenderer';
 import { wait } from './utils/wait';
+import {HelperOutlet} from '../index';
 
 describe('Guards in route', () => {
   describe('with async guards', () => {
@@ -348,7 +349,7 @@ describe('Guards in route', () => {
               path: '/',
               element: (
                 <div>
-                  Home <Outlet/>
+                  Home <HelperOutlet/>
                 </div>
               ),
               guards: [mockAsyncGuard(true, workerDuration), mockSyncGuard(true)],
@@ -400,7 +401,7 @@ describe('Guards in route', () => {
               path: '/',
               element: (
                 <div>
-                  Home <Outlet/>
+                  Home <HelperOutlet/>
                 </div>
               ),
               guards: [mockSyncGuard(true), mockAsyncGuard(true, workerDuration)],
@@ -454,7 +455,7 @@ describe('Guards in route', () => {
               path: '/',
               element: (
                 <div>
-                  Home <Outlet/>
+                  Home <HelperOutlet/>
                 </div>
               ),
               children: [
@@ -501,7 +502,7 @@ describe('Guards in route', () => {
               path: '/',
               element: (
                 <div>
-                  Home <Outlet/>
+                  Home <HelperOutlet/>
                 </div>
               ),
               children: [
@@ -653,7 +654,7 @@ describe('Guards in route', () => {
                 path: '/',
                 element: (
                   <div>
-                    Home <Outlet/>
+                    Home <HelperOutlet/>
                   </div>
                 ),
                 children: [{ path: 'child', element: <div>Child</div> }],
@@ -679,7 +680,7 @@ describe('Guards in route', () => {
                 path: '/',
                 element: (
                   <div>
-                    Home <Outlet/>
+                    Home <HelperOutlet/>
                   </div>
                 ),
                 children: [{ path: 'child', element: <div>Child</div> }],
@@ -705,7 +706,7 @@ describe('Guards in route', () => {
                 path: '/',
                 element: (
                   <div>
-                    Home <Outlet/>
+                    Home <HelperOutlet/>
                   </div>
                 ),
                 children: [
@@ -740,7 +741,7 @@ describe('Guards in route', () => {
                 path: '/',
                 element: (
                   <div>
-                    Home <Outlet/>
+                    Home <HelperOutlet/>
                   </div>
                 ),
                 children: [
@@ -779,7 +780,7 @@ describe('Guards in route', () => {
                 path: '/',
                 element: (
                   <div>
-                    Home <Outlet/>
+                    Home <HelperOutlet/>
                   </div>
                 ),
                 guards: [mockAsyncGuard(true, workerDuration)],
@@ -811,7 +812,7 @@ describe('Guards in route', () => {
                 path: '/',
                 element: (
                   <div>
-                    Home <Outlet/>
+                    Home <HelperOutlet/>
                   </div>
                 ),
                 guards: [mockAsyncGuard(true, workerDuration)],
@@ -822,7 +823,7 @@ describe('Guards in route', () => {
                     element: (
                       <div>
                         Child
-                        <Outlet/>
+                        <HelperOutlet/>
                       </div>
                     ),
                     children: [
@@ -858,7 +859,7 @@ describe('Guards in route', () => {
                 path: '/',
                 element: (
                   <div>
-                    Home <Outlet/>
+                    Home <HelperOutlet/>
                   </div>
                 ),
                 guards: [mockAsyncGuard(true, workerDuration)],
@@ -869,7 +870,7 @@ describe('Guards in route', () => {
                     element: (
                       <div>
                         Child
-                        <Outlet/>
+                        <HelperOutlet/>
                       </div>
                     ),
                     children: [
@@ -879,7 +880,7 @@ describe('Guards in route', () => {
                         element: (
                           <div>
                             Child 2
-                            <Outlet/>
+                            <HelperOutlet/>
                           </div>
                         ),
                         children: [
@@ -920,7 +921,7 @@ describe('Guards in route', () => {
                 path: '/',
                 element: (
                   <div>
-                    Home <Outlet/>
+                    Home <HelperOutlet/>
                   </div>
                 ),
                 guards: [mockAsyncGuard(false, workerDuration)],
@@ -952,7 +953,7 @@ describe('Guards in route', () => {
               path: '/',
               element: (
                 <div>
-                  Home <Outlet/>
+                  Home <HelperOutlet/>
                 </div>
               ),
               children: [
@@ -981,7 +982,7 @@ describe('Guards in route', () => {
               path: '/',
               element: (
                 <div>
-                  Home <Outlet/>
+                  Home <HelperOutlet/>
                 </div>
               ),
               children: [
@@ -1011,7 +1012,7 @@ describe('Guards in route', () => {
             path: '/',
             element: (
               <div>
-                Home <Outlet/>
+                Home <HelperOutlet/>
               </div>
             ),
             guards: [mockAsyncGuard(true, workerDuration)],
@@ -1022,7 +1023,7 @@ describe('Guards in route', () => {
                 element: (
                   <div>
                     Child
-                    <Outlet/>
+                    <HelperOutlet/>
                   </div>
                 ),
                 children: [
@@ -1032,7 +1033,7 @@ describe('Guards in route', () => {
                     element: (
                       <div>
                         Child 2
-                        <Outlet/>
+                        <HelperOutlet/>
                       </div>
                     ),
                     children: [
@@ -1138,7 +1139,7 @@ describe('Guards in route', () => {
             <div>
               <h1>Home test</h1>
               <LinkToFirstChild/>
-              <Outlet/>
+              <HelperOutlet/>
             </div>
           );
         };
@@ -1147,7 +1148,7 @@ describe('Guards in route', () => {
           <div>
             <h1>Child</h1>
             <LinkToSecondChild/>
-            <Outlet/>
+            <HelperOutlet/>
           </div>
         );
 
@@ -1155,7 +1156,7 @@ describe('Guards in route', () => {
           <div>
             <h1>Child 2</h1>
             <LinkToThirdChild/>
-            <Outlet/>
+            <HelperOutlet/>
           </div>
         );
 
@@ -1504,7 +1505,7 @@ describe('Guards in route', () => {
             <div>
               <h1>Home test</h1>
               <LinkToLoginPage/>
-              <Outlet/>
+              <HelperOutlet/>
             </div>
           );
         };
@@ -1563,7 +1564,7 @@ describe('Guards in route', () => {
           path: '/home',
           element: (
             <div>
-              Home <Outlet/>
+              Home <HelperOutlet/>
             </div>
           ),
           children: [
@@ -1663,7 +1664,7 @@ describe('Guards in route', () => {
             path: '/',
             element: (
               <div>
-                Home <Outlet/>
+                Home <HelperOutlet/>
               </div>
             ),
             children: [
@@ -1698,7 +1699,7 @@ describe('Guards in route', () => {
     });
   });
 
-  describe('parent route does not have Outlet child guards should not be called', () => {
+  describe('parent route does not have HelperOutlet child guards should not be called', () => {
     describe('second nesting route, different behaviour in test vs real env', () => {
       const counter = { amount: 0 };
       const routes: HelperRouteObject[] = [
@@ -1747,7 +1748,7 @@ describe('Guards in route', () => {
           element: (
             <div>
               Home
-              <Outlet/>
+              <HelperOutlet/>
             </div>
           ),
           children: [

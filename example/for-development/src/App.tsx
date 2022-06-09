@@ -2,16 +2,17 @@ import React, { useContext, useEffect, useState } from 'react';
 import {
   BrowserRouter as Router,
   Link,
-  Outlet,
+  Outlet, Route, Routes,
   UNSAFE_NavigationContext,
   useLocation,
   useNavigate,
-  useParams
-} from "react-router-dom";
+  useParams,
+} from 'react-router-dom';
 import './App.css';
 import { TitleResolverStatus } from '../../../src/types';
 import { mockGuard, useGetUserInfoResolver, useGuardWithParams } from './guards/mock-guard';
 import { RouteHelperStatus, useResolver, useRoutesWithHelper, HelperOutlet } from './reactRouterHelpers';
+import { RouteHelper } from './reactRouterHelpers/index';
 
 // const useResolverForHome = () => {
 //   const test = useParams();
@@ -46,10 +47,10 @@ function Home() {
     <div>
       <h1>Home</h1>
       <nav>
-        <Link to="/">Home</Link> |{" "}
-        <Link to="/login">Login</Link> |{" "}
-        <Link to="/child">Child</Link> |{" "}
-        <Link to="/child/1234">Child 2</Link> |{" "}
+        <Link to="/">Home</Link> |{' '}
+        <Link to="/login">Login</Link> |{' '}
+        <Link to="/child">Child</Link> |{' '}
+        <Link to="/child/1234">Child 2</Link> |{' '}
         <Link to="/child/child2/child3">Child 3</Link>
       </nav>
       {/*{needToShow && <HelperOutlet/>}*/}
@@ -57,6 +58,9 @@ function Home() {
     </div>
   );
 }
+
+const Lazy = React.lazy(() => import('./LazyComponent'));
+const Lazy2 = React.lazy(() => import('./LazyComponent2'));
 
 function Child() {
   // const resolverInfos = useResolver<{ userName: string; lastName: string; }>();
@@ -73,9 +77,10 @@ function Child() {
     <div>
       <h1>Child </h1>
       <nav>
-        <Link to="/">Home</Link> |{" "}
-        <Link to="/child">Child</Link> |{" "}
-        <Link to="/child/1234">Child 2</Link> |{" "}
+        <Link to="/">Home</Link> |{' '}
+        <Link to="/child">Child</Link> |{' '}
+        <Link to="/child/1234">Child 2</Link> |{' '}
+        <Link to="./1234">Child 2 relative</Link> |{' '}
         <Link to="/child/child2/child3">Child 3</Link>
         {/*<h2>resolver info: {resolverInfos.lastName}</h2>*/}
       </nav>
@@ -94,10 +99,10 @@ function Child2() {
     <div>
       <h1>Child 2</h1>
       <nav>
-        <Link to="/">Home</Link> |{" "}
-        <Link to="/child">Child</Link> |{" "}
-        <Link to="/child/child2" id="link-to-second-child">Child 2</Link> |{" "}
-        <Link to="child3">Child 3</Link> |{" "}
+        <Link to="/">Home</Link> |{' '}
+        <Link to="/child">Child</Link> |{' '}
+        <Link to="/child/child2" id="link-to-second-child">Child 2</Link> |{' '}
+        <Link to="child3">Child 3</Link> |{' '}
         <Link to="../54321">Child 2 different link</Link>
       </nav>
       <Outlet/>
@@ -111,9 +116,9 @@ function Child3() {
     <div>
       <h1>Child 3</h1>
       <nav>
-        <Link to="/">Home</Link> |{" "}
-        <Link to="/child">Child</Link> |{" "}
-        <Link to="/child/child2">Child 2</Link> |{" "}
+        <Link to="/">Home</Link> |{' '}
+        <Link to="/child">Child</Link> |{' '}
+        <Link to="/child/child2">Child 2</Link> |{' '}
         <Link to="/child/child2/child3">Child 3</Link>
       </nav>
       <Outlet/>
@@ -150,22 +155,12 @@ const RoutesWrapper = () => {
     {
       path: "/",
       element: <Home />,
+      // loadElement: () => import('./LazyComponent'),
       title: 'HOME',
-      // guards: [mock],
-      // resolvers: {
-      //   userInfo: useGetUserInfoResolver,
-      // },
-
-      // guards: [mockGuard(true, 'HOME 1'), mockGuard(true, 'HOME 2')],
-      // resolvers: {
-      //   test: useResolverForHome
-      // },
-      // onGuardStatusChange: (status: RouteHelperStatus) => {
-      //   console.log("onGuardStatusChange", RouteHelperStatus[status]);
-      // },
-      // onResolverStatusChange: (status: RouteHelperStatus) => {
-      //   console.log("onResolverStatusChange", RouteHelperStatus[status]);
-      // },
+      guards: [mockGuard(), mockGuard(true)],
+      resolvers: {
+        userInfo: useGetUserInfoResolver,
+      },
       children: [
         {
           path: "child",
@@ -193,6 +188,7 @@ const RoutesWrapper = () => {
               path: ":id",
               element: <Child2 />,
               title: "2 test title",
+              guards: [mockGuard(true, "CHILD GUARD")],
               resolvers: {
                   userInfo: () => () => {
                     console.log('resolver info');
@@ -229,13 +225,34 @@ function App() {
     <Router>
       <RoutesWrapper />
       {/*<Routes>*/}
-      {/*  <Route path="/" element={*/}
-      {/*    new RouteHelper(<Home/>)*/}
-      {/*      .withGuards([mockGuard])*/}
-      {/*      .create()*/}
-      {/*  }/>*/}
-      {/*  <Route path="/home2" element={<RouteHelper2 element={<Home />} guards={[mockGuard]} />}/>*/}
-      {/*  /!*<Route path="/" element={<RouteHelper element={<Home />} guards={[mockGuard]} />} />*!/*/}
+      {/*  /!*<Route*!/*/}
+      {/*  /!*  path="/"*!/*/}
+      {/*  /!*  element={*!/*/}
+      {/*  /!*    <RouteHelper*!/*/}
+      {/*  /!*      guards={[mockGuard()]}*!/*/}
+      {/*  /!*      load={import('./LazyComponent')}*!/*/}
+      {/*  /!*    />*!/*/}
+      {/*  /!*  }*!/*/}
+      {/*  /!*>*!/*/}
+      {/*  /!*  <Route*!/*/}
+      {/*  /!*    path="/child"*!/*/}
+      {/*  /!*    element={*!/*/}
+      {/*  /!*      <RouteHelper*!/*/}
+      {/*  /!*        guards={[mockGuard(false)]}*!/*/}
+      {/*  /!*        element={*!/*/}
+      {/*  /!*          <React.Suspense fallback={<>...</>}>*!/*/}
+      {/*  /!*            <Lazy2/>*!/*/}
+      {/*  /!*          </React.Suspense>*!/*/}
+      {/*  /!*        }/>*!/*/}
+      {/*  /!*    }></Route>*!/*/}
+      {/*  /!*</Route>*!/*/}
+      {/*  /!*  <Route path="/" element={*!/*/}
+      {/*  /!*    new RouteHelper(<Home/>)*!/*/}
+      {/*  /!*      .withGuards([mockGuard])*!/*/}
+      {/*  /!*      .create()*!/*/}
+      {/*  /!*  }/>*!/*/}
+      {/*  /!*  <Route path="/home2" element={<RouteHelper2 element={<Home />} guards={[mockGuard]} />}/>*!/*/}
+      {/*  /!*  /!*<Route path="/" element={<RouteHelper element={<Home />} guards={[mockGuard]} />} />*!/*!/*/}
       {/*</Routes>*/}
     </Router>
   );
