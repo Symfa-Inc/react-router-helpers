@@ -1,10 +1,11 @@
 import * as React from 'react';
 import { MemoryRouter, Outlet, Route, Routes } from 'react-router-dom';
 import * as TestRenderer from 'react-test-renderer';
-import { RouteHelper } from '../route-helper';
-import { workerDurationTimeBeforeCheck, workerDuration } from './utils/general-utils';
+import { HelperOutlet, RouteHelper } from '../route-helper';
+import { mediumWorkDuration, longestWorkDuration, minimalWorkDuration } from './utils/general-utils';
 import { mockAsyncGuard } from './utils/mock-async-guard';
 import { wait } from './utils/wait';
+import { expect } from '@jest/globals';
 
 describe('route helper component', () => {
   describe('without extra functionality', () => {
@@ -21,7 +22,7 @@ describe('route helper component', () => {
         );
       });
 
-      await wait(1);
+      await wait(mediumWorkDuration + minimalWorkDuration);
       expect(renderer.toJSON()).toMatchInlineSnapshot(`
               <div>
                 Home
@@ -42,7 +43,7 @@ describe('route helper component', () => {
                   <RouteHelper
                     element={
                       <div>
-                        Home <Outlet />
+                        Home <HelperOutlet />
                       </div>
                     }
                   />
@@ -55,7 +56,7 @@ describe('route helper component', () => {
         );
       });
 
-      await wait(1);
+      await wait(mediumWorkDuration);
       expect(renderer.toJSON()).toMatchInlineSnapshot(`
         <div>
           Home 
@@ -77,7 +78,7 @@ describe('route helper component', () => {
             <Routes>
               <Route
                 path="/"
-                element={<RouteHelper guards={[mockAsyncGuard(true, workerDuration)]} element={<div>Home</div>} />}
+                element={<RouteHelper guards={[mockAsyncGuard(true, longestWorkDuration)]} element={<div>Home</div>} />}
               />
             </Routes>
           </MemoryRouter>,
@@ -87,7 +88,7 @@ describe('route helper component', () => {
       await wait(1);
       expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
 
-      await wait(workerDuration + workerDurationTimeBeforeCheck);
+      await wait(longestWorkDuration + mediumWorkDuration);
 
       expect(renderer.toJSON()).toMatchInlineSnapshot(`
         <div>
@@ -107,7 +108,7 @@ describe('route helper component', () => {
                 path="/"
                 element={
                   <RouteHelper
-                    guards={[mockAsyncGuard(true, workerDuration)]}
+                    guards={[mockAsyncGuard(true, longestWorkDuration)]}
                     element={
                       <div>
                         Home <Outlet />
@@ -118,7 +119,7 @@ describe('route helper component', () => {
               >
                 <Route
                   path="child"
-                  element={<RouteHelper guards={[mockAsyncGuard(true, workerDuration)]} element={<div>Child</div>} />}
+                  element={<RouteHelper guards={[mockAsyncGuard(true, longestWorkDuration)]} element={<div>Child</div>} />}
                 ></Route>
               </Route>
             </Routes>
@@ -129,7 +130,7 @@ describe('route helper component', () => {
       await wait(1);
       expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
 
-      await wait(workerDuration * 2 + workerDurationTimeBeforeCheck);
+      await wait(longestWorkDuration * 2 + mediumWorkDuration);
     });
   });
 });

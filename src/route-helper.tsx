@@ -146,7 +146,7 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
   };
 
   const isComponentParentOrParentOutletWasInitialized = () => {
-    console.log(`outletContext.wasParentOutletLoaded ${outletContext.wasParentOutletLoaded} ${COMPONENT_NAME}`);
+    // console.log(`outletContext.wasParentOutletLoaded ${outletContext.wasParentOutletLoaded} ${COMPONENT_NAME}`);
     const wasOutletLoadedAndWasNotUsedAlready = (outletContext.wasParentOutletLoaded && !outletContext.wasOutletUsedAlready);
     if (wasOutletLoadedAndWasNotUsedAlready) {
       outletContext.setWasUsed();
@@ -221,7 +221,7 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
   }, []);
 
   useEffect(() => {
-    console.log('PARENT CONTEXT CHANGED ' + COMPONENT_NAME + ' ' + isComponentParentOrParentOutletWasInitialized());
+    // console.log('PARENT CONTEXT CHANGED ' + COMPONENT_NAME + ' ' + isComponentParentOrParentOutletWasInitialized());
     if (parentContext.canStartToLoadWorkers &&
       isComponentParentOrParentOutletWasInitialized() &&
       !wereWorkersStarted

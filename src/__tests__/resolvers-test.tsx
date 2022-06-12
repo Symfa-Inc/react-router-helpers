@@ -6,12 +6,13 @@ import * as TestRenderer from 'react-test-renderer';
 import { useResolver } from '../hooks';
 import { HelperOutlet } from '../route-helper';
 import { HelperRouteObject } from '../types';
-import { minimalRenderTimeout, workerDuration, workerDurationTimeBeforeCheck } from './utils/general-utils';
+import { minimalWorkDuration, longestWorkDuration, mediumWorkDuration } from './utils/general-utils';
 import { GeneralLink } from './utils/GeneralLink';
 import { mockAsyncResolver } from './utils/mock-async-resolver';
 import { mockShouldNeverBeCalledResolver } from './utils/mock-should-never-be-called-resolver';
 import { RoutesRenderer } from './utils/RoutesRenderer';
 import { wait } from './utils/wait';
+import { expect } from '@jest/globals';
 
 describe('Resolvers in route', () => {
   describe('route should only be rendered when resolvers have finished and component must have value from hook', () => {
@@ -34,7 +35,7 @@ describe('Resolvers in route', () => {
             path: '/',
             element: <Home />,
             resolvers: {
-              userInfo: mockAsyncResolver(workerDuration, { name: 'joe' }),
+              userInfo: mockAsyncResolver(longestWorkDuration, { name: 'joe' }),
             },
           },
         ];
@@ -47,11 +48,11 @@ describe('Resolvers in route', () => {
           );
         });
 
-        await wait(minimalRenderTimeout);
+        await wait(minimalWorkDuration);
 
         expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
 
-        await wait(workerDuration + workerDurationTimeBeforeCheck);
+        await wait(longestWorkDuration + mediumWorkDuration);
 
         expect(renderer.toJSON()).toMatchInlineSnapshot(`
                   <div>
@@ -84,8 +85,8 @@ describe('Resolvers in route', () => {
             path: '/',
             element: <Home />,
             resolvers: {
-              userInfo: mockAsyncResolver(workerDuration, { name: 'joe' }),
-              productInfo: mockAsyncResolver(workerDuration, { price: 50 }),
+              userInfo: mockAsyncResolver(longestWorkDuration, { name: 'joe' }),
+              productInfo: mockAsyncResolver(longestWorkDuration, { price: 50 }),
             },
           },
         ];
@@ -98,11 +99,11 @@ describe('Resolvers in route', () => {
           );
         });
 
-        await wait(minimalRenderTimeout);
+        await wait(minimalWorkDuration);
 
         expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
 
-        await wait(workerDuration + workerDurationTimeBeforeCheck);
+        await wait(longestWorkDuration + mediumWorkDuration);
 
         expect(renderer.toJSON()).toMatchInlineSnapshot(`
           <div>
@@ -138,8 +139,8 @@ describe('Resolvers in route', () => {
             path: '/',
             element: <Home />,
             resolvers: {
-              userInfo: mockAsyncResolver(workerDuration, { name: 'joe' }),
-              productInfo: mockAsyncResolver(workerDuration),
+              userInfo: mockAsyncResolver(longestWorkDuration, { name: 'joe' }),
+              productInfo: mockAsyncResolver(longestWorkDuration),
             },
           },
         ];
@@ -152,11 +153,11 @@ describe('Resolvers in route', () => {
           );
         });
 
-        await wait(minimalRenderTimeout);
+        await wait(minimalWorkDuration);
 
         expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
 
-        await wait(workerDuration + workerDurationTimeBeforeCheck);
+        await wait(longestWorkDuration + mediumWorkDuration);
 
         expect(renderer.toJSON()).toMatchInlineSnapshot(`
           <div>
@@ -188,7 +189,7 @@ describe('Resolvers in route', () => {
             path: '/',
             element: <Home />,
             resolvers: {
-              userInfo: mockAsyncResolver(workerDuration, { name: 'joe' }),
+              userInfo: mockAsyncResolver(longestWorkDuration, { name: 'joe' }),
             },
             children: [
               {
@@ -210,11 +211,11 @@ describe('Resolvers in route', () => {
           );
         });
 
-        await wait(minimalRenderTimeout);
+        await wait(minimalWorkDuration);
 
         expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
 
-        await wait(workerDuration + workerDurationTimeBeforeCheck);
+        await wait(longestWorkDuration + mediumWorkDuration);
 
         expect(renderer.toJSON()).toMatchInlineSnapshot(`
                   <div>
@@ -255,7 +256,7 @@ describe('Resolvers in route', () => {
                 path: 'child',
                 element: <Child />,
                 resolvers: {
-                  userInfo: mockAsyncResolver(workerDuration, { name: 'joe' }),
+                  userInfo: mockAsyncResolver(longestWorkDuration, { name: 'joe' }),
                 },
               },
             ],
@@ -270,7 +271,7 @@ describe('Resolvers in route', () => {
           );
         });
 
-        await wait(minimalRenderTimeout * 2);
+        await wait(minimalWorkDuration * 2);
 
         expect(renderer.toJSON()).toMatchInlineSnapshot(`
           <div>
@@ -278,7 +279,7 @@ describe('Resolvers in route', () => {
           </div>
         `);
 
-        await wait(workerDuration + workerDurationTimeBeforeCheck + minimalRenderTimeout);
+        await wait(longestWorkDuration + mediumWorkDuration + minimalWorkDuration);
 
         expect(renderer.toJSON()).toMatchInlineSnapshot(`
           <div>
@@ -322,8 +323,8 @@ describe('Resolvers in route', () => {
                 path: 'child',
                 element: <Child />,
                 resolvers: {
-                  userInfo: mockAsyncResolver(workerDuration, { name: 'joe' }),
-                  productInfo: mockAsyncResolver(workerDuration, { price: 50 }),
+                  userInfo: mockAsyncResolver(longestWorkDuration, { name: 'joe' }),
+                  productInfo: mockAsyncResolver(longestWorkDuration, { price: 50 }),
                 },
               },
             ],
@@ -338,7 +339,7 @@ describe('Resolvers in route', () => {
           );
         });
 
-        await wait(minimalRenderTimeout);
+        await wait(minimalWorkDuration);
 
         expect(renderer.toJSON()).toMatchInlineSnapshot(`
           <div>
@@ -346,7 +347,7 @@ describe('Resolvers in route', () => {
           </div>
         `);
 
-        await wait(workerDuration + workerDurationTimeBeforeCheck);
+        await wait(longestWorkDuration + mediumWorkDuration);
 
         expect(renderer.toJSON()).toMatchInlineSnapshot(`
           <div>
@@ -375,7 +376,7 @@ describe('Resolvers in route', () => {
             <div>
               Home
               <h2>{userInfo.name}</h2>
-              <Outlet />
+              <HelperOutlet />
             </div>
           );
         }
@@ -396,14 +397,14 @@ describe('Resolvers in route', () => {
             path: '/',
             element: <Home />,
             resolvers: {
-              userInfo: mockAsyncResolver(workerDuration, { name: 'joe' }),
+              userInfo: mockAsyncResolver(longestWorkDuration, { name: 'joe' }),
             },
             children: [
               {
                 path: 'child',
                 element: <Child />,
                 resolvers: {
-                  userInfo: mockAsyncResolver(workerDuration, { name: 'john' }),
+                  userInfo: mockAsyncResolver(longestWorkDuration, { name: 'john' }),
                 },
               },
             ],
@@ -418,11 +419,11 @@ describe('Resolvers in route', () => {
           );
         });
 
-        await wait(minimalRenderTimeout);
+        await wait(minimalWorkDuration);
 
         expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
 
-        await wait(workerDuration + workerDurationTimeBeforeCheck);
+        await wait(longestWorkDuration + mediumWorkDuration);
 
         expect(renderer.toJSON()).toMatchInlineSnapshot(`
           <div>
@@ -433,7 +434,7 @@ describe('Resolvers in route', () => {
           </div>
         `);
 
-        await wait(workerDuration + workerDurationTimeBeforeCheck);
+        await wait(longestWorkDuration + mediumWorkDuration + minimalWorkDuration);
 
         expect(renderer.toJSON()).toMatchInlineSnapshot(`
           <div>
@@ -463,7 +464,7 @@ describe('Resolvers in route', () => {
               Home
               <h2>{userInfo.name}</h2>
               <h2>{productInfo.price}</h2>
-              <Outlet />
+              <HelperOutlet />
             </div>
           );
         }
@@ -488,16 +489,16 @@ describe('Resolvers in route', () => {
             path: '/',
             element: <Home />,
             resolvers: {
-              userInfo: mockAsyncResolver(workerDuration, { name: 'joe' }),
-              productInfo: mockAsyncResolver(workerDuration, { price: 50 }),
+              userInfo: mockAsyncResolver(longestWorkDuration, { name: 'joe' }),
+              productInfo: mockAsyncResolver(longestWorkDuration, { price: 50 }),
             },
             children: [
               {
                 path: 'child',
                 element: <Child />,
                 resolvers: {
-                  userInfo: mockAsyncResolver(workerDuration, { name: 'john' }),
-                  productInfo: mockAsyncResolver(workerDuration, { price: 100 }),
+                  userInfo: mockAsyncResolver(longestWorkDuration, { name: 'john' }),
+                  productInfo: mockAsyncResolver(longestWorkDuration, { price: 100 }),
                 },
               },
             ],
@@ -512,11 +513,11 @@ describe('Resolvers in route', () => {
           );
         });
 
-        await wait(minimalRenderTimeout);
+        await wait(minimalWorkDuration);
 
         expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
 
-        await wait(workerDuration + workerDurationTimeBeforeCheck);
+        await wait(longestWorkDuration + mediumWorkDuration);
 
         expect(renderer.toJSON()).toMatchInlineSnapshot(`
           <div>
@@ -530,7 +531,7 @@ describe('Resolvers in route', () => {
           </div>
         `);
 
-        await wait(workerDuration + workerDurationTimeBeforeCheck);
+        await wait(longestWorkDuration + mediumWorkDuration + minimalWorkDuration);
 
         expect(renderer.toJSON()).toMatchInlineSnapshot(`
           <div>
@@ -571,7 +572,7 @@ describe('Resolvers in route', () => {
             <div>
               <h1>Home test {userName}</h1>
               <LinkToFirstChild />
-              <Outlet />
+              <HelperOutlet />
             </div>
           );
         };
@@ -582,7 +583,7 @@ describe('Resolvers in route', () => {
             <div>
               <h1>Child {userName}</h1>
               <LinkToSecondChild />
-              <Outlet />
+              <HelperOutlet />
             </div>
           );
         };
@@ -593,7 +594,7 @@ describe('Resolvers in route', () => {
             <div>
               <h1>Child 2 {userName}</h1>
               <LinkToThirdChild />
-              <Outlet />
+              <HelperOutlet />
             </div>
           );
         };
@@ -607,28 +608,28 @@ describe('Resolvers in route', () => {
           {
             path: '/',
             resolvers: {
-              userName: mockAsyncResolver(workerDuration, 'jack - home'),
+              userName: mockAsyncResolver(longestWorkDuration, 'jack - home'),
             },
             element: <Home />,
             children: [
               {
                 path: 'child',
                 resolvers: {
-                  userName: mockAsyncResolver(workerDuration, 'jack - child'),
+                  userName: mockAsyncResolver(longestWorkDuration, 'jack - child'),
                 },
                 element: <Child />,
                 children: [
                   {
                     path: 'child2',
                     resolvers: {
-                      userName: mockAsyncResolver(workerDuration, 'jack - child2'),
+                      userName: mockAsyncResolver(longestWorkDuration, 'jack - child2'),
                     },
                     element: <Child2 />,
                     children: [
                       {
                         path: 'child3',
                         resolvers: {
-                          userName: mockAsyncResolver(workerDuration, 'jack - child3'),
+                          userName: mockAsyncResolver(longestWorkDuration, 'jack - child3'),
                         },
                         element: <Child3 />,
                       },
@@ -648,13 +649,13 @@ describe('Resolvers in route', () => {
           );
         });
 
-        await wait(minimalRenderTimeout);
+        await wait(minimalWorkDuration);
 
         // Elements should not be rendered immediately after initialization, since the first parent has resolver
 
         expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
 
-        await wait(workerDuration + workerDurationTimeBeforeCheck);
+        await wait(longestWorkDuration + mediumWorkDuration);
 
         // As soon as resolver for <Home /> has finished his work, we should be able to see the content,
         // but not the child <Child />, because it has resolver as well
@@ -679,7 +680,7 @@ describe('Resolvers in route', () => {
           linkToFirstChild.findByType('button').props.onClick();
         });
 
-        await wait(minimalRenderTimeout);
+        await wait(minimalWorkDuration);
 
         // Just after click we still shouldn't be able to see <Child /> content, since it has async guard
         expect(renderer.toJSON()).toMatchInlineSnapshot(`
@@ -696,7 +697,7 @@ describe('Resolvers in route', () => {
           </div>
         `);
 
-        await wait(workerDuration + workerDurationTimeBeforeCheck);
+        await wait(longestWorkDuration + mediumWorkDuration);
         // Just after first child guard work we should be able to see the child content and container for
         // the next child but not child itself <Child2 />
 
@@ -757,7 +758,7 @@ describe('Resolvers in route', () => {
           </div>
         `);
 
-        await wait(workerDuration + workerDurationTimeBeforeCheck);
+        await wait(longestWorkDuration + mediumWorkDuration);
 
         // As soon as guard in <Child2 /> has finished his work,
         // we should be able to see content of component
@@ -842,7 +843,7 @@ describe('Resolvers in route', () => {
           </div>
         `);
 
-        await wait(workerDuration + workerDurationTimeBeforeCheck);
+        await wait(longestWorkDuration + mediumWorkDuration);
 
         // As soon as guard in <Child3 /> has finished his work,
         // we should be able to see content of component
@@ -991,7 +992,7 @@ describe('Resolvers in route', () => {
           path: '/home',
           element: (
             <div>
-              Home <Outlet />
+              Home <HelperOutlet />
             </div>
           ),
           children: [
@@ -1017,7 +1018,7 @@ describe('Resolvers in route', () => {
           );
         });
 
-        await wait(minimalRenderTimeout);
+        await wait(minimalWorkDuration);
 
         expect(renderer.toJSON()).toMatchInlineSnapshot(`
           <div>
@@ -1062,10 +1063,10 @@ describe('Resolvers in route', () => {
             path: '/',
             element: <Home />,
             resolvers: {
-              name: mockAsyncResolver(workerDuration, 'joe'),
-              lastName: mockAsyncResolver(workerDuration, 'doe'),
-              authInfo: mockAsyncResolver(workerDuration, { permission: 'admin' }),
-              avatar: mockAsyncResolver(workerDuration, 'url'),
+              name: mockAsyncResolver(longestWorkDuration, 'joe'),
+              lastName: mockAsyncResolver(longestWorkDuration, 'doe'),
+              authInfo: mockAsyncResolver(longestWorkDuration, { permission: 'admin' }),
+              avatar: mockAsyncResolver(longestWorkDuration, 'url'),
             },
           },
         ];
@@ -1078,11 +1079,11 @@ describe('Resolvers in route', () => {
           );
         });
 
-        await wait(minimalRenderTimeout);
+        await wait(minimalWorkDuration);
 
         expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
 
-        await wait(workerDuration + workerDurationTimeBeforeCheck);
+        await wait(longestWorkDuration + mediumWorkDuration);
 
         expect(renderer.toJSON()).toMatchInlineSnapshot(`
           <div>
@@ -1130,7 +1131,7 @@ describe('Resolvers in route', () => {
             path: '/',
             element: (
               <div>
-                Home <Outlet />
+                Home <HelperOutlet />
               </div>
             ),
             children: [
@@ -1138,10 +1139,10 @@ describe('Resolvers in route', () => {
                 path: 'child',
                 element: <Child />,
                 resolvers: {
-                  name: mockAsyncResolver(workerDuration, 'joe'),
-                  lastName: mockAsyncResolver(workerDuration, 'doe'),
-                  authInfo: mockAsyncResolver(workerDuration, { permission: 'admin' }),
-                  avatar: mockAsyncResolver(workerDuration, 'url'),
+                  name: mockAsyncResolver(longestWorkDuration, 'joe'),
+                  lastName: mockAsyncResolver(longestWorkDuration, 'doe'),
+                  authInfo: mockAsyncResolver(longestWorkDuration, { permission: 'admin' }),
+                  avatar: mockAsyncResolver(longestWorkDuration, 'url'),
                 },
               },
             ],
@@ -1156,7 +1157,7 @@ describe('Resolvers in route', () => {
           );
         });
 
-        await wait(minimalRenderTimeout);
+        await wait(minimalWorkDuration);
 
         expect(renderer.toJSON()).toMatchInlineSnapshot(`
           <div>
@@ -1164,7 +1165,7 @@ describe('Resolvers in route', () => {
           </div>
         `);
 
-        await wait(workerDuration + workerDurationTimeBeforeCheck);
+        await wait(longestWorkDuration + mediumWorkDuration);
 
         expect(renderer.toJSON()).toMatchInlineSnapshot(`
           <div>
@@ -1210,7 +1211,7 @@ describe('Resolvers in route', () => {
             element: <div>Home</div>,
             resolvers: {
               name: resolverWithException,
-              lastName: mockAsyncResolver(workerDuration, 'doe'),
+              lastName: mockAsyncResolver(longestWorkDuration, 'doe'),
             },
           },
         ];
@@ -1223,11 +1224,11 @@ describe('Resolvers in route', () => {
           );
         });
 
-        await wait(minimalRenderTimeout);
+        await wait(minimalWorkDuration);
 
         expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
 
-        await wait(workerDuration + workerDurationTimeBeforeCheck);
+        await wait(longestWorkDuration + mediumWorkDuration);
 
         expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
       });
@@ -1240,7 +1241,7 @@ describe('Resolvers in route', () => {
             element: <div>Home</div>,
             resolvers: {
               name: resolverWithExceptionAsync,
-              lastName: mockAsyncResolver(workerDuration, 'doe'),
+              lastName: mockAsyncResolver(longestWorkDuration, 'doe'),
             },
           },
         ];
@@ -1253,11 +1254,11 @@ describe('Resolvers in route', () => {
           );
         });
 
-        await wait(minimalRenderTimeout);
+        await wait(minimalWorkDuration);
 
         expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
 
-        await wait(workerDuration + workerDurationTimeBeforeCheck);
+        await wait(longestWorkDuration + mediumWorkDuration);
 
         expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
       });
@@ -1276,7 +1277,7 @@ describe('Resolvers in route', () => {
                 element: <div>Child</div>,
                 resolvers: {
                   name: resolverWithException,
-                  lastName: mockAsyncResolver(workerDuration, 'doe'),
+                  lastName: mockAsyncResolver(longestWorkDuration, 'doe'),
                 },
               },
             ],
@@ -1291,7 +1292,7 @@ describe('Resolvers in route', () => {
           );
         });
 
-        await wait(minimalRenderTimeout);
+        await wait(minimalWorkDuration);
 
         expect(renderer.toJSON()).toMatchInlineSnapshot(`
           <div>
@@ -1299,7 +1300,7 @@ describe('Resolvers in route', () => {
           </div>
         `);
 
-        await wait(workerDuration + workerDurationTimeBeforeCheck);
+        await wait(longestWorkDuration + mediumWorkDuration);
 
         expect(renderer.toJSON()).toMatchInlineSnapshot(`
           <div>
@@ -1320,7 +1321,7 @@ describe('Resolvers in route', () => {
                 element: <div>Child</div>,
                 resolvers: {
                   name: resolverWithExceptionAsync,
-                  lastName: mockAsyncResolver(workerDuration, 'doe'),
+                  lastName: mockAsyncResolver(longestWorkDuration, 'doe'),
                 },
               },
             ],
@@ -1335,7 +1336,7 @@ describe('Resolvers in route', () => {
           );
         });
 
-        await wait(minimalRenderTimeout);
+        await wait(minimalWorkDuration);
 
         expect(renderer.toJSON()).toMatchInlineSnapshot(`
           <div>
@@ -1343,7 +1344,7 @@ describe('Resolvers in route', () => {
           </div>
         `);
 
-        await wait(workerDuration + workerDurationTimeBeforeCheck);
+        await wait(longestWorkDuration + mediumWorkDuration);
 
         expect(renderer.toJSON()).toMatchInlineSnapshot(`
           <div>

@@ -2,14 +2,16 @@ import * as React from 'react';
 import { MemoryRouter, Outlet } from 'react-router-dom';
 import * as TestRenderer from 'react-test-renderer';
 import { useResolver } from '../hooks';
+import { HelperOutlet } from '../route-helper';
 import { HelperRouteObject } from '../types';
-import { workerDuration, workerDurationTimeBeforeCheck } from './utils/general-utils';
+import { longestWorkDuration, mediumWorkDuration } from './utils/general-utils';
 import { mockAsyncGuard } from './utils/mock-async-guard';
 import { mockAsyncResolver } from './utils/mock-async-resolver';
 import { mockShouldNeverBeCalledGuard } from './utils/mock-should-never-be-called-guard';
 import { mockShouldNeverBeCalledResolver } from './utils/mock-should-never-be-called-resolver';
 import { RoutesRenderer } from './utils/RoutesRenderer';
 import { wait } from './utils/wait';
+import { expect } from '@jest/globals';
 
 describe('resolvers with guards', () => {
   describe('parent route', () => {
@@ -23,7 +25,7 @@ describe('resolvers with guards', () => {
             Home
             {userInfo}
             {authInfo}
-            <Outlet />
+            <HelperOutlet />
           </div>
         );
       };
@@ -32,10 +34,10 @@ describe('resolvers with guards', () => {
         {
           path: '/',
           element: <Home />,
-          guards: [mockAsyncGuard(true, workerDuration), mockAsyncGuard(true, workerDuration)],
+          guards: [mockAsyncGuard(true, longestWorkDuration), mockAsyncGuard(true, longestWorkDuration)],
           resolvers: {
-            userInfo: mockAsyncResolver(workerDuration, 'john'),
-            authInfo: mockAsyncResolver(workerDuration, 'admin'),
+            userInfo: mockAsyncResolver(longestWorkDuration, 'john'),
+            authInfo: mockAsyncResolver(longestWorkDuration, 'admin'),
           },
         },
       ];
@@ -51,15 +53,15 @@ describe('resolvers with guards', () => {
       await wait(1);
       expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
 
-      await wait(workerDuration + workerDurationTimeBeforeCheck);
+      await wait(longestWorkDuration + mediumWorkDuration);
 
       expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
 
-      await wait(workerDuration + workerDurationTimeBeforeCheck);
+      await wait(longestWorkDuration + mediumWorkDuration);
 
       expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
 
-      await wait(workerDuration + workerDurationTimeBeforeCheck);
+      await wait(longestWorkDuration + mediumWorkDuration);
 
       expect(renderer.toJSON()).toMatchInlineSnapshot(`
         <div>
@@ -81,7 +83,7 @@ describe('resolvers with guards', () => {
         {
           path: '/',
           element: <Home />,
-          guards: [mockAsyncGuard(false, workerDuration)],
+          guards: [mockAsyncGuard(false, longestWorkDuration)],
           resolvers: {
             mock: mockShouldNeverBeCalledResolver(counter),
           },
@@ -99,7 +101,7 @@ describe('resolvers with guards', () => {
       await wait(1);
       expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
 
-      await wait(workerDuration + workerDurationTimeBeforeCheck);
+      await wait(longestWorkDuration + mediumWorkDuration);
 
       expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
       expect(counter.amount).toBe(0);
@@ -116,7 +118,7 @@ describe('resolvers with guards', () => {
             Home
             {userInfo}
             {authInfo}
-            <Outlet />
+            <HelperOutlet />
           </div>
         );
       };
@@ -136,19 +138,19 @@ describe('resolvers with guards', () => {
         {
           path: '/',
           element: <Home />,
-          guards: [mockAsyncGuard(true, workerDuration), mockAsyncGuard(true, workerDuration)],
+          guards: [mockAsyncGuard(true, longestWorkDuration), mockAsyncGuard(true, longestWorkDuration)],
           resolvers: {
-            userInfo: mockAsyncResolver(workerDuration, 'john'),
-            authInfo: mockAsyncResolver(workerDuration, 'admin'),
+            userInfo: mockAsyncResolver(longestWorkDuration, 'john'),
+            authInfo: mockAsyncResolver(longestWorkDuration, 'admin'),
           },
           children: [
             {
               path: 'child',
               element: <Child />,
-              guards: [mockAsyncGuard(true, workerDuration), mockAsyncGuard(true, workerDuration)],
+              guards: [mockAsyncGuard(true, longestWorkDuration), mockAsyncGuard(true, longestWorkDuration)],
               resolvers: {
-                userInfo: mockAsyncResolver(workerDuration, 'john - child'),
-                authInfo: mockAsyncResolver(workerDuration, 'admin - child'),
+                userInfo: mockAsyncResolver(longestWorkDuration, 'john - child'),
+                authInfo: mockAsyncResolver(longestWorkDuration, 'admin - child'),
               },
             },
           ],
@@ -166,15 +168,15 @@ describe('resolvers with guards', () => {
       await wait(1);
       expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
 
-      await wait(workerDuration + workerDurationTimeBeforeCheck);
+      await wait(longestWorkDuration + mediumWorkDuration);
 
       expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
 
-      await wait(workerDuration + workerDurationTimeBeforeCheck);
+      await wait(longestWorkDuration + mediumWorkDuration);
 
       expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
 
-      await wait(workerDuration + workerDurationTimeBeforeCheck);
+      await wait(longestWorkDuration + mediumWorkDuration);
 
       expect(renderer.toJSON()).toMatchInlineSnapshot(`
         <div>
@@ -184,7 +186,7 @@ describe('resolvers with guards', () => {
         </div>
       `);
 
-      await wait(workerDuration);
+      await wait(longestWorkDuration);
 
       expect(renderer.toJSON()).toMatchInlineSnapshot(`
         <div>
@@ -194,7 +196,7 @@ describe('resolvers with guards', () => {
         </div>
       `);
 
-      await wait(workerDuration);
+      await wait(longestWorkDuration);
 
       expect(renderer.toJSON()).toMatchInlineSnapshot(`
         <div>
@@ -204,7 +206,7 @@ describe('resolvers with guards', () => {
         </div>
       `);
 
-      await wait(workerDuration + workerDurationTimeBeforeCheck);
+      await wait(longestWorkDuration + mediumWorkDuration);
 
       expect(renderer.toJSON()).toMatchInlineSnapshot(`
         <div>
@@ -229,7 +231,7 @@ describe('resolvers with guards', () => {
         return (
           <div>
             Home
-            <Outlet />
+            <HelperOutlet />
           </div>
         );
       };
@@ -238,7 +240,7 @@ describe('resolvers with guards', () => {
         {
           path: '/',
           element: <Home />,
-          guards: [mockAsyncGuard(false, workerDuration)],
+          guards: [mockAsyncGuard(false, longestWorkDuration)],
           children: [
             {
               path: 'child',
@@ -263,14 +265,14 @@ describe('resolvers with guards', () => {
       await wait(1);
       expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
 
-      await wait(workerDuration + workerDurationTimeBeforeCheck);
+      await wait(longestWorkDuration + mediumWorkDuration);
 
       expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
 
       expect(childGuardCounter.amount).toBe(0);
       expect(childResolverCounter.amount).toBe(0);
 
-      await wait(workerDuration + workerDurationTimeBeforeCheck);
+      await wait(longestWorkDuration + mediumWorkDuration);
 
       expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
 
@@ -292,7 +294,7 @@ describe('resolvers with guards', () => {
         return (
           <div>
             Home
-            <Outlet />
+            <HelperOutlet />
           </div>
         );
       };
@@ -350,7 +352,7 @@ describe('resolvers with guards', () => {
         return (
           <div>
             Home
-            <Outlet />
+            <HelperOutlet />
           </div>
         );
       };

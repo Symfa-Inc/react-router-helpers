@@ -1,3 +1,3 @@
-export const workerDuration = 200;
-export const workerDurationTimeBeforeCheck = 60;
-export const minimalRenderTimeout = 20;
+export const longestWorkDuration = 200;
+export const mediumWorkDuration = 60;
+export const minimalWorkDuration = 20;

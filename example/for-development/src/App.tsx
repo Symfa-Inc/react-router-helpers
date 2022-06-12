@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Link, Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
 import './App.css';
-import { mockGuard } from './guards/mock-guard';
+import { mockGuard, useGetUserInfoResolver } from './guards/mock-guard';
 import { RouteHelperStatus, useRoutesWithHelper } from './reactRouterHelpers';
 import { HelperOutlet, useGuardStatus, useResolverStatus } from './reactRouterHelpers/index';
 
@@ -184,7 +184,7 @@ const RoutesWrapper = () => {
     // useEffect(() => {
     //   setTimeout(() => setLoading(true), 200);
     // }, []);
-    return <div>Loading...{Date.now()}</div>;
+    return <></>;
   };
   return useRoutesWithHelper([
     {
@@ -194,21 +194,21 @@ const RoutesWrapper = () => {
     {
       path: "/",
       element: <Home />,
-      // loadingComponent: <LoadingComponent />,
+      loadingComponent: <LoadingComponent />,
       // loadElement: () => import('./LazyComponent'),
-      // title: 'HOME',
-      guards: [mockGuard()],
-      // resolvers: {
-      //   userInfo: useGetUserInfoResolver,
-      // },
+      title: 'HOME',
+      // guards: [mockGuard(), mockGuard()],
+      resolvers: {
+        userInfo: useGetUserInfoResolver,
+      },
       children: [
         {
           path: "child",
           element: <Child />,
-          // loadingComponent: <LoadingComponent />,
-          // title: "loading...",
+          loadingComponent: <LoadingComponent />,
+          title: "loading...",
           // titleResolver: () => () => "test",
-          // guards: [mockGuard(true, 'CHILD 1 ==========================')],
+          guards: [mockGuard(true, 'CHILD 1 =========================='), mockGuard()],
           // titleResolver: () => async () => {
           //   await wait(2000);
           //   return "RESOLVED TITLE";
@@ -229,7 +229,7 @@ const RoutesWrapper = () => {
               path: ":id",
               element: <Child2 />,
               guards: [mockGuard(true, 'CHILD 1 ==========================')],
-              // title: "2 test title",
+              title: "2 test title",
               // guards: [mockGuard(true, "CHILD GUARD")],
               // resolvers: {
               //     userInfo: () => () => {

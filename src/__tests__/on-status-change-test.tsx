@@ -1,17 +1,41 @@
+import { expect } from '@jest/globals';
 import * as React from 'react';
-import ReactDOM from 'react-dom/client';
-import { act } from 'react-dom/test-utils';
-import { MemoryRouter, Outlet, useNavigate } from 'react-router-dom';
+import { FC, useEffect } from 'react';
+import { MemoryRouter, useNavigate } from 'react-router-dom';
 import * as TestRenderer from 'react-test-renderer';
-import { HelperRouteObject, OnStatusChange, RouteHelperStatus } from '../types';
+import { useGuardStatus, useResolverStatus } from '../hooks';
+import { HelperOutlet } from '../route-helper';
+import { HelperRouteObject, RouteHelperStatus } from '../types';
 import { testIn3DifferentModes } from './utils/check-with-3-different-envs';
-import { workerDuration, workerDurationTimeBeforeCheck } from './utils/general-utils';
+import { longestWorkDuration, mediumWorkDuration, minimalWorkDuration } from './utils/general-utils';
 import { mockAsyncGuard } from './utils/mock-async-guard';
 import { mockAsyncResolver } from './utils/mock-async-resolver';
 import { mockSyncResolver } from './utils/mock-resolver';
 import { mockSyncGuard } from './utils/mock-sync-guard';
 import { RoutesRenderer } from './utils/RoutesRenderer';
 import { wait } from './utils/wait';
+
+const LoadingComponent: FC<{
+  onGuardStatusChange?: (s: RouteHelperStatus) => void;
+  onResolverStatusChange?: (s: RouteHelperStatus) => void;
+}> = (props) => {
+  const guardStatus = useGuardStatus();
+  const resolverStatus = useResolverStatus();
+
+  useEffect(() => {
+    if (typeof props.onGuardStatusChange === "function") {
+      props.onGuardStatusChange(guardStatus);
+    }
+  }, [guardStatus]);
+
+  useEffect(() => {
+    if (typeof props.onResolverStatusChange === "function") {
+      props.onResolverStatusChange(resolverStatus);
+    }
+  }, [resolverStatus]);
+
+  return <></>
+};
 
 describe('on status change', () => {
   describe('onGuardStatusChange function', () => {
@@ -24,10 +48,9 @@ describe('on status change', () => {
           {
             path: '/',
             element: <div>Home</div>,
-            guards: [],
-            onGuardStatusChange: (status: RouteHelperStatus) => {
+            loadingComponent: <LoadingComponent onGuardStatusChange={(status: RouteHelperStatus) => {
               statuses.push(status);
-            },
+            }}/>,
           },
         ];
 
@@ -39,7 +62,7 @@ describe('on status change', () => {
           );
         });
 
-        await wait(1);
+        await wait(minimalWorkDuration * 2);
         expect(statuses.length).toBe(1);
         expect(statuses[0]).toBe(RouteHelperStatus.Loaded);
       });
@@ -53,9 +76,9 @@ describe('on status change', () => {
             path: '/',
             element: <div>Home</div>,
             guards: [mockSyncGuard(true), mockSyncGuard(true)],
-            onGuardStatusChange: (status: RouteHelperStatus) => {
+            loadingComponent: <LoadingComponent onGuardStatusChange={(status: RouteHelperStatus) => {
               statuses.push(status);
-            },
+            }}/>
           },
         ];
 
@@ -67,7 +90,7 @@ describe('on status change', () => {
           );
         });
 
-        await wait(10);
+        await wait(minimalWorkDuration * 2);
         expect(statuses.length).toBe(2);
 
         statuses.forEach((status, index) => {
@@ -84,9 +107,9 @@ describe('on status change', () => {
             path: '/',
             element: <div>Home</div>,
             guards: [mockSyncGuard(false), mockSyncGuard(true)],
-            onGuardStatusChange: (status: RouteHelperStatus) => {
+            loadingComponent: <LoadingComponent onGuardStatusChange={(status) => {
               statuses.push(status);
-            },
+            }} />
           },
         ];
 
@@ -98,7 +121,7 @@ describe('on status change', () => {
           );
         });
 
-        await wait(10);
+        await wait(minimalWorkDuration * 2);
         expect(statuses.length).toBe(2);
 
         statuses.forEach((status, index) => {
@@ -115,9 +138,9 @@ describe('on status change', () => {
             path: '/',
             element: <div>Home</div>,
             guards: [mockSyncGuard(true), mockSyncGuard(false)],
-            onGuardStatusChange: (status: RouteHelperStatus) => {
+            loadingComponent: <LoadingComponent onGuardStatusChange={(status: RouteHelperStatus) => {
               statuses.push(status);
-            },
+            }} />
           },
         ];
 
@@ -129,7 +152,7 @@ describe('on status change', () => {
           );
         });
 
-        await wait(10);
+        await wait(minimalWorkDuration * 2);
         expect(statuses.length).toBe(2);
 
         statuses.forEach((status, index) => {
@@ -148,10 +171,10 @@ describe('on status change', () => {
           {
             path: '/',
             element: <div>Home</div>,
-            guards: [mockAsyncGuard(true, workerDuration), mockAsyncGuard(true, workerDuration)],
-            onGuardStatusChange: (status: RouteHelperStatus) => {
+            guards: [mockAsyncGuard(true, longestWorkDuration), mockAsyncGuard(true, longestWorkDuration)],
+            loadingComponent: <LoadingComponent onGuardStatusChange={(status: RouteHelperStatus) => {
               statuses.push(status);
-            },
+            }} />
           },
         ];
 
@@ -163,12 +186,12 @@ describe('on status change', () => {
           );
         });
 
-        await wait(1);
+        await wait(minimalWorkDuration);
 
         expect(statuses.length).toBe(1);
         expect(statuses[0]).toBe(RouteHelperStatus.Loading);
 
-        await wait(workerDuration * 2 + workerDurationTimeBeforeCheck);
+        await wait(longestWorkDuration * 2 + mediumWorkDuration);
         expect(statuses.length).toBe(2);
 
         statuses.forEach((status, index) => {
@@ -184,10 +207,10 @@ describe('on status change', () => {
           {
             path: '/',
             element: <div>Home</div>,
-            guards: [mockAsyncGuard(false, workerDuration), mockAsyncGuard(true, workerDuration)],
-            onGuardStatusChange: (status: RouteHelperStatus) => {
+            guards: [mockAsyncGuard(false, longestWorkDuration), mockAsyncGuard(true, longestWorkDuration)],
+            loadingComponent: <LoadingComponent onGuardStatusChange={(status: RouteHelperStatus) => {
               statuses.push(status);
-            },
+            }} />
           },
         ];
 
@@ -203,7 +226,7 @@ describe('on status change', () => {
         expect(statuses.length).toBe(1);
         expect(statuses[0]).toBe(RouteHelperStatus.Loading);
 
-        await wait(workerDuration + workerDurationTimeBeforeCheck);
+        await wait(longestWorkDuration + mediumWorkDuration);
         expect(statuses.length).toBe(2);
 
         statuses.forEach((status, index) => {
@@ -219,10 +242,10 @@ describe('on status change', () => {
           {
             path: '/',
             element: <div>Home</div>,
-            guards: [mockAsyncGuard(true, workerDuration), mockAsyncGuard(false, workerDuration)],
-            onGuardStatusChange: (status: RouteHelperStatus) => {
+            guards: [mockAsyncGuard(true, longestWorkDuration), mockAsyncGuard(false, longestWorkDuration)],
+            loadingComponent: <LoadingComponent onGuardStatusChange={(status: RouteHelperStatus) => {
               statuses.push(status);
-            },
+            }} />
           },
         ];
 
@@ -239,7 +262,7 @@ describe('on status change', () => {
         expect(statuses.length).toBe(1);
         expect(statuses[0]).toBe(RouteHelperStatus.Loading);
 
-        await wait(workerDuration * 2 + workerDurationTimeBeforeCheck);
+        await wait(longestWorkDuration * 2 + mediumWorkDuration);
         expect(statuses.length).toBe(2);
 
         statuses.forEach((status, index) => {
@@ -256,18 +279,18 @@ describe('on status change', () => {
           {
             path: '/',
             element: <div>Home</div>,
-            guards: [mockAsyncGuard(true, workerDuration), mockAsyncGuard(true, workerDuration)],
-            onGuardStatusChange: (status: RouteHelperStatus) => {
+            guards: [mockAsyncGuard(true, longestWorkDuration), mockAsyncGuard(true, longestWorkDuration)],
+            loadingComponent: <LoadingComponent onGuardStatusChange={(status: RouteHelperStatus) => {
               statuses.push(status);
-            },
+            }} />,
             children: [
               {
                 path: 'child',
                 element: <div>Child</div>,
-                guards: [mockAsyncGuard(true, workerDuration), mockAsyncGuard(true, workerDuration)],
-                onGuardStatusChange: (status: RouteHelperStatus) => {
+                guards: [mockAsyncGuard(true, longestWorkDuration), mockAsyncGuard(true, longestWorkDuration)],
+                loadingComponent: <LoadingComponent onGuardStatusChange={(status: RouteHelperStatus) => {
                   childStatuses.push(status);
-                },
+                }} />
               },
             ],
           },
@@ -286,7 +309,7 @@ describe('on status change', () => {
         expect(statuses.length).toBe(1);
         expect(statuses[0]).toBe(RouteHelperStatus.Loading);
 
-        await wait(workerDuration * 2 + workerDurationTimeBeforeCheck);
+        await wait(longestWorkDuration * 2 + mediumWorkDuration);
         expect(statuses.length).toBe(2);
 
         statuses.forEach((status, index) => {
@@ -308,17 +331,17 @@ describe('on status change', () => {
             path: '/',
             element: (
               <div>
-                Home <Outlet/>
+                Home <HelperOutlet/>
               </div>
             ),
             children: [
               {
                 path: 'child',
                 element: <div>Child</div>,
-                guards: [mockAsyncGuard(true, workerDuration), mockAsyncGuard(true, workerDuration)],
-                onGuardStatusChange: (status: RouteHelperStatus) => {
+                guards: [mockAsyncGuard(true, longestWorkDuration), mockAsyncGuard(true, longestWorkDuration)],
+                loadingComponent: <LoadingComponent onGuardStatusChange={(status: RouteHelperStatus) => {
                   statuses.push(status);
-                },
+                }} />,
               },
             ],
           },
@@ -332,7 +355,7 @@ describe('on status change', () => {
           );
         });
 
-        await wait(workerDuration * 2 + workerDurationTimeBeforeCheck * 2);
+        await wait(longestWorkDuration * 2 + mediumWorkDuration * 2 + minimalWorkDuration);
         expect(statuses.length).toBe(2);
 
         statuses.forEach((status, index) => {
@@ -350,7 +373,7 @@ describe('on status change', () => {
             path: '/',
             element: (
               <div>
-                Home <Outlet/>
+                Home <HelperOutlet/>
               </div>
             ),
             children: [
@@ -358,9 +381,9 @@ describe('on status change', () => {
                 path: 'child',
                 element: <div>Child</div>,
                 guards: [mockSyncGuard(false)],
-                onGuardStatusChange: (status: RouteHelperStatus) => {
+                loadingComponent: <LoadingComponent onGuardStatusChange={(status: RouteHelperStatus) => {
                   statuses.push(status);
-                },
+                }} />,
               },
             ],
           },
@@ -369,12 +392,12 @@ describe('on status change', () => {
         TestRenderer.act(() => {
           renderer = TestRenderer.create(
             <MemoryRouter initialEntries={['/child']}>
-              <RoutesRenderer routes={routes} location={{ pathname: '/child' }}/>
+              <RoutesRenderer routes={routes} />
             </MemoryRouter>,
           );
         });
 
-        await wait(10);
+        await wait(minimalWorkDuration * 3);
         expect(statuses.length).toBe(2);
 
         statuses.forEach((status, index) => {
@@ -383,105 +406,70 @@ describe('on status change', () => {
       });
     });
 
-    describe('for child with parent guard', () => {
-      describe('tests to commit 2 different behaviours with re-renders for child path', () => {
-
-        let parentStatuses: RouteHelperStatus[] = [];
-        let childStatuses: RouteHelperStatus[] = [];
-
-        const expectedStatuses = [RouteHelperStatus.Loading, RouteHelperStatus.Loaded];
-
-        const routes: HelperRouteObject[] = [
-          {
-            path: '/',
-            element: <div>
-              Home
-              <Outlet/>
-            </div>,
-            guards: [mockAsyncGuard(true, workerDuration), mockAsyncGuard(true, workerDuration)],
-            onGuardStatusChange: status => {
-              parentStatuses.push(status);
-            },
-            children: [
-              {
-                path: 'child',
-                element: <div>Child</div>,
-                guards: [mockAsyncGuard(true, workerDuration), mockAsyncGuard(true, workerDuration)],
-                onGuardStatusChange: status => {
-                  childStatuses.push(status);
-                },
-              },
-            ],
-          },
-        ];
-
-        testIn3DifferentModes({
-          afterEach: () => {
-            parentStatuses = [];
-            childStatuses = [];
-          },
-          routes,
-          initialPath: '/child',
-          validateResultInTestEnv: async () => {
-
-            await wait(1);
-
-            expect(parentStatuses.length).toBe(1);
-            expect(childStatuses.length).toBe(0);
-
-            expect(parentStatuses[0]).toBe(RouteHelperStatus.Loading);
-
-            await wait(workerDuration * 2 + workerDurationTimeBeforeCheck * 2);
-            expect(parentStatuses.length).toBe(2);
-
-            parentStatuses.forEach((status, index) => {
-              expect(status).toBe(expectedStatuses[index]);
-            });
-
-            expect(childStatuses.length).toBe(2); // in real env = 1
-            expect(childStatuses[0]).toBe(RouteHelperStatus.Loading);
-
-            await wait(workerDuration * 2 + workerDurationTimeBeforeCheck * 2);
-            expect(childStatuses.length).toBe(3); // in real env = 3
-
-            const expectedStatusesForChildInTestEnv = [
-              RouteHelperStatus.Loading, // should be 2 loading, since in test env react does not keep refs between mount/unmount
-              // but in real env does
-              ...expectedStatuses,
-            ];
-
-            childStatuses.forEach((status, index) => {
-              expect(status).toBe(expectedStatusesForChildInTestEnv[index]);
-            });
-          },
-          validateResultInRealEnv: async () => {
-            await wait(1);
-
-            expect(parentStatuses.length).toBe(1);
-            expect(childStatuses.length).toBe(0);
-
-            expect(parentStatuses[0]).toBe(RouteHelperStatus.Loading);
-
-            await wait(workerDuration * 2 + workerDurationTimeBeforeCheck * 2);
-            expect(parentStatuses.length).toBe(2);
-
-            parentStatuses.forEach((status, index) => {
-              expect(status).toBe(expectedStatuses[index]);
-            });
-
-            expect(childStatuses.length).toBe(1);
-            expect(childStatuses[0]).toBe(RouteHelperStatus.Loading);
-
-            await wait(workerDuration * 2 + workerDurationTimeBeforeCheck * 2);
-            expect(childStatuses.length).toBe(2);
-
-            childStatuses.forEach((status, index) => {
-              expect(status).toBe(expectedStatuses[index]);
-            });
-          },
-        });
-      });
-    });
+    // describe('for child with parent guard', () => {
+    //   describe('tests to commit 2 different behaviours with re-renders for child path', () => {
+    //
+    //     let parentStatuses: RouteHelperStatus[] = [];
+    //     let childStatuses: RouteHelperStatus[] = [];
+    //
+    //     const expectedStatuses = [RouteHelperStatus.Loading, RouteHelperStatus.Loaded];
+    //
+    //     const routes: HelperRouteObject[] = [
+    //       {
+    //         path: '/',
+    //         element: <div>
+    //           Home
+    //           <HelperOutlet/>
+    //         </div>,
+    //         guards: [mockAsyncGuard(true, workerDuration), mockAsyncGuard(true, workerDuration)],
+    //         loadingComponent: <LoadingComponent onGuardStatusChange={(status: RouteHelperStatus) => {
+    //           parentStatuses.push(status);
+    //         }} />,
+    //         children: [
+    //           {
+    //             path: 'child',
+    //             element: <div>Child</div>,
+    //             guards: [mockAsyncGuard(true, workerDuration), mockAsyncGuard(true, workerDuration)],
+    //             loadingComponent: <LoadingComponent onGuardStatusChange={(status: RouteHelperStatus) => {
+    //               childStatuses.push(status);
+    //             }} />,
+    //           },
+    //         ],
+    //       },
+    //     ];
+    //
+    //     testIn3DifferentModes({
+    //       routes,
+    //       initialPath: '/child',
+    //       validateResultInTestEnv: async () => {
+    //
+    //         await wait(minimalWorkDuration);
+    //
+    //         expect(parentStatuses.length).toBe(1);
+    //         expect(childStatuses.length).toBe(0);
+    //
+    //         expect(parentStatuses[0]).toBe(RouteHelperStatus.Loading);
+    //
+    //         await wait(workerDuration * 2 + workerDurationTimeBeforeCheck * 2 + minimalWorkDuration * 2);
+    //         expect(parentStatuses.length).toBe(2);
+    //
+    //         parentStatuses.forEach((status, index) => {
+    //           expect(status).toBe(expectedStatuses[index]);
+    //         });
+    //
+    //         expect(childStatuses.length).toBe(1);
+    //         expect(childStatuses[0]).toBe(RouteHelperStatus.Loading);
+    //
+    //         await wait(workerDuration * 2 + workerDurationTimeBeforeCheck * 2);
+    //         expect(childStatuses.length).toBe(2);
+    //
+    //         childStatuses.forEach((status, index) => {
+    //           expect(status).toBe(expectedStatuses[index]);
+    //         });
+    //       },
+    //     });
+    //   });
+    // });
 
     describe('sync and async mixed', () => {
       it('parent component has 2 guards', async () => {
@@ -494,13 +482,13 @@ describe('on status change', () => {
             path: '/',
             element: (
               <div>
-                Home <Outlet/>
+                Home <HelperOutlet/>
               </div>
             ),
-            guards: [mockSyncGuard(true), mockAsyncGuard(true, workerDuration)],
-            onGuardStatusChange: (status: RouteHelperStatus) => {
-              statuses.push(status);
-            },
+            guards: [mockSyncGuard(true), mockAsyncGuard(true, longestWorkDuration)],
+            loadingComponent: <LoadingComponent onGuardStatusChange={(status: RouteHelperStatus) => {
+                        statuses.push(status);
+            }} />
           },
         ];
 
@@ -512,7 +500,7 @@ describe('on status change', () => {
           );
         });
 
-        await wait(workerDuration + workerDurationTimeBeforeCheck);
+        await wait(longestWorkDuration + mediumWorkDuration);
         expect(statuses.length).toBe(2);
 
         statuses.forEach((status, index) => {
@@ -539,7 +527,7 @@ describe('on status change', () => {
                 path: 'home',
                 element: (
                   <div>
-                    Home <Outlet/>
+                    Home <HelperOutlet/>
                   </div>
                 ),
                 children: [
@@ -547,12 +535,12 @@ describe('on status change', () => {
                     path: 'child',
                     guards: [mockSyncGuard(false)],
                     element: <div>Child</div>,
-                    onGuardStatusChange: s => {
+                    loadingComponent: <LoadingComponent onGuardStatusChange={(s: RouteHelperStatus) => {
                       status = s;
                       if (status === RouteHelperStatus.Failed) {
                         navigate('/login');
                       }
-                    },
+                    }} />
                   },
                 ],
               },
@@ -563,12 +551,12 @@ describe('on status change', () => {
           TestRenderer.act(() => {
             renderer = TestRenderer.create(
               <MemoryRouter initialEntries={['/home/child']}>
-                <RoutesWrapper/>
+                <RoutesWrapper />
               </MemoryRouter>,
             );
           });
 
-          await wait(1);
+          await wait(longestWorkDuration);
 
           expect(status).toBe(RouteHelperStatus.Failed);
           expect(renderer.toJSON()).toMatchInlineSnapshot(`
@@ -592,9 +580,9 @@ describe('on status change', () => {
             {
               path: '/',
               element: <div>Home</div>,
-              onResolverStatusChange: (status: RouteHelperStatus) => {
-                statuses.push(status);
-              },
+              loadingComponent: <LoadingComponent onGuardStatusChange={(s: RouteHelperStatus) => {
+                statuses.push(s);
+              }} />
             },
           ];
 
@@ -614,17 +602,17 @@ describe('on status change', () => {
           let renderer: TestRenderer.ReactTestRenderer;
 
           const statuses: RouteHelperStatus[] = [];
-          const expectedStatuses = [RouteHelperStatus.Loading, RouteHelperStatus.Loaded];
+          const expectedStatuses = [RouteHelperStatus.Initial, RouteHelperStatus.Loading, RouteHelperStatus.Loaded];
           const routes: HelperRouteObject[] = [
             {
               path: '/',
               element: <div>Home</div>,
               resolvers: {
-                resolverInfo: mockAsyncResolver(workerDuration, { name: 'joe' }),
+                resolverInfo: mockAsyncResolver(longestWorkDuration, { name: 'joe' }),
               },
-              onResolverStatusChange: (status: RouteHelperStatus) => {
-                statuses.push(status);
-              },
+              loadingComponent: <LoadingComponent onResolverStatusChange={(s: RouteHelperStatus) => {
+                statuses.push(s);
+              }} />
             },
           ];
 
@@ -636,13 +624,13 @@ describe('on status change', () => {
             );
           });
 
-          await wait(1);
+          await wait(minimalWorkDuration * 2);
           expect(statuses.length).toBe(1);
 
-          expect(statuses[0]).toBe(RouteHelperStatus.Loading);
+          expect(statuses[0]).toBe(RouteHelperStatus.Initial);
 
-          await wait(workerDuration + workerDurationTimeBeforeCheck);
-          expect(statuses.length).toBe(2);
+          await wait(longestWorkDuration + mediumWorkDuration);
+          expect(statuses.length).toBe(3);
 
           statuses.forEach((status, index) => {
             expect(status).toBe(expectedStatuses[index]);
@@ -652,18 +640,18 @@ describe('on status change', () => {
           let renderer: TestRenderer.ReactTestRenderer;
 
           const statuses: RouteHelperStatus[] = [];
-          const expectedStatuses = [RouteHelperStatus.Loading, RouteHelperStatus.Loaded];
+          const expectedStatuses = [RouteHelperStatus.Initial, RouteHelperStatus.Loading, RouteHelperStatus.Loaded];
           const routes: HelperRouteObject[] = [
             {
               path: '/',
               element: <div>Home</div>,
               resolvers: {
-                resolverInfo: mockAsyncResolver(workerDuration, { name: 'joe' }),
-                secondResolverInfo: mockAsyncResolver(workerDuration, { lastName: 'doe' }),
+                resolverInfo: mockAsyncResolver(longestWorkDuration, { name: 'joe' }),
+                secondResolverInfo: mockAsyncResolver(longestWorkDuration, { lastName: 'doe' }),
               },
-              onResolverStatusChange: (status: RouteHelperStatus) => {
-                statuses.push(status);
-              },
+              loadingComponent: <LoadingComponent onResolverStatusChange={(s: RouteHelperStatus) => {
+                statuses.push(s);
+              }} />
             },
           ];
 
@@ -675,13 +663,13 @@ describe('on status change', () => {
             );
           });
 
-          await wait(1);
+          await wait(minimalWorkDuration);
           expect(statuses.length).toBe(1);
 
-          expect(statuses[0]).toBe(RouteHelperStatus.Loading);
+          expect(statuses[0]).toBe(RouteHelperStatus.Initial);
 
-          await wait(workerDuration + workerDurationTimeBeforeCheck);
-          expect(statuses.length).toBe(2);
+          await wait(longestWorkDuration + mediumWorkDuration);
+          expect(statuses.length).toBe(3);
 
           statuses.forEach((status, index) => {
             expect(status).toBe(expectedStatuses[index]);
@@ -692,32 +680,32 @@ describe('on status change', () => {
 
           const childStatuses: RouteHelperStatus[] = [];
           const statuses: RouteHelperStatus[] = [];
-          const expectedStatuses = [RouteHelperStatus.Loading, RouteHelperStatus.Loaded];
+          const expectedStatuses = [RouteHelperStatus.Initial, RouteHelperStatus.Loading, RouteHelperStatus.Loaded];
           const routes: HelperRouteObject[] = [
             {
               path: '/',
               element: (
                 <div>
-                  Home <Outlet/>
+                  Home <HelperOutlet/>
                 </div>
               ),
               resolvers: {
-                resolverInfo: mockAsyncResolver(workerDuration, { name: 'joe' }),
-                secondResolverInfo: mockAsyncResolver(workerDuration, { lastName: 'doe' }),
+                resolverInfo: mockAsyncResolver(longestWorkDuration, { name: 'joe' }),
+                secondResolverInfo: mockAsyncResolver(longestWorkDuration, { lastName: 'doe' }),
               },
-              onResolverStatusChange: (status: RouteHelperStatus) => {
-                statuses.push(status);
-              },
+              loadingComponent: <LoadingComponent onResolverStatusChange={(s: RouteHelperStatus) => {
+                statuses.push(s);
+              }} />,
               children: [
                 {
                   path: 'child',
                   element: <div>Child</div>,
                   resolvers: {
-                    resolverInfo: mockAsyncResolver(workerDuration, { name: 'joe' }),
+                    resolverInfo: mockAsyncResolver(longestWorkDuration, { name: 'joe' }),
                   },
-                  onResolverStatusChange: (status: RouteHelperStatus) => {
-                    childStatuses.push(status);
-                  },
+                  loadingComponent: <LoadingComponent onResolverStatusChange={(s: RouteHelperStatus) => {
+                    childStatuses.push(s);
+                  }} />
                 },
               ],
             },
@@ -731,13 +719,13 @@ describe('on status change', () => {
             );
           });
 
-          await wait(1);
+          await wait(minimalWorkDuration);
           expect(statuses.length).toBe(1);
 
-          expect(statuses[0]).toBe(RouteHelperStatus.Loading);
+          expect(statuses[0]).toBe(RouteHelperStatus.Initial);
 
-          await wait(workerDuration + workerDurationTimeBeforeCheck);
-          expect(statuses.length).toBe(2);
+          await wait(longestWorkDuration + mediumWorkDuration);
+          expect(statuses.length).toBe(3);
 
           statuses.forEach((status, index) => {
             expect(status).toBe(expectedStatuses[index]);
@@ -752,14 +740,14 @@ describe('on status change', () => {
           let renderer: TestRenderer.ReactTestRenderer;
 
           const statuses: RouteHelperStatus[] = [];
-          const expectedStatuses = [RouteHelperStatus.Loading, RouteHelperStatus.Loaded];
+          const expectedStatuses = [RouteHelperStatus.Initial, RouteHelperStatus.Loading, RouteHelperStatus.Loaded];
           const routes: HelperRouteObject[] = [
             {
               path: '/',
               element: (
                 <div>
                   Home
-                  <Outlet/>{' '}
+                  <HelperOutlet/>{' '}
                 </div>
               ),
               children: [
@@ -767,11 +755,11 @@ describe('on status change', () => {
                   path: 'child',
                   element: <div>Child</div>,
                   resolvers: {
-                    resolverInfo: mockAsyncResolver(workerDuration, { name: 'joe' }),
+                    resolverInfo: mockAsyncResolver(longestWorkDuration, { name: 'joe' }),
                   },
-                  onResolverStatusChange: (status: RouteHelperStatus) => {
-                    statuses.push(status);
-                  },
+                  loadingComponent: <LoadingComponent onResolverStatusChange={(s: RouteHelperStatus) => {
+                    statuses.push(s);
+                  }} />
                 },
               ],
             },
@@ -780,18 +768,18 @@ describe('on status change', () => {
           TestRenderer.act(() => {
             renderer = TestRenderer.create(
               <MemoryRouter initialEntries={['/child']}>
-                <RoutesRenderer routes={routes} location={{ pathname: '/child' }}/>
+                <RoutesRenderer routes={routes} />
               </MemoryRouter>,
             );
           });
 
-          await wait(1);
+          await wait(mediumWorkDuration);
           expect(statuses.length).toBe(1);
 
-          expect(statuses[0]).toBe(RouteHelperStatus.Loading);
+          expect(statuses[0]).toBe(RouteHelperStatus.Initial);
 
-          await wait(workerDuration + workerDurationTimeBeforeCheck);
-          expect(statuses.length).toBe(2);
+          await wait(longestWorkDuration + mediumWorkDuration);
+          expect(statuses.length).toBe(3);
 
           statuses.forEach((status, index) => {
             expect(status).toBe(expectedStatuses[index]);
@@ -801,14 +789,14 @@ describe('on status change', () => {
           let renderer: TestRenderer.ReactTestRenderer;
 
           const statuses: RouteHelperStatus[] = [];
-          const expectedStatuses = [RouteHelperStatus.Loading, RouteHelperStatus.Loaded];
+          const expectedStatuses = [RouteHelperStatus.Initial, RouteHelperStatus.Loading, RouteHelperStatus.Loaded];
           const routes: HelperRouteObject[] = [
             {
               path: '/',
               element: (
                 <div>
                   Home
-                  <Outlet/>{' '}
+                  <HelperOutlet/>{' '}
                 </div>
               ),
               children: [
@@ -816,12 +804,12 @@ describe('on status change', () => {
                   path: 'child',
                   element: <div>Child</div>,
                   resolvers: {
-                    resolverInfo: mockAsyncResolver(workerDuration, { name: 'joe' }),
-                    resolverInfo2: mockAsyncResolver(workerDuration, { name: 'joe' }),
+                    resolverInfo: mockAsyncResolver(longestWorkDuration, { name: 'joe' }),
+                    resolverInfo2: mockAsyncResolver(longestWorkDuration, { name: 'joe' }),
                   },
-                  onResolverStatusChange: (status: RouteHelperStatus) => {
-                    statuses.push(status);
-                  },
+                  loadingComponent: <LoadingComponent onResolverStatusChange={(s: RouteHelperStatus) => {
+                    statuses.push(s);
+                  }} />
                 },
               ],
             },
@@ -830,18 +818,23 @@ describe('on status change', () => {
           TestRenderer.act(() => {
             renderer = TestRenderer.create(
               <MemoryRouter initialEntries={['/child']}>
-                <RoutesRenderer routes={routes} location={{ pathname: '/child' }}/>
+                <RoutesRenderer routes={routes} />
               </MemoryRouter>,
             );
           });
 
-          await wait(1);
+          await wait(mediumWorkDuration);
           expect(statuses.length).toBe(1);
 
-          expect(statuses[0]).toBe(RouteHelperStatus.Loading);
+          expect(statuses[0]).toBe(RouteHelperStatus.Initial);
 
-          await wait(workerDuration + workerDurationTimeBeforeCheck);
+          await wait(minimalWorkDuration);
           expect(statuses.length).toBe(2);
+
+          expect(statuses[1]).toBe(RouteHelperStatus.Loading);
+
+          await wait(longestWorkDuration + mediumWorkDuration);
+          expect(statuses.length).toBe(3);
 
           statuses.forEach((status, index) => {
             expect(status).toBe(expectedStatuses[index]);
@@ -854,34 +847,34 @@ describe('on status change', () => {
 
           const statuses: RouteHelperStatus[] = [];
           const childStatuses: RouteHelperStatus[] = [];
-          const expectedStatuses = [RouteHelperStatus.Loading, RouteHelperStatus.Loaded];
+          const expectedStatuses = [RouteHelperStatus.Initial, RouteHelperStatus.Loading, RouteHelperStatus.Loaded];
           const routes: HelperRouteObject[] = [
             {
               path: '/',
               element: (
                 <div>
                   Home
-                  <Outlet/>{' '}
+                  <HelperOutlet/>{' '}
                 </div>
               ),
-              onResolverStatusChange: (status: RouteHelperStatus) => {
-                statuses.push(status);
-              },
+              loadingComponent: <LoadingComponent onResolverStatusChange={(s: RouteHelperStatus) => {
+                statuses.push(s);
+              }} />,
               resolvers: {
-                resolverInfo: mockAsyncResolver(workerDuration, { name: 'joe' }),
-                resolverInfo2: mockAsyncResolver(workerDuration, { name: 'joe' }),
+                resolverInfo: mockAsyncResolver(longestWorkDuration, { name: 'joe' }),
+                resolverInfo2: mockAsyncResolver(longestWorkDuration, { name: 'joe' }),
               },
               children: [
                 {
                   path: 'child',
                   element: <div>Child</div>,
                   resolvers: {
-                    resolverInfo: mockAsyncResolver(workerDuration, { name: 'joe' }),
-                    resolverInfo2: mockAsyncResolver(workerDuration, { name: 'joe' }),
+                    resolverInfo: mockAsyncResolver(longestWorkDuration, { name: 'joe' }),
+                    resolverInfo2: mockAsyncResolver(longestWorkDuration, { name: 'joe' }),
                   },
-                  onResolverStatusChange: (status: RouteHelperStatus) => {
-                    childStatuses.push(status);
-                  },
+                  loadingComponent: <LoadingComponent onResolverStatusChange={(s: RouteHelperStatus) => {
+                    childStatuses.push(s);
+                  }} />
                 },
               ],
             },
@@ -890,30 +883,43 @@ describe('on status change', () => {
           TestRenderer.act(() => {
             renderer = TestRenderer.create(
               <MemoryRouter initialEntries={['/child']}>
-                <RoutesRenderer routes={routes} location={{ pathname: '/child' }}/>
+                <RoutesRenderer routes={routes} />
               </MemoryRouter>,
             );
           });
 
-          await wait(1);
+          await wait(minimalWorkDuration);
 
           expect(statuses.length).toBe(1);
           expect(childStatuses.length).toBe(0);
 
-          expect(statuses[0]).toBe(RouteHelperStatus.Loading);
+          expect(statuses[0]).toBe(RouteHelperStatus.Initial);
 
-          await wait(workerDuration + workerDurationTimeBeforeCheck);
+          await wait(minimalWorkDuration);
           expect(statuses.length).toBe(2);
+
+          expect(statuses[1]).toBe(RouteHelperStatus.Loading);
+
+          await wait(190);
+
+          expect(childStatuses.length).toBe(1);
+
+          expect(statuses.length).toBe(3);
 
           statuses.forEach((status, index) => {
             expect(status).toBe(expectedStatuses[index]);
           });
 
           expect(childStatuses.length).toBe(1);
-          expect(childStatuses[0]).toBe(RouteHelperStatus.Loading);
+          expect(childStatuses[0]).toBe(RouteHelperStatus.Initial);
 
-          await wait(workerDuration + workerDurationTimeBeforeCheck);
+          await wait(minimalWorkDuration);
+
           expect(childStatuses.length).toBe(2);
+          expect(childStatuses[1]).toBe(RouteHelperStatus.Loading)
+
+          await wait(longestWorkDuration + mediumWorkDuration);
+          expect(childStatuses.length).toBe(3);
 
           childStatuses.forEach((status, index) => {
             expect(status).toBe(expectedStatuses[index]);
@@ -1004,7 +1010,7 @@ describe('on status change', () => {
               element: (
                 <div>
                   Home
-                  <Outlet/>{' '}
+                  <HelperOutlet/>{' '}
                 </div>
               ),
               children: [
@@ -1048,7 +1054,7 @@ describe('on status change', () => {
               element: (
                 <div>
                   Home
-                  <Outlet/>{' '}
+                  <HelperOutlet/>{' '}
                 </div>
               ),
               children: [
@@ -1096,7 +1102,7 @@ describe('on status change', () => {
             path: '/',
             element: (
               <div>
-                Home <Outlet/>
+                Home <HelperOutlet/>
               </div>
             ),
             resolvers: {
@@ -1117,7 +1123,7 @@ describe('on status change', () => {
           );
         });
 
-        await wait(workerDuration + workerDurationTimeBeforeCheck);
+        await wait(longestWorkDuration + mediumWorkDuration);
         expect(statuses.length).toBe(2);
 
         statuses.forEach((status, index) => {
@@ -1142,7 +1148,7 @@ describe('on status change', () => {
                 path: 'home',
                 element: (
                   <div>
-                    Home <Outlet/>
+                    Home <HelperOutlet/>
                   </div>
                 ),
                 children: [
@@ -1206,7 +1212,7 @@ describe('on status change', () => {
               element: <div>Home</div>,
               resolvers: {
                 name: resolverWithException,
-                lastName: mockAsyncResolver(workerDuration, 'doe'),
+                lastName: mockAsyncResolver(longestWorkDuration, 'doe'),
               },
               onResolverStatusChange: (status: RouteHelperStatus) => {
                 statuses.push(status);
@@ -1222,7 +1228,7 @@ describe('on status change', () => {
             );
           });
 
-          await wait(workerDuration + workerDurationTimeBeforeCheck);
+          await wait(longestWorkDuration + mediumWorkDuration);
           expect(statuses.length).toBe(2);
 
           statuses.forEach((status, index) => {
@@ -1239,7 +1245,7 @@ describe('on status change', () => {
               element: <div>Home</div>,
               resolvers: {
                 name: resolverWithExceptionAsync,
-                lastName: mockAsyncResolver(workerDuration, 'doe'),
+                lastName: mockAsyncResolver(longestWorkDuration, 'doe'),
               },
               onResolverStatusChange: (status: RouteHelperStatus) => {
                 statuses.push(status);
@@ -1255,7 +1261,7 @@ describe('on status change', () => {
             );
           });
 
-          await wait(workerDuration + workerDurationTimeBeforeCheck);
+          await wait(longestWorkDuration + mediumWorkDuration);
           expect(statuses.length).toBe(2);
           statuses.forEach((status, index) => {
             expect(status).toBe(expectedStatuses[index]);
@@ -1277,7 +1283,7 @@ describe('on status change', () => {
           return (
             <div>
               Home
-              <Outlet/>
+              <HelperOutlet/>
             </div>
           );
         };
@@ -1286,10 +1292,10 @@ describe('on status change', () => {
           {
             path: '/',
             element: <Home/>,
-            guards: [mockAsyncGuard(true, workerDuration), mockAsyncGuard(true, workerDuration)],
+            guards: [mockAsyncGuard(true, longestWorkDuration), mockAsyncGuard(true, longestWorkDuration)],
             resolvers: {
-              userInfo: mockAsyncResolver(workerDuration, 'john'),
-              authInfo: mockAsyncResolver(workerDuration, 'admin'),
+              userInfo: mockAsyncResolver(longestWorkDuration, 'john'),
+              authInfo: mockAsyncResolver(longestWorkDuration, 'admin'),
             },
             onGuardStatusChange: (status: RouteHelperStatus) => {
               guardStatuses.push(status);
@@ -1313,12 +1319,12 @@ describe('on status change', () => {
         expect(guardStatuses[0]).toBe(RouteHelperStatus.Loading);
         expect(resolverStatuses.length).toBe(0);
 
-        await wait(workerDuration + workerDurationTimeBeforeCheck);
+        await wait(longestWorkDuration + mediumWorkDuration);
         expect(guardStatuses.length).toBe(1);
         expect(guardStatuses[0]).toBe(RouteHelperStatus.Loading);
         expect(resolverStatuses.length).toBe(0);
 
-        await wait(workerDuration + workerDurationTimeBeforeCheck);
+        await wait(longestWorkDuration + mediumWorkDuration);
         expect(guardStatuses.length).toBe(2);
         guardStatuses.forEach((s, index) => {
           expect(s).toBe(expectedStatuses[index]);
@@ -1327,7 +1333,7 @@ describe('on status change', () => {
         expect(resolverStatuses.length).toBe(1);
         expect(resolverStatuses[0]).toBe(RouteHelperStatus.Loading);
 
-        await wait(workerDuration + workerDurationTimeBeforeCheck);
+        await wait(longestWorkDuration + mediumWorkDuration);
         expect(guardStatuses.length).toBe(2);
         guardStatuses.forEach((s, index) => {
           expect(s).toBe(expectedStatuses[index]);
@@ -1356,13 +1362,13 @@ describe('on status change', () => {
             element: (
               <div>
                 Home
-                <Outlet/>
+                <HelperOutlet/>
               </div>
             ),
-            guards: [mockAsyncGuard(true, workerDuration), mockAsyncGuard(true, workerDuration)],
+            guards: [mockAsyncGuard(true, longestWorkDuration), mockAsyncGuard(true, longestWorkDuration)],
             resolvers: {
-              userInfo: mockAsyncResolver(workerDuration, 'john'),
-              authInfo: mockAsyncResolver(workerDuration, 'admin'),
+              userInfo: mockAsyncResolver(longestWorkDuration, 'john'),
+              authInfo: mockAsyncResolver(longestWorkDuration, 'admin'),
             },
             onGuardStatusChange: (status: RouteHelperStatus) => {
               parentGuardStatuses.push(status);
@@ -1374,10 +1380,10 @@ describe('on status change', () => {
               {
                 path: 'child',
                 element: <div>Child</div>,
-                guards: [mockAsyncGuard(true, workerDuration), mockAsyncGuard(true, workerDuration)],
+                guards: [mockAsyncGuard(true, longestWorkDuration), mockAsyncGuard(true, longestWorkDuration)],
                 resolvers: {
-                  userInfo: mockAsyncResolver(workerDuration, 'john - child'),
-                  authInfo: mockAsyncResolver(workerDuration, 'admin - child'),
+                  userInfo: mockAsyncResolver(longestWorkDuration, 'john - child'),
+                  authInfo: mockAsyncResolver(longestWorkDuration, 'admin - child'),
                 },
                 onGuardStatusChange: (status: RouteHelperStatus) => {
                   childGuardStatuses.push(status);
@@ -1409,7 +1415,7 @@ describe('on status change', () => {
             expect(childGuardStatuses.length).toBe(0);
             expect(childResolverStatuses.length).toBe(0);
 
-            await wait(workerDuration + workerDurationTimeBeforeCheck);
+            await wait(longestWorkDuration + mediumWorkDuration);
             expect(parentGuardStatuses.length).toBe(1);
             expect(parentGuardStatuses[0]).toBe(RouteHelperStatus.Loading);
             expect(parentResolverStatuses.length).toBe(0);
@@ -1417,7 +1423,7 @@ describe('on status change', () => {
             expect(childGuardStatuses.length).toBe(0);
             expect(childResolverStatuses.length).toBe(0);
 
-            await wait(workerDuration + workerDurationTimeBeforeCheck);
+            await wait(longestWorkDuration + mediumWorkDuration);
             expect(parentGuardStatuses.length).toBe(2);
             parentGuardStatuses.forEach((s, index) => {
               expect(s).toBe(expectedStatuses[index]);
@@ -1428,7 +1434,7 @@ describe('on status change', () => {
             expect(childGuardStatuses.length).toBe(0);
             expect(childResolverStatuses.length).toBe(0);
 
-            await wait(workerDuration + workerDurationTimeBeforeCheck);
+            await wait(longestWorkDuration + mediumWorkDuration);
             expect(parentGuardStatuses.length).toBe(2);
             parentGuardStatuses.forEach((s, index) => {
               expect(s).toBe(expectedStatuses[index]);
@@ -1443,14 +1449,14 @@ describe('on status change', () => {
             expect(childGuardStatuses[0]).toBe(RouteHelperStatus.Loading);
             expect(childResolverStatuses.length).toBe(0);
 
-            await wait(workerDuration);
+            await wait(longestWorkDuration);
 
             expect(childGuardStatuses.length).toBe(2);  // in real env = 1
             expect(childGuardStatuses[0]).toBe(RouteHelperStatus.Loading);
             expect(childGuardStatuses[1]).toBe(RouteHelperStatus.Loading); // extra check, both statuses must be loading
             expect(childResolverStatuses.length).toBe(0);
 
-            await wait(workerDuration);
+            await wait(longestWorkDuration);
             expect(childGuardStatuses.length).toBe(3);  // in real env = 2
 
             const expectedStatusesForChildInTestEnv = [
@@ -1468,7 +1474,7 @@ describe('on status change', () => {
             expect(parentGuardStatuses.length).toBe(2);
             expect(parentResolverStatuses.length).toBe(2);
 
-            await wait(workerDuration);
+            await wait(longestWorkDuration);
 
             expect(childGuardStatuses.length).toBe(3);  // in real env = 2
             expect(childResolverStatuses.length).toBe(2);
@@ -1489,7 +1495,7 @@ describe('on status change', () => {
             expect(childGuardStatuses.length).toBe(0);
             expect(childResolverStatuses.length).toBe(0);
 
-            await wait(workerDuration + workerDurationTimeBeforeCheck);
+            await wait(longestWorkDuration + mediumWorkDuration);
             expect(parentGuardStatuses.length).toBe(1);
             expect(parentGuardStatuses[0]).toBe(RouteHelperStatus.Loading);
             expect(parentResolverStatuses.length).toBe(0);
@@ -1497,7 +1503,7 @@ describe('on status change', () => {
             expect(childGuardStatuses.length).toBe(0);
             expect(childResolverStatuses.length).toBe(0);
 
-            await wait(workerDuration + workerDurationTimeBeforeCheck);
+            await wait(longestWorkDuration + mediumWorkDuration);
             expect(parentGuardStatuses.length).toBe(2);
             parentGuardStatuses.forEach((s, index) => {
               expect(s).toBe(expectedStatuses[index]);
@@ -1508,7 +1514,7 @@ describe('on status change', () => {
             expect(childGuardStatuses.length).toBe(0);
             expect(childResolverStatuses.length).toBe(0);
 
-            await wait(workerDuration + workerDurationTimeBeforeCheck);
+            await wait(longestWorkDuration + mediumWorkDuration);
             expect(parentGuardStatuses.length).toBe(2);
             parentGuardStatuses.forEach((s, index) => {
               expect(s).toBe(expectedStatuses[index]);
@@ -1523,13 +1529,13 @@ describe('on status change', () => {
             expect(childGuardStatuses[0]).toBe(RouteHelperStatus.Loading);
             expect(childResolverStatuses.length).toBe(0);
 
-            await wait(workerDuration);
+            await wait(longestWorkDuration);
 
             expect(childGuardStatuses.length).toBe(1);
             expect(childGuardStatuses[0]).toBe(RouteHelperStatus.Loading);
             expect(childResolverStatuses.length).toBe(0);
 
-            await wait(workerDuration);
+            await wait(longestWorkDuration);
             expect(childGuardStatuses.length).toBe(2);
             childGuardStatuses.forEach((s, index) => {
               expect(s).toBe(expectedStatuses[index]);
@@ -1540,7 +1546,7 @@ describe('on status change', () => {
             expect(parentGuardStatuses.length).toBe(2);
             expect(parentResolverStatuses.length).toBe(2);
 
-            await wait(workerDuration);
+            await wait(longestWorkDuration);
 
             expect(childGuardStatuses.length).toBe(2);
             expect(childResolverStatuses.length).toBe(2);

@@ -2,8 +2,9 @@ import * as React from 'react';
 import { HelperOutlet } from '../route-helper';
 import { HelperRouteObject } from '../types';
 import { testIn3DifferentModes } from './utils/check-with-3-different-envs';
-import { workerDuration, workerDurationTimeBeforeCheck } from './utils/general-utils';
+import { longestWorkDuration, mediumWorkDuration, minimalWorkDuration } from './utils/general-utils';
 import { wait } from './utils/wait';
+import { expect } from '@jest/globals';
 
 describe('title in route', () => {
   describe('title field only', () => {
@@ -21,7 +22,7 @@ describe('title in route', () => {
           routes,
           initialPath: '/',
           validate: async () => {
-            await wait(1);
+            await wait(longestWorkDuration);
 
             expect(global.window.document.title).toBe('Home - Title');
           },
@@ -50,7 +51,7 @@ describe('title in route', () => {
             routes,
             initialPath: '/child',
             validate: async () => {
-              await wait(1);
+              await wait(minimalWorkDuration);
 
               expect(global.window.document.title).toBe('Child - Title');
             },
@@ -79,7 +80,7 @@ describe('title in route', () => {
             routes,
             initialPath: '/child',
             validate: async () => {
-              await wait(1);
+              await wait(longestWorkDuration);
 
               expect(global.window.document.title).toBe('Child - Title');
             },
@@ -117,7 +118,7 @@ describe('title in route', () => {
             routes,
             initialPath: '/child/child2',
             validate: async () => {
-              await wait(1);
+              await wait(longestWorkDuration);
 
               expect(global.window.document.title).toBe('Child2 - Title');
             },
@@ -152,7 +153,7 @@ describe('title in route', () => {
             routes,
             initialPath: '/child/child2',
             validate: async () => {
-              await wait(1);
+              await wait(longestWorkDuration);
 
               expect(global.window.document.title).toBe('Child2 - Title');
             },
@@ -172,7 +173,7 @@ describe('title in route', () => {
             element: <div>Home</div>,
             title: 'Home - Title',
             titleResolver: () => async () => {
-              await wait(workerDuration);
+              await wait(longestWorkDuration);
               return "Home - Title from resolver";
             }
           },
@@ -185,11 +186,11 @@ describe('title in route', () => {
           routes,
           initialPath: '/',
           validate: async () => {
-            await wait(1);
+            await wait(longestWorkDuration);
 
             expect(global.window.document.title).toBe('');
 
-            await wait(workerDuration + workerDurationTimeBeforeCheck);
+            await wait(longestWorkDuration + mediumWorkDuration);
 
             expect(global.window.document.title).toBe('Home - Title from resolver');
           },
@@ -209,7 +210,7 @@ describe('title in route', () => {
                   element: <div>Child</div>,
                   title: 'Child - Title',
                   titleResolver: () => async () => {
-                    await wait(workerDuration);
+                    await wait(longestWorkDuration);
                     return "Child - Title from resolver";
                   }
                 },
@@ -224,10 +225,10 @@ describe('title in route', () => {
             routes,
             initialPath: '/child',
             validate: async () => {
-              await wait(1);
+              await wait(longestWorkDuration);
 
               expect(global.window.document.title).toBe('');
-              await wait(workerDuration + workerDurationTimeBeforeCheck);
+              await wait(longestWorkDuration + mediumWorkDuration);
 
               expect(global.window.document.title).toBe('Child - Title from resolver');
             },
@@ -253,10 +254,13 @@ describe('title in route', () => {
           ];
 
           testIn3DifferentModes({
+            beforeEach: () => {
+              global.window.document.title = "";
+            },
             routes,
             initialPath: '/child',
             validate: async () => {
-              await wait(1);
+              await wait(longestWorkDuration);
 
               expect(global.window.document.title).toBe('Child - Title');
             },
@@ -310,7 +314,7 @@ describe('title in route', () => {
         routes,
         initialPath: '/child',
         validate: async () => {
-          await wait(1);
+          await wait(longestWorkDuration);
 
           expect(global.window.document.title).toBe('');
         },
@@ -348,7 +352,7 @@ describe('title in route', () => {
         routes,
         initialPath: '/child/child2',
         validate: async () => {
-          await wait(workerDuration + workerDurationTimeBeforeCheck);
+          await wait(longestWorkDuration + mediumWorkDuration);
 
           expect(global.window.document.title).toBe('');
         },
