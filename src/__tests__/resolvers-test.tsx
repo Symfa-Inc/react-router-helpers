@@ -4,8 +4,9 @@ import { act } from 'react-dom/test-utils';
 import { MemoryRouter, Outlet, useNavigate, useParams } from 'react-router-dom';
 import * as TestRenderer from 'react-test-renderer';
 import { useResolver } from '../hooks';
+import { HelperOutlet } from '../route-helper';
 import { HelperRouteObject } from '../types';
-import { workerDuration, workerDurationTimeBeforeCheck } from './utils/general-utils';
+import { minimalRenderTimeout, workerDuration, workerDurationTimeBeforeCheck } from './utils/general-utils';
 import { GeneralLink } from './utils/GeneralLink';
 import { mockAsyncResolver } from './utils/mock-async-resolver';
 import { mockShouldNeverBeCalledResolver } from './utils/mock-should-never-be-called-resolver';
@@ -46,7 +47,7 @@ describe('Resolvers in route', () => {
           );
         });
 
-        await wait(1);
+        await wait(minimalRenderTimeout);
 
         expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
 
@@ -97,7 +98,7 @@ describe('Resolvers in route', () => {
           );
         });
 
-        await wait(1);
+        await wait(minimalRenderTimeout);
 
         expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
 
@@ -151,7 +152,7 @@ describe('Resolvers in route', () => {
           );
         });
 
-        await wait(1);
+        await wait(minimalRenderTimeout);
 
         expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
 
@@ -209,7 +210,7 @@ describe('Resolvers in route', () => {
           );
         });
 
-        await wait(1);
+        await wait(minimalRenderTimeout);
 
         expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
 
@@ -246,7 +247,7 @@ describe('Resolvers in route', () => {
             path: '/',
             element: (
               <div>
-                Home <Outlet />
+                Home <HelperOutlet />
               </div>
             ),
             children: [
@@ -269,7 +270,7 @@ describe('Resolvers in route', () => {
           );
         });
 
-        await wait(1);
+        await wait(minimalRenderTimeout * 2);
 
         expect(renderer.toJSON()).toMatchInlineSnapshot(`
           <div>
@@ -277,7 +278,7 @@ describe('Resolvers in route', () => {
           </div>
         `);
 
-        await wait(workerDuration + workerDurationTimeBeforeCheck);
+        await wait(workerDuration + workerDurationTimeBeforeCheck + minimalRenderTimeout);
 
         expect(renderer.toJSON()).toMatchInlineSnapshot(`
           <div>
@@ -313,7 +314,7 @@ describe('Resolvers in route', () => {
             path: '/',
             element: (
               <div>
-                Home <Outlet />
+                Home <HelperOutlet />
               </div>
             ),
             children: [
@@ -337,7 +338,7 @@ describe('Resolvers in route', () => {
           );
         });
 
-        await wait(1);
+        await wait(minimalRenderTimeout);
 
         expect(renderer.toJSON()).toMatchInlineSnapshot(`
           <div>
@@ -417,7 +418,7 @@ describe('Resolvers in route', () => {
           );
         });
 
-        await wait(1);
+        await wait(minimalRenderTimeout);
 
         expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
 
@@ -511,7 +512,7 @@ describe('Resolvers in route', () => {
           );
         });
 
-        await wait(1);
+        await wait(minimalRenderTimeout);
 
         expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
 
@@ -647,7 +648,7 @@ describe('Resolvers in route', () => {
           );
         });
 
-        await wait(1);
+        await wait(minimalRenderTimeout);
 
         // Elements should not be rendered immediately after initialization, since the first parent has resolver
 
@@ -678,7 +679,7 @@ describe('Resolvers in route', () => {
           linkToFirstChild.findByType('button').props.onClick();
         });
 
-        await wait(1);
+        await wait(minimalRenderTimeout);
 
         // Just after click we still shouldn't be able to see <Child /> content, since it has async guard
         expect(renderer.toJSON()).toMatchInlineSnapshot(`
@@ -1016,7 +1017,7 @@ describe('Resolvers in route', () => {
           );
         });
 
-        await wait(1);
+        await wait(minimalRenderTimeout);
 
         expect(renderer.toJSON()).toMatchInlineSnapshot(`
           <div>
@@ -1077,7 +1078,7 @@ describe('Resolvers in route', () => {
           );
         });
 
-        await wait(1);
+        await wait(minimalRenderTimeout);
 
         expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
 
@@ -1155,7 +1156,7 @@ describe('Resolvers in route', () => {
           );
         });
 
-        await wait(1);
+        await wait(minimalRenderTimeout);
 
         expect(renderer.toJSON()).toMatchInlineSnapshot(`
           <div>
@@ -1222,7 +1223,7 @@ describe('Resolvers in route', () => {
           );
         });
 
-        await wait(1);
+        await wait(minimalRenderTimeout);
 
         expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
 
@@ -1252,7 +1253,7 @@ describe('Resolvers in route', () => {
           );
         });
 
-        await wait(1);
+        await wait(minimalRenderTimeout);
 
         expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
 
@@ -1290,7 +1291,7 @@ describe('Resolvers in route', () => {
           );
         });
 
-        await wait(1);
+        await wait(minimalRenderTimeout);
 
         expect(renderer.toJSON()).toMatchInlineSnapshot(`
           <div>
@@ -1334,7 +1335,7 @@ describe('Resolvers in route', () => {
           );
         });
 
-        await wait(1);
+        await wait(minimalRenderTimeout);
 
         expect(renderer.toJSON()).toMatchInlineSnapshot(`
           <div>

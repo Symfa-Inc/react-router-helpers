@@ -5,3 +5,10 @@ export function useResolver<T = any>(): T {
   return React.useContext(RouteContext).routeResolverInfos;
 }
 
+export function useGuardStatus() {
+  return React.useContext(RouteContext).guardStatus;
+}
+
+export function useResolverStatus() {
+  return React.useContext(RouteContext).resolverStatus;
+}

@@ -6,7 +6,7 @@ import { AppDispatch, fetchUserById } from '../store';
 
 export const mockGuard = (canActivate: boolean = true, message: string = "") => () => async () => {
   console.log(message);
-  await wait(2000);
+  await wait(1000);
   return canActivate;
 };
 

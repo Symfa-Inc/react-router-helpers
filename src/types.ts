@@ -14,11 +14,10 @@ export type OnStatusChange = (status: RouteHelperStatus) => void;
 export interface OnlyHelperFields {
   guards?: Guard[];
   resolvers?: Record<string, Resolver>;
-  onGuardStatusChange?: OnStatusChange;
-  onResolverStatusChange?: OnStatusChange;
   title?: string;
   titleResolver?: TitleResolver;
   loadElement?: () => Promise<{default: React.ComponentType<any>}>;
+  loadingComponent?: React.ReactNode;
 }
 
 export interface HelperRouteObject extends RouteObject, OnlyHelperFields {

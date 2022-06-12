@@ -126,26 +126,3 @@ export function useManager({ guards, resolvers, title, titleResolver }: HelperMa
     setTitle
   };
 }
-
-export function useStatusNotification(
-  guardsStatusChangeReceiver?: OnStatusChange,
-  resolversStatusChangeReceiver?: OnStatusChange
-) {
-  const stackGuardsRef = useRef<RouteHelperStatus[]>([]);
-  const stackResolversRef = useRef<RouteHelperStatus[]>([]);
-
-  return {
-    notifyGuardStatusChange: (status: RouteHelperStatus) => {
-      if (guardsStatusChangeReceiver != null && stackGuardsRef.current[stackGuardsRef.current.length - 1] !== status) {
-        stackGuardsRef.current.push(status);
-        guardsStatusChangeReceiver(status);
-      }
-    },
-    notifyResolversStatusChange: (status: RouteHelperStatus) => {
-      if (resolversStatusChangeReceiver != null && stackResolversRef.current[stackResolversRef.current.length - 1] !== status) {
-        stackResolversRef.current.push(status);
-        resolversStatusChangeReceiver(status);
-      }
-    }
-  };
-}

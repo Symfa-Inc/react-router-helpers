@@ -1,18 +1,9 @@
-import React, { useContext, useEffect, useState } from 'react';
-import {
-  BrowserRouter as Router,
-  Link,
-  Outlet, Route, Routes,
-  UNSAFE_NavigationContext,
-  useLocation,
-  useNavigate,
-  useParams,
-} from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { BrowserRouter as Router, Link, Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
 import './App.css';
-import { TitleResolverStatus } from '../../../src/types';
-import { mockGuard, useGetUserInfoResolver, useGuardWithParams } from './guards/mock-guard';
-import { RouteHelperStatus, useResolver, useRoutesWithHelper, HelperOutlet } from './reactRouterHelpers';
-import { RouteHelper } from './reactRouterHelpers/index';
+import { mockGuard } from './guards/mock-guard';
+import { RouteHelperStatus, useRoutesWithHelper } from './reactRouterHelpers';
+import { HelperOutlet, useGuardStatus, useResolverStatus } from './reactRouterHelpers/index';
 
 // const useResolverForHome = () => {
 //   const test = useParams();
@@ -29,20 +20,29 @@ import { RouteHelper } from './reactRouterHelpers/index';
 //   };
 // };
 
+// function Another() {
+//   useEffect(() => {
+//     console.log('Another inited');
+//     return () => {
+//       console.log('Another uninited');
+//     };
+//   }, []);
+//   return <>Hello</>
+// }
 
 function Home() {
 
   const [needToShow, setNeedToShow] = useState(false);
 
-  useEffect(() => {
-    // setTimeout(() => {
-    //   console.log('SET OUTLET');
-    //   setNeedToShow(true);
-    // }, 2000);
-    // console.log('rendered HOME', resolverInfos);
-    // useResolverForHome();
-    // manager();
-  }, []);
+  // useEffect(() => {
+  //   setTimeout(() => {
+  //     console.log('SET OUTLET');
+  //     setNeedToShow(true);
+  //   }, 2000);
+  //   // console.log('rendered HOME', resolverInfos);
+  //   // useResolverForHome();
+  //   // manager();
+  // }, []);
   return (
     <div>
       <h1>Home</h1>
@@ -52,9 +52,8 @@ function Home() {
         <Link to="/child">Child</Link> |{' '}
         <Link to="/child/1234">Child 2</Link> |{' '}
         <Link to="/child/child2/child3">Child 3</Link>
+        <HelperOutlet />
       </nav>
-      {/*{needToShow && <HelperOutlet/>}*/}
-      <HelperOutlet/>
     </div>
   );
 }
@@ -84,17 +83,17 @@ function Child() {
         <Link to="/child/child2/child3">Child 3</Link>
         {/*<h2>resolver info: {resolverInfos.lastName}</h2>*/}
       </nav>
-      <Outlet/>
+      {/*<HelperOutlet />*/}
     </div>
   );
 }
 
 function Child2() {
-  // const params = useParams();
+  const params = useParams();
 
-  // useEffect(() => {
-  //   console.log('params', params);
-  // }, []);
+  useEffect(() => {
+    console.log('params', params);
+  }, []);
   return (
     <div>
       <h1>Child 2</h1>
@@ -104,6 +103,7 @@ function Child2() {
         <Link to="/child/child2" id="link-to-second-child">Child 2</Link> |{' '}
         <Link to="child3">Child 3</Link> |{' '}
         <Link to="../54321">Child 2 different link</Link>
+        <Link to="/child/child2/child3/child33">Child 3</Link>
       </nav>
       <Outlet/>
     </div>
@@ -111,7 +111,15 @@ function Child2() {
 }
 
 function Child3() {
+  const params = useParams();
 
+  useEffect(() => {
+    console.log('params child 3', params);
+  }, []);
+
+  useEffect(() => {
+    console.log('update child 3', params);
+  }, [params]);
   return (
     <div>
       <h1>Child 3</h1>
@@ -147,6 +155,37 @@ const RoutesWrapper = () => {
   //   const unlisten = (navigator as any).listen(listener);
   //   return unlisten;
   // }, [navigator]);
+  const LoadingComponent = () => {
+    const guardStatus = useGuardStatus();
+    const resolverStatus = useResolverStatus();
+    // const navigate = useNavigate();
+    // const dispatch: AppDispatch = useDispatch();
+
+    useEffect(() => {
+      console.log('INITED');
+      return () => {
+        console.log('UNINITED');
+        // dispatch(fetchUserById(1));
+      };
+    }, []);
+
+    useEffect(() => {
+      console.log('GUARD CHANGED ' + RouteHelperStatus[guardStatus]);
+      // if (guardStatus === RouteHelperStatus.Failed) {
+      //   navigate('/login');
+      // }
+    }, [guardStatus]);
+
+    useEffect(() => {
+      console.log('RESOLVER CHANGED ' + RouteHelperStatus[resolverStatus]);
+    }, [resolverStatus]);
+    // // const [isLoading, setLoading] = useState(false);
+    //
+    // useEffect(() => {
+    //   setTimeout(() => setLoading(true), 200);
+    // }, []);
+    return <div>Loading...{Date.now()}</div>;
+  };
   return useRoutesWithHelper([
     {
       path: 'login',
@@ -155,19 +194,21 @@ const RoutesWrapper = () => {
     {
       path: "/",
       element: <Home />,
+      // loadingComponent: <LoadingComponent />,
       // loadElement: () => import('./LazyComponent'),
-      title: 'HOME',
-      guards: [mockGuard(), mockGuard(true)],
-      resolvers: {
-        userInfo: useGetUserInfoResolver,
-      },
+      // title: 'HOME',
+      guards: [mockGuard()],
+      // resolvers: {
+      //   userInfo: useGetUserInfoResolver,
+      // },
       children: [
         {
           path: "child",
           element: <Child />,
-          title: "loading...",
+          // loadingComponent: <LoadingComponent />,
+          // title: "loading...",
           // titleResolver: () => () => "test",
-          // guards: [mockGuard(true, 'CHILD 1 =========================='), mockGuard(true, 'CHILD 2 CHILD 1 ==========================')],
+          // guards: [mockGuard(true, 'CHILD 1 ==========================')],
           // titleResolver: () => async () => {
           //   await wait(2000);
           //   return "RESOLVED TITLE";
@@ -187,25 +228,26 @@ const RoutesWrapper = () => {
             {
               path: ":id",
               element: <Child2 />,
-              title: "2 test title",
-              guards: [mockGuard(true, "CHILD GUARD")],
-              resolvers: {
-                  userInfo: () => () => {
-                    console.log('resolver info');
-                    return {userName: 'eugene', name: 'eugene', lastName: 'tsarenko'};
-                  }
-              },
+              guards: [mockGuard(true, 'CHILD 1 ==========================')],
+              // title: "2 test title",
+              // guards: [mockGuard(true, "CHILD GUARD")],
+              // resolvers: {
+              //     userInfo: () => () => {
+              //       console.log('resolver info');
+              //       return {userName: 'eugene', name: 'eugene', lastName: 'tsarenko'};
+              //     }
+              // },
               // titleResolver: () => () => 'title from ',
-              titleResolver: () => {
-                return async (status: TitleResolverStatus) => {
-                  await wait(2000);
-                  return "Title from resolver";
-                };
-              },
+              // titleResolver: () => {
+              //   return async (status: TitleResolverStatus) => {
+              //     await wait(2000);
+              //     return "Title from resolver";
+              //   };
+              // },
 
               children: [
                 {
-                  path: "child3",
+                  path: "child3/child33",
                   element: <Child3 />,
                   // guards: [mockGuard()],
                 }

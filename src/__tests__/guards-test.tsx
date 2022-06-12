@@ -1,18 +1,18 @@
 import * as React from 'react';
-import { FC } from 'react';
+import { FC, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 import { act } from 'react-dom/test-utils';
 import { MemoryRouter, useNavigate, useParams } from 'react-router-dom';
 import * as TestRenderer from 'react-test-renderer';
 import { HelperRouteObject, RouteHelperStatus } from '../types';
 import { testIn3DifferentModes } from './utils/check-with-3-different-envs';
-import { workerDuration, workerDurationTimeBeforeCheck } from './utils/general-utils';
+import { minimalRenderTimeout, workerDuration, workerDurationTimeBeforeCheck } from './utils/general-utils';
 import { mockAsyncGuard } from './utils/mock-async-guard';
 import { mockShouldNeverBeCalledGuard } from './utils/mock-should-never-be-called-guard';
 import { mockSyncGuard } from './utils/mock-sync-guard';
 import { RoutesRenderer } from './utils/RoutesRenderer';
 import { wait } from './utils/wait';
-import {HelperOutlet} from '../index';
+import { HelperOutlet, useGuardStatus } from '../index';
 
 describe('Guards in route', () => {
   describe('with async guards', () => {
@@ -35,7 +35,7 @@ describe('Guards in route', () => {
         );
       });
 
-      await wait(workerDuration + workerDurationTimeBeforeCheck);
+      await wait(workerDuration + workerDurationTimeBeforeCheck + 20);
 
       expect(renderer.toJSON()).toMatchInlineSnapshot(`
         <div>
@@ -155,7 +155,7 @@ describe('Guards in route', () => {
         );
       });
 
-      await wait(1);
+      await wait(minimalRenderTimeout);
 
       expect(renderer.toJSON()).toMatchInlineSnapshot(`
         <div>
@@ -181,7 +181,7 @@ describe('Guards in route', () => {
         );
       });
 
-      await wait(1);
+      await wait(minimalRenderTimeout);
 
       expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
     });
@@ -204,7 +204,7 @@ describe('Guards in route', () => {
         );
       });
 
-      await wait(1);
+      await wait(minimalRenderTimeout * 2);
 
       expect(renderer.toJSON()).toMatchInlineSnapshot(`
         <div>
@@ -230,7 +230,7 @@ describe('Guards in route', () => {
         );
       });
 
-      await wait(1);
+      await wait(minimalRenderTimeout);
 
       expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
     });
@@ -253,7 +253,7 @@ describe('Guards in route', () => {
         );
       });
 
-      await wait(1);
+      await wait(minimalRenderTimeout);
 
       expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
     });
@@ -371,7 +371,7 @@ describe('Guards in route', () => {
             );
           });
 
-          await wait(1);
+          await wait(minimalRenderTimeout);
 
           expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
 
@@ -423,7 +423,7 @@ describe('Guards in route', () => {
             );
           });
 
-          await wait(1);
+          await wait(minimalRenderTimeout);
 
           expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
 
@@ -476,7 +476,7 @@ describe('Guards in route', () => {
             );
           });
 
-          await wait(1);
+          await wait(minimalRenderTimeout);
 
           expect(renderer.toJSON()).toMatchInlineSnapshot(`
             <div>
@@ -523,7 +523,7 @@ describe('Guards in route', () => {
             );
           });
 
-          await wait(1);
+          await wait(minimalRenderTimeout);
 
           expect(renderer.toJSON()).toMatchInlineSnapshot(`
             <div>
@@ -565,7 +565,7 @@ describe('Guards in route', () => {
           );
         });
 
-        await wait(1);
+        await wait(minimalRenderTimeout);
         expect(counter.amount).toBe(0);
       });
 
@@ -587,7 +587,7 @@ describe('Guards in route', () => {
           );
         });
 
-        await wait(1);
+        await wait(minimalRenderTimeout);
         expect(counter.amount).toBe(0);
       });
     });
@@ -1059,7 +1059,7 @@ describe('Guards in route', () => {
           );
         });
 
-        await wait(1);
+        await wait(minimalRenderTimeout);
 
         expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
 
@@ -1199,7 +1199,7 @@ describe('Guards in route', () => {
           );
         });
 
-        await wait(1);
+        await wait(minimalRenderTimeout);
 
         // Elements should not be rendered immediately after initialization, since the first parent has guard
 
@@ -1229,7 +1229,7 @@ describe('Guards in route', () => {
           linkToFirstChild.findByType('button').props.onClick();
         });
 
-        await wait(1);
+        await wait(minimalRenderTimeout);
 
         // Just after click we still shouldn't be able to see <Child /> content, since it has async guard
         expect(renderer.toJSON()).toMatchInlineSnapshot(`
@@ -1588,7 +1588,7 @@ describe('Guards in route', () => {
           );
         });
 
-        await wait(1);
+        await wait(minimalRenderTimeout);
 
         expect(renderer.toJSON()).toMatchInlineSnapshot(`
                   <div>
@@ -1611,7 +1611,7 @@ describe('Guards in route', () => {
           );
         });
 
-        await wait(1);
+        await wait(minimalRenderTimeout);
 
         expect(renderer.toJSON()).toMatchInlineSnapshot(`
           <div>
@@ -1631,14 +1631,25 @@ describe('Guards in route', () => {
       it('with 1 route', async () => {
         let renderer: TestRenderer.ReactTestRenderer;
         let status: RouteHelperStatus;
+
+
+        const LoadingComponent = () => {
+          const s = useGuardStatus();
+          useEffect(() => {
+            status = s;
+          }, [status]);
+          return <></>;
+        };
+
         const routes: HelperRouteObject[] = [
           {
             path: '/',
             element: <div>Home</div>,
             guards: [guardWithException],
-            onGuardStatusChange: (s: RouteHelperStatus) => {
-              status = s;
-            },
+            loadingComponent: <LoadingComponent />,
+            // onGuardStatusChange: (s: RouteHelperStatus) => {
+            //   status = s;
+            // },
           },
         ];
 
@@ -1650,7 +1661,7 @@ describe('Guards in route', () => {
           );
         });
 
-        await wait(1);
+        await wait(minimalRenderTimeout);
         expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
         expect(status).toBe(RouteHelperStatus.Failed);
       });
@@ -1659,6 +1670,15 @@ describe('Guards in route', () => {
         let renderer: TestRenderer.ReactTestRenderer;
 
         let status: RouteHelperStatus;
+
+        const LoadingComponent = () => {
+          const s = useGuardStatus();
+          useEffect(() => {
+            status = s;
+          }, [status]);
+          return <></>;
+        };
+
         const routes: HelperRouteObject[] = [
           {
             path: '/',
@@ -1671,10 +1691,8 @@ describe('Guards in route', () => {
               {
                 path: 'child',
                 element: <div>Child</div>,
+                loadingComponent: <LoadingComponent />,
                 guards: [guardWithException],
-                onGuardStatusChange: (s: RouteHelperStatus) => {
-                  status = s;
-                },
               },
             ],
           },
@@ -1688,7 +1706,7 @@ describe('Guards in route', () => {
           );
         });
 
-        await wait(1);
+        await wait(minimalRenderTimeout + workerDurationTimeBeforeCheck);
         expect(renderer.toJSON()).toMatchInlineSnapshot(`
           <div>
             Home 
@@ -1727,19 +1745,14 @@ describe('Guards in route', () => {
         },
         routes,
         initialPath: '/child',
-        validateResultInRealEnv: async () => {
+        validate: async () => {
           await wait(workerDuration + workerDurationTimeBeforeCheck);
 
           expect(counter.amount).toBe(0);
-        },
-        validateResultInTestEnv: async () => {
-          await wait(workerDuration + workerDurationTimeBeforeCheck);
-
-          expect(counter.amount).toBe(1); // in real env = 0
-        },
+        }
       });
     });
-    describe('third nesting route, different behaviour in test vs real env', () => {
+    describe('third nesting route', () => {
       const counter = { amount: 0 };
 
       const routes: HelperRouteObject[] = [
@@ -1769,24 +1782,20 @@ describe('Guards in route', () => {
       ];
 
       testIn3DifferentModes({
-        afterEach: () => {
+        beforeEach: () => {
           counter.amount = 0;
         },
         routes,
         initialPath: '/child/child2',
-        validateResultInRealEnv: async () => {
+        validate: async () => {
           await wait(workerDuration + workerDurationTimeBeforeCheck);
 
           expect(counter.amount).toBe(0);
         },
-        validateResultInTestEnv: async () => {
-          await wait(workerDuration + workerDurationTimeBeforeCheck);
-
-          expect(counter.amount).toBe(1); // in real env = 0
-        },
       });
 
     });
+
   });
 });
 
@@ -1801,7 +1810,7 @@ async function renderTest({ routes, path, waitTimeBeforeCheck, expectedResult, e
     );
   });
 
-  await wait(1);
+  await wait(minimalRenderTimeout);
 
   expect(renderer.toJSON()).toMatchInlineSnapshot(expectedResultBeforeGuardWord);
 

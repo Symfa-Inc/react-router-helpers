@@ -1,13 +1,16 @@
 import React, { FC, PropsWithChildren, useContext, useEffect, useRef, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { OutletProps } from 'react-router/lib/components';
-import { RouteContext } from './context';
-import { useManager, useStatusNotification } from './inner-hooks';
+import { OutletContext, RouteContext } from './context';
+import { useManager } from './inner-hooks';
 import { HelperManager, HelperRouteObjectProps, OnlyHelperFields, RouteHelperStatus } from './types';
 
 //   // TODO: Add metadata (title)
 //   // TODO: Add metadata (title) tests
 
+// TODO: BUG if press on the same link again
+// TODO: BUG if press on the last link - title was set from first parent
+// TODO: BUG if first press on child1 and then second press on child 2 - title was set from child1
 
 //  // TODO: Add preserve query params strategy for Link component
 //  // TODO: Add preserve query params strategy for Link component tests
@@ -15,9 +18,7 @@ import { HelperManager, HelperRouteObjectProps, OnlyHelperFields, RouteHelperSta
 //   // TODO: Add lazy loading
 //   // TODO: Add lazy loading tests
 
-const OutletContext = React.createContext<{ wasParentOutletLoaded: boolean }>({
-  wasParentOutletLoaded: false
-});
+
 
 export const RouteHelper = (props: HelperRouteObjectProps) => {
 
@@ -25,10 +26,11 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
   const parentContext = useContext(RouteContext);
   const outletContext = useContext(OutletContext);
   const location = useLocation();
-  const notification = useStatusNotification(props.onGuardStatusChange, props.onResolverStatusChange);
   //#endregion hooks usage
 
-  const COMPONENT_NAME = (props.element as any)?.type?.name;
+  const locationOnInit = useRef<string>("");
+
+  const COMPONENT_NAME = (props.element as any).type.name;
 
   const initializeManagerParams = (): HelperManager => {
     const guards = props.guards || [];
@@ -48,13 +50,36 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
   const lastLocationKey = useRef<string>('');
 
   //#region Refs to prevent double calls
-  const wereWorkersStarted = useRef(false);
+  // const wereWorkersStarted = useRef(false);
+  const [wereWorkersStarted, setWorkersStarted] = useState(false);
   const wasParentTitleResolvingCanceled = useRef(false);
   //#endregion Refs to prevent double calls
 
   //#region Workers infos
-  const [guardsStatus, setGuardsStatus] = useState<RouteHelperStatus>(RouteHelperStatus.Initial);
-  const [resolversStatus, setResolversStatus] = useState<RouteHelperStatus>(RouteHelperStatus.Initial);
+  const [guardStatus, setGuardStatus] = useState<RouteHelperStatus>(RouteHelperStatus.Initial);
+  const [resolverStatus, setResolverStatus] = useState<RouteHelperStatus>(RouteHelperStatus.Initial);
+  const [isReadyToMountElement, setReadyToMountElement] = useState(false);
+
+  const setReadyToMountElementNormalized = () => {
+    if (!isReadyToMountElement) {
+      setTimeout(() => {
+        setReadyToMountElement(true);
+      }, 1);
+    }
+  };
+
+  const setGuardStatusNormalized = (status: RouteHelperStatus) => {
+    if (guardStatus !== status) {
+      setGuardStatus(status);
+    }
+  };
+
+  const setResolverStatusNormalized = (status: RouteHelperStatus) => {
+    if (resolverStatus !== status) {
+      setResolverStatus(status);
+    }
+  };
+
   const [loadedResolverInfos, setLoadedResolverInfos] = useState({});
   //#endregion Workers infos
 
@@ -95,7 +120,7 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
       manager.setTitle();
 
       // If route was already loaded
-      if (resolversStatus === RouteHelperStatus.Loaded) {
+      if (resolverStatus === RouteHelperStatus.Loaded) {
         // TODO: Navigate back, BUG with setting title back do we need to solve it?
         resolveTitle();
       }
@@ -121,7 +146,13 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
   };
 
   const isComponentParentOrParentOutletWasInitialized = () => {
-    return parentContext.isTheFirstParent || outletContext.wasParentOutletLoaded;
+    console.log(`outletContext.wasParentOutletLoaded ${outletContext.wasParentOutletLoaded} ${COMPONENT_NAME}`);
+    const wasOutletLoadedAndWasNotUsedAlready = (outletContext.wasParentOutletLoaded && !outletContext.wasOutletUsedAlready);
+    if (wasOutletLoadedAndWasNotUsedAlready) {
+      outletContext.setWasUsed();
+    }
+
+    return parentContext.isTheFirstParent || wasOutletLoadedAndWasNotUsedAlready;
   };
 
   //#region workers
@@ -129,16 +160,13 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
   const evaluateResolvers = async () => {
     const initialStatus = manager.getResolversStatusBeforeEvaluating();
 
-    setResolversStatus(initialStatus);
-    notification.notifyResolversStatusChange(initialStatus);
+    setResolverStatusNormalized(initialStatus);
 
     const { status, infos } = await manager.evaluateResolvers();
 
 
     setLoadedResolverInfos(infos);
-    setResolversStatus(status);
-
-    notification.notifyResolversStatusChange(status);
+    setResolverStatusNormalized(status);
 
     // console.log('AFTER RESOLVERS ' + RouteHelperStatus[status] + COMPONENT_NAME);
 
@@ -156,21 +184,18 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
 
     // console.log('send initial status ' + RouteHelperStatus[initialStatus] + " " + COMPONENT_NAME);
 
-    setGuardsStatus(initialStatus);
-    notification.notifyGuardStatusChange(initialStatus);
+    setGuardStatusNormalized(initialStatus);
 
     const guardStatus = await manager.evaluateGuards(isComponentStillAlive);
     if (guardStatus === null) {
       return;
     }
 
-    notification.notifyGuardStatusChange(guardStatus);
-
     if (guardStatus == RouteHelperStatus.Loaded) {
       await evaluateResolvers();
     }
 
-    setGuardsStatus(guardStatus);
+    setGuardStatusNormalized(guardStatus);
   };
 
   //#endregion workers
@@ -185,6 +210,7 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
     lastLocationKey.current = location.key;
 
     initCancellationTitleResolvingForParent(location.key);
+    locationOnInit.current = location.pathname;
 
     isComponentStillAlive.current = true;
 
@@ -195,9 +221,13 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
   }, []);
 
   useEffect(() => {
-    // console.log('PARENT CONTEXT CHANGED');
-    if (parentContext.canStartToLoadWorkers && !wereWorkersStarted.current) {
-      wereWorkersStarted.current = true;
+    console.log('PARENT CONTEXT CHANGED ' + COMPONENT_NAME + ' ' + isComponentParentOrParentOutletWasInitialized());
+    if (parentContext.canStartToLoadWorkers &&
+      isComponentParentOrParentOutletWasInitialized() &&
+      !wereWorkersStarted
+    ) {
+
+      setWorkersStarted(true);
       evaluateGuardsAndResolvers();
     }
   }, [parentContext]);
@@ -216,10 +246,14 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
 
   useEffect(() => {
     if (isUpdateOnNewLocation() && isComponentParentOrParentOutletWasInitialized()) {
-      console.log('UPDATE AND CANCEL ' + COMPONENT_NAME);
+      // console.log('UPDATE AND CANCEL ' + COMPONENT_NAME);
       resetCancellationTitleResolvingForParent();
       initCancellationTitleResolvingForParent(lastLocationKey.current);
-      //
+
+      // if (location.pathname.indexOf(locationOnInit.current) === -1) {
+      //   console.log("RUN GUARDS AGAIN " + COMPONENT_NAME);
+      // }
+
       // if (parentContext.canStartToLoadWorkers) {
       //   // wereWorkersStarted.current = false;
       //
@@ -233,55 +267,107 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
 
 
 
-  const DefaultWrapper: FC<PropsWithChildren> = (props) => {
-    const elementToRender =
-      parentContext.canStartToLoadWorkers &&
-      guardsStatus === RouteHelperStatus.Loaded &&
-      resolversStatus === RouteHelperStatus.Loaded ? (
-        props.children
-      ) : (
-        <Outlet/>
-      );
-    return (
-      <RouteContext.Provider
-        value={{
-          routeResolverInfos: loadedResolverInfos,
-          canStartToLoadWorkers: canChildStartWorkers,
-          cancelTitleResolvingForParent: setCancellationKeyForCurrentRoute,
-          isTheFirstParent: isParent,
-        }}
-      >
-        <RouteContext.Consumer>{() => elementToRender}</RouteContext.Consumer>
-      </RouteContext.Provider>
-    )
+  // const DefaultWrapper: FC<PropsWithChildren> = (props) => {
+  //   const elementToRender =
+  //     parentContext.canStartToLoadWorkers &&
+  //     guardStatus === RouteHelperStatus.Loaded &&
+  //     resolverStatus === RouteHelperStatus.Loaded ? (
+  //       props.children
+  //     ) : (
+  //       <Outlet/>
+  //     );
+  //   return (
+  //     <RouteContext.Provider
+  //       value={{
+  //         routeResolverInfos: loadedResolverInfos,
+  //         canStartToLoadWorkers: canChildStartWorkers,
+  //         cancelTitleResolvingForParent: setCancellationKeyForCurrentRoute,
+  //         isTheFirstParent: isParent,
+  //         guardStatus,
+  //         resolverStatus,
+  //       }}
+  //     >
+  //       <RouteContext.Consumer>{() => elementToRender}</RouteContext.Consumer>
+  //     </RouteContext.Provider>
+  //   )
+  // };
+
+
+  // if (props.loadElement != undefined) {
+  //   const LazyComponent = React.lazy(() => props.loadElement!());
+  //
+  //   return (
+  //     <DefaultWrapper>
+  //       <React.Suspense fallback={<>Loading...</>}>
+  //         <LazyComponent />
+  //       </React.Suspense>
+  //     </DefaultWrapper>
+  //   );
+  // }
+
+
+
+  // const WW = React.memo(WrappedLoadingComponent);
+
+  // console.log('RENDER ' + Date.now());
+
+  const WrappedLoadingComponent = () => {
+    return (<>
+      {wereWorkersStarted && props.loadingComponent}
+      <Outlet/>
+    </>);
   };
 
+  const readyToMountElementCondition = parentContext.canStartToLoadWorkers &&
+    guardStatus === RouteHelperStatus.Loaded &&
+    resolverStatus === RouteHelperStatus.Loaded;
 
-  if (props.loadElement != undefined) {
-    const LazyComponent = React.lazy(() => props.loadElement!());
-
-    return (
-      <DefaultWrapper>
-        <React.Suspense fallback={<>Loading...</>}>
-          <LazyComponent />
-        </React.Suspense>
-      </DefaultWrapper>
-    );
+  if (readyToMountElementCondition) {
+    setReadyToMountElementNormalized();
   }
 
+  const elementToRender = readyToMountElementCondition && isReadyToMountElement? (
+      props.element
+    ) : (
+      <>
+        {wereWorkersStarted && props.loadingComponent}
+        <Outlet />
+      </>
+    );
 
-
-  return <DefaultWrapper>{props.element}</DefaultWrapper>;
+  return (
+    <RouteContext.Provider
+      value={{
+        routeResolverInfos: loadedResolverInfos,
+        canStartToLoadWorkers: canChildStartWorkers,
+        cancelTitleResolvingForParent: setCancellationKeyForCurrentRoute,
+        isTheFirstParent: isParent,
+        guardStatus,
+        resolverStatus,
+      }}
+    >
+      <RouteContext.Consumer>{() => elementToRender}</RouteContext.Consumer>
+    </RouteContext.Provider>
+  )
 };
 
 
 
 export const HelperOutlet = (props: OutletProps) => {
   const [wasParentOutletLoaded] = useState(true);
+  const [wasOutletUsed, setWasOutletUsed] = useState(false);
+
+  const setWasOutletUsedNormalized = () => {
+    if (!wasOutletUsed) {
+      setWasOutletUsed(true);
+    }
+  };
 
   return (
     <OutletContext.Provider value={{
-      wasParentOutletLoaded
+      wasParentOutletLoaded,
+      wasOutletUsedAlready: wasOutletUsed,
+      setWasUsed: setWasOutletUsedNormalized
     }}>
       <Outlet {...props} />
     </OutletContext.Provider>);

@@ -168,14 +168,21 @@ export async function testIn3DifferentModes(options: RenderInModesOptions) {
     });
   }
 
-  test.each(tests)('$name', async (t: any) => {
+  beforeEach(async () => {
     if (typeof options.beforeEach === "function") {
       await options.beforeEach();
     }
-    const result = await t.fn();
+  });
+
+  afterEach(async () => {
     if (typeof options.afterEach === "function") {
       await options.afterEach();
     }
+  });
+
+  test.each(tests)('$name', async (t: any) => {
+
+    const result = await t.fn();
     return result;
   });
 }
