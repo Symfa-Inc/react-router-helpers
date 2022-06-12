@@ -28,6 +28,8 @@ describe('route helper component', () => {
                 Home
               </div>
           `);
+
+      renderer.unmount();
     });
 
     it('should render route nested route', async () => {
@@ -65,6 +67,8 @@ describe('route helper component', () => {
           </div>
         </div>
       `);
+
+      renderer.unmount();
     });
   });
 
@@ -95,6 +99,8 @@ describe('route helper component', () => {
           Home
         </div>
       `);
+
+      renderer.unmount();
     });
 
     it('should render route nested route', async () => {
@@ -130,7 +136,7 @@ describe('route helper component', () => {
       await wait(1);
       expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
 
-      await wait(longestWorkDuration * 2 + mediumWorkDuration);
+      renderer.unmount();
     });
   });
 });

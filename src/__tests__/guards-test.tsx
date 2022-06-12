@@ -35,7 +35,7 @@ describe('Guards in route', () => {
         );
       });
 
-      await wait(longestWorkDuration + mediumWorkDuration + minimalWorkDuration * 2);
+      await wait(longestWorkDuration + mediumWorkDuration * 2);
 
       expect(renderer.toJSON()).toMatchInlineSnapshot(`
         <div>

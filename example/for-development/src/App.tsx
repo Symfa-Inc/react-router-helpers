@@ -194,21 +194,21 @@ const RoutesWrapper = () => {
     {
       path: "/",
       element: <Home />,
-      loadingComponent: <LoadingComponent />,
+      // loadingComponent: <LoadingComponent />,
       // loadElement: () => import('./LazyComponent'),
-      title: 'HOME',
+      // title: 'HOME',
       // guards: [mockGuard(), mockGuard()],
-      resolvers: {
-        userInfo: useGetUserInfoResolver,
-      },
+      // resolvers: {
+      //   userInfo: useGetUserInfoResolver,
+      // },
       children: [
         {
           path: "child",
           element: <Child />,
           loadingComponent: <LoadingComponent />,
-          title: "loading...",
+          // title: "loading...",
           // titleResolver: () => () => "test",
-          guards: [mockGuard(true, 'CHILD 1 =========================='), mockGuard()],
+          // guards: [mockGuard(true, 'CHILD 1 =========================='), mockGuard()],
           // titleResolver: () => async () => {
           //   await wait(2000);
           //   return "RESOLVED TITLE";
@@ -220,9 +220,10 @@ const RoutesWrapper = () => {
           // guards: [mockGuard(false)],
           // guards: [mockGuard()],
           // resolvers: {
-          //   'userInfo': () => {
-          //     return {userName: 'eugene', name: 'eugene', lastName: 'tsarenko'}
-          //   }
+          //       userInfo: () => async () => {
+          //         await wait(200);
+          //         return {userName: 'eugene', name: 'eugene', lastName: 'tsarenko'};
+          //       }
           // },
           children: [
             {
