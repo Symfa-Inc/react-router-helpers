@@ -51,8 +51,16 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
 
   //#region Refs to prevent double calls
   // const wereWorkersStarted = useRef(false);
-  const [wereWorkersStarted, setWorkersStarted] = useState(false);
+  const wereWorkersStartedRef = useRef(false); // Need to duplicate state with ref, to prevent double calls in dev mode
+  const [wereWorkersStarted, setWorkersStarted] = useState(wereWorkersStartedRef.current);
   const wasParentTitleResolvingCanceled = useRef(false);
+
+  const setWorkersStartedNormalized = () => {
+    if (!wereWorkersStartedRef.current) {
+      wereWorkersStartedRef.current = true;
+      setWorkersStarted(true);
+    }
+  };
   //#endregion Refs to prevent double calls
 
   //#region Workers infos
@@ -191,11 +199,11 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
       return;
     }
 
+    setGuardStatusNormalized(guardStatus);
+
     if (guardStatus == RouteHelperStatus.Loaded) {
       await evaluateResolvers();
     }
-
-    setGuardStatusNormalized(guardStatus);
   };
 
   //#endregion workers
@@ -224,10 +232,10 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
     // console.log('PARENT CONTEXT CHANGED ' + COMPONENT_NAME + ' ' + isComponentParentOrParentOutletWasInitialized());
     if (parentContext.canStartToLoadWorkers &&
       isComponentParentOrParentOutletWasInitialized() &&
-      !wereWorkersStarted
+      !wereWorkersStartedRef.current
     ) {
-
-      setWorkersStarted(true);
+      console.log('CALLED');
+      setWorkersStartedNormalized();
       evaluateGuardsAndResolvers();
     }
   }, [parentContext]);

@@ -7,7 +7,7 @@ import { HelperRouteObject } from '../types';
 import { longestWorkDuration, mediumWorkDuration } from './utils/general-utils';
 import { mockAsyncGuard } from './utils/mock-async-guard';
 import { mockAsyncResolver } from './utils/mock-async-resolver';
-import { mockShouldNeverBeCalledGuard } from './utils/mock-should-never-be-called-guard';
+import { mockGuardWithCounter } from './utils/mock-guard-with-counter';
 import { mockShouldNeverBeCalledResolver } from './utils/mock-should-never-be-called-resolver';
 import { RoutesRenderer } from './utils/RoutesRenderer';
 import { wait } from './utils/wait';
@@ -245,7 +245,7 @@ describe('resolvers with guards', () => {
             {
               path: 'child',
               element: <div>Child</div>,
-              guards: [mockShouldNeverBeCalledGuard(childGuardCounter)],
+              guards: [mockGuardWithCounter(childGuardCounter)],
               resolvers: {
                 mock: mockShouldNeverBeCalledResolver(childResolverCounter),
               },
@@ -319,7 +319,7 @@ describe('resolvers with guards', () => {
             {
               path: 'child',
               element: <Child />,
-              guards: [mockShouldNeverBeCalledGuard(childGuardCounter)],
+              guards: [mockGuardWithCounter(childGuardCounter)],
               resolvers: {
                 counter: mockShouldNeverBeCalledResolver(childResolverCounter),
               },
@@ -376,7 +376,7 @@ describe('resolvers with guards', () => {
             {
               path: 'child',
               element: <Child />,
-              guards: [mockShouldNeverBeCalledGuard(childGuardCounter)],
+              guards: [mockGuardWithCounter(childGuardCounter)],
               resolvers: {
                 counter: mockShouldNeverBeCalledResolver(childResolverCounter),
               },

@@ -9,13 +9,75 @@ import { HelperRouteObject, RouteHelperStatus } from '../types';
 import { testIn3DifferentModes } from './utils/check-with-3-different-envs';
 import { minimalWorkDuration, longestWorkDuration, mediumWorkDuration } from './utils/general-utils';
 import { mockAsyncGuard } from './utils/mock-async-guard';
-import { mockShouldNeverBeCalledGuard } from './utils/mock-should-never-be-called-guard';
+import { mockGuardWithCounter } from './utils/mock-guard-with-counter';
 import { mockSyncGuard } from './utils/mock-sync-guard';
 import { RoutesRenderer } from './utils/RoutesRenderer';
 import { wait } from './utils/wait';
 
 describe('Guards in route', () => {
   describe('with async guards', () => {
+    describe('should be called once for parent', () => {
+      const counter = { amount: 0 };
+      const routes: HelperRouteObject[] = [
+        {
+          path: '/',
+          element: <div>Home</div>,
+          guards: [mockGuardWithCounter(counter), mockGuardWithCounter(counter)],
+        },
+      ];
+
+      testIn3DifferentModes({
+        afterEach: () => {
+          counter.amount = 0;
+        },
+        routes,
+        initialPath: '/',
+        validate: async () => {
+
+          await wait(minimalWorkDuration);
+          expect(counter.amount).toBe(2);
+        },
+      });
+
+
+    });
+    describe('should be called once for parent and child', () => {
+      const parentCounter = { amount: 0 };
+      const childCounter = { amount: 0 };
+      const routes: HelperRouteObject[] = [
+        {
+          path: '/',
+          element: <div>Home <HelperOutlet /></div>,
+          guards: [mockGuardWithCounter(parentCounter), mockGuardWithCounter(parentCounter)],
+          children: [
+            {
+              path: '/child',
+              element: <div>child</div>,
+              guards: [mockGuardWithCounter(childCounter), mockGuardWithCounter(childCounter)],
+            },
+          ]
+        },
+      ];
+
+      testIn3DifferentModes({
+        afterEach: () => {
+          parentCounter.amount = 0;
+          childCounter.amount = 0;
+        },
+        routes,
+        initialPath: '/child',
+        validate: async () => {
+
+          await wait(longestWorkDuration);
+          expect(parentCounter.amount).toBe(2);
+
+          await wait(longestWorkDuration);
+          expect(childCounter.amount).toBe(2);
+        },
+      });
+
+
+    });
     it('with 1 guard which return true', async () => {
       let renderer: TestRenderer.ReactTestRenderer;
 
@@ -553,7 +615,7 @@ describe('Guards in route', () => {
           {
             path: '/',
             element: <div>Home</div>,
-            guards: [mockSyncGuard(false), mockShouldNeverBeCalledGuard(counter)],
+            guards: [mockSyncGuard(false), mockGuardWithCounter(counter)],
           },
         ];
 
@@ -575,7 +637,7 @@ describe('Guards in route', () => {
           {
             path: '/',
             element: <div>Home</div>,
-            guards: [mockSyncGuard(true), mockSyncGuard(false), mockShouldNeverBeCalledGuard(counter)],
+            guards: [mockSyncGuard(true), mockSyncGuard(false), mockGuardWithCounter(counter)],
           },
         ];
 
@@ -599,7 +661,7 @@ describe('Guards in route', () => {
           {
             path: '/',
             element: <div>Home</div>,
-            guards: [mockAsyncGuard(false, longestWorkDuration), mockShouldNeverBeCalledGuard(counter)],
+            guards: [mockAsyncGuard(false, longestWorkDuration), mockGuardWithCounter(counter)],
           },
         ];
 
@@ -624,7 +686,7 @@ describe('Guards in route', () => {
             guards: [
               mockAsyncGuard(true, longestWorkDuration),
               mockAsyncGuard(false, longestWorkDuration),
-              mockShouldNeverBeCalledGuard(counter),
+              mockGuardWithCounter(counter),
             ],
           },
         ];
@@ -1522,7 +1584,7 @@ describe('Guards in route', () => {
               {
                 path: 'child',
                 element: <div>child</div>,
-                guards: [mockAsyncGuard(true, longestWorkDuration), mockShouldNeverBeCalledGuard(counter)],
+                guards: [mockAsyncGuard(true, longestWorkDuration), mockGuardWithCounter(counter)],
               },
             ],
           },
@@ -1733,7 +1795,7 @@ describe('Guards in route', () => {
             {
               path: 'child',
               element: <div>Child</div>,
-              guards: [mockShouldNeverBeCalledGuard(counter)],
+              guards: [mockGuardWithCounter(counter)],
             },
           ],
         },
@@ -1773,7 +1835,7 @@ describe('Guards in route', () => {
                 {
                   path: 'child2',
                   element: <div>Child2</div>,
-                  guards: [mockShouldNeverBeCalledGuard(counter)],
+                  guards: [mockGuardWithCounter(counter)],
                 },
               ],
             },

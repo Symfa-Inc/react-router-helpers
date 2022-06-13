@@ -180,13 +180,16 @@ describe('title in route', () => {
         ];
 
         testIn3DifferentModes({
+          afterEach: () => {
+            global.window.document.title = "";
+          },
           beforeEach: () => {
             global.window.document.title = "";
           },
           routes,
           initialPath: '/',
           validate: async () => {
-            await wait(longestWorkDuration);
+            await wait(minimalWorkDuration);
 
             expect(global.window.document.title).toBe('');
 
@@ -219,16 +222,14 @@ describe('title in route', () => {
           ];
 
           testIn3DifferentModes({
-            beforeEach: () => {
-              global.window.document.title = "";
-            },
             routes,
             initialPath: '/child',
             validate: async () => {
-              await wait(longestWorkDuration);
+              global.window.document.title = "";
+              await wait(minimalWorkDuration);
 
               expect(global.window.document.title).toBe('');
-              await wait(longestWorkDuration + mediumWorkDuration);
+              await wait(longestWorkDuration + mediumWorkDuration * 2);
 
               expect(global.window.document.title).toBe('Child - Title from resolver');
             },

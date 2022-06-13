@@ -99,13 +99,14 @@ export async function testIn3DifferentModes(options: RenderInModesOptions) {
       name: 'test mode',
       fn: async () => {
         let renderer: TestRenderer.ReactTestRenderer;
-        act(() => {
+        await TestRenderer.act(async () => {
           renderer = TestRenderer.create(
             <MemoryRouter initialEntries={[options.initialPath]}>
               <RoutesRenderer routes={options.routes} />
             </MemoryRouter>,
           );
         });
+
 
         if (hasValidateFunction) {
           await options.validate!();
@@ -117,7 +118,7 @@ export async function testIn3DifferentModes(options: RenderInModesOptions) {
     });
   }
 
-  if (hasValidateFunction || hasRealEnvValidateFunction) {
+  if ((hasValidateFunction || hasRealEnvValidateFunction) && options.isOnlyRealDevEnv) {
     tests.push({
       name: 'real dev mode',
       fn: async () => {
@@ -144,7 +145,7 @@ export async function testIn3DifferentModes(options: RenderInModesOptions) {
     });
   }
 
-  if (hasValidateFunction || hasRealEnvValidateFunction) {
+  if ((hasValidateFunction || hasRealEnvValidateFunction) && options.isOnlyRealProdEnv) {
     tests.push({
       name: 'real prod mode',
       fn: async () => {
@@ -181,8 +182,9 @@ export async function testIn3DifferentModes(options: RenderInModesOptions) {
   });
 
   test.each(tests)('$name', async (t: any) => {
-
+    await wait(100);
     const result = await t.fn();
+
     return result;
   });
 }
@@ -195,4 +197,6 @@ interface RenderInModesOptions {
   validateResultInRealEnv?: (root: HTMLElement) => void;
   afterEach?: () => void;
   beforeEach?: () => void;
+  isOnlyRealProdEnv?: boolean;
+  isOnlyRealDevEnv?: boolean;
 }

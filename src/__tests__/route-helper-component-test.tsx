@@ -12,7 +12,7 @@ describe('route helper component', () => {
     it('should render route', async () => {
       let renderer: TestRenderer.ReactTestRenderer;
 
-      TestRenderer.act(() => {
+      await TestRenderer.act(async () => {
         renderer = TestRenderer.create(
           <MemoryRouter initialEntries={['/']}>
             <Routes>
@@ -20,22 +20,20 @@ describe('route helper component', () => {
             </Routes>
           </MemoryRouter>,
         );
-      });
 
-      await wait(mediumWorkDuration + minimalWorkDuration);
-      expect(renderer.toJSON()).toMatchInlineSnapshot(`
+        await wait(longestWorkDuration);
+        expect(renderer.toJSON()).toMatchInlineSnapshot(`
               <div>
                 Home
               </div>
           `);
-
-      renderer.unmount();
+      });
     });
 
     it('should render route nested route', async () => {
       let renderer: TestRenderer.ReactTestRenderer;
 
-      TestRenderer.act(() => {
+      await TestRenderer.act(async () => {
         renderer = TestRenderer.create(
           <MemoryRouter initialEntries={['/child']}>
             <Routes>
@@ -56,19 +54,17 @@ describe('route helper component', () => {
             </Routes>
           </MemoryRouter>,
         );
-      });
 
-      await wait(mediumWorkDuration);
-      expect(renderer.toJSON()).toMatchInlineSnapshot(`
-        <div>
-          Home 
+        await wait(mediumWorkDuration);
+        expect(renderer.toJSON()).toMatchInlineSnapshot(`
           <div>
-            Child
+            Home 
+            <div>
+              Child
+            </div>
           </div>
-        </div>
       `);
-
-      renderer.unmount();
+      });
     });
   });
 
@@ -76,7 +72,7 @@ describe('route helper component', () => {
     it('should render route', async () => {
       let renderer: TestRenderer.ReactTestRenderer;
 
-      TestRenderer.act(() => {
+      await TestRenderer.act(async () => {
         renderer = TestRenderer.create(
           <MemoryRouter initialEntries={['/']}>
             <Routes>
@@ -87,20 +83,19 @@ describe('route helper component', () => {
             </Routes>
           </MemoryRouter>,
         );
+
+        await wait(1);
+        expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
+
+        await wait(longestWorkDuration + mediumWorkDuration);
+
+        expect(renderer.toJSON()).toMatchInlineSnapshot(`
+          <div>
+            Home
+          </div>
+        `);
       });
 
-      await wait(1);
-      expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
-
-      await wait(longestWorkDuration + mediumWorkDuration);
-
-      expect(renderer.toJSON()).toMatchInlineSnapshot(`
-        <div>
-          Home
-        </div>
-      `);
-
-      renderer.unmount();
     });
 
     it('should render route nested route', async () => {
