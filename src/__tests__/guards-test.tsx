@@ -33,13 +33,10 @@ describe('Guards in route', () => {
         routes,
         initialPath: '/',
         validate: async () => {
-
           await wait(minimalWorkDuration);
           expect(counter.amount).toBe(2);
         },
       });
-
-
     });
     describe('should be called once for parent and child', () => {
       const parentCounter = { amount: 0 };
@@ -47,7 +44,11 @@ describe('Guards in route', () => {
       const routes: HelperRouteObject[] = [
         {
           path: '/',
-          element: <div>Home <HelperOutlet /></div>,
+          element: (
+            <div>
+              Home <HelperOutlet />
+            </div>
+          ),
           guards: [mockGuardWithCounter(parentCounter), mockGuardWithCounter(parentCounter)],
           children: [
             {
@@ -55,7 +56,7 @@ describe('Guards in route', () => {
               element: <div>child</div>,
               guards: [mockGuardWithCounter(childCounter), mockGuardWithCounter(childCounter)],
             },
-          ]
+          ],
         },
       ];
 
@@ -67,7 +68,6 @@ describe('Guards in route', () => {
         routes,
         initialPath: '/child',
         validate: async () => {
-
           await wait(longestWorkDuration);
           expect(parentCounter.amount).toBe(2);
 
@@ -75,8 +75,6 @@ describe('Guards in route', () => {
           expect(childCounter.amount).toBe(2);
         },
       });
-
-
     });
     it('with 1 guard which return true', async () => {
       let renderer: TestRenderer.ReactTestRenderer;
@@ -92,7 +90,7 @@ describe('Guards in route', () => {
       TestRenderer.act(() => {
         renderer = TestRenderer.create(
           <MemoryRouter initialEntries={['/']}>
-            <RoutesRenderer routes={routes}/>
+            <RoutesRenderer routes={routes} />
           </MemoryRouter>,
         );
       });
@@ -119,7 +117,7 @@ describe('Guards in route', () => {
       TestRenderer.act(() => {
         renderer = TestRenderer.create(
           <MemoryRouter initialEntries={['/']}>
-            <RoutesRenderer routes={routes}/>
+            <RoutesRenderer routes={routes} />
           </MemoryRouter>,
         );
       });
@@ -142,7 +140,7 @@ describe('Guards in route', () => {
       TestRenderer.act(() => {
         renderer = TestRenderer.create(
           <MemoryRouter initialEntries={['/']}>
-            <RoutesRenderer routes={routes}/>
+            <RoutesRenderer routes={routes} />
           </MemoryRouter>,
         );
       });
@@ -164,7 +162,7 @@ describe('Guards in route', () => {
       TestRenderer.act(() => {
         renderer = TestRenderer.create(
           <MemoryRouter initialEntries={['/']}>
-            <RoutesRenderer routes={routes}/>
+            <RoutesRenderer routes={routes} />
           </MemoryRouter>,
         );
       });
@@ -187,7 +185,7 @@ describe('Guards in route', () => {
       TestRenderer.act(() => {
         renderer = TestRenderer.create(
           <MemoryRouter initialEntries={['/']}>
-            <RoutesRenderer routes={routes}/>
+            <RoutesRenderer routes={routes} />
           </MemoryRouter>,
         );
       });
@@ -212,7 +210,7 @@ describe('Guards in route', () => {
       TestRenderer.act(() => {
         renderer = TestRenderer.create(
           <MemoryRouter initialEntries={['/']}>
-            <RoutesRenderer routes={routes}/>
+            <RoutesRenderer routes={routes} />
           </MemoryRouter>,
         );
       });
@@ -238,7 +236,7 @@ describe('Guards in route', () => {
       TestRenderer.act(() => {
         renderer = TestRenderer.create(
           <MemoryRouter initialEntries={['/']}>
-            <RoutesRenderer routes={routes}/>
+            <RoutesRenderer routes={routes} />
           </MemoryRouter>,
         );
       });
@@ -261,7 +259,7 @@ describe('Guards in route', () => {
       TestRenderer.act(() => {
         renderer = TestRenderer.create(
           <MemoryRouter initialEntries={['/']}>
-            <RoutesRenderer routes={routes}/>
+            <RoutesRenderer routes={routes} />
           </MemoryRouter>,
         );
       });
@@ -287,7 +285,7 @@ describe('Guards in route', () => {
       TestRenderer.act(() => {
         renderer = TestRenderer.create(
           <MemoryRouter initialEntries={['/']}>
-            <RoutesRenderer routes={routes}/>
+            <RoutesRenderer routes={routes} />
           </MemoryRouter>,
         );
       });
@@ -310,7 +308,7 @@ describe('Guards in route', () => {
       TestRenderer.act(() => {
         renderer = TestRenderer.create(
           <MemoryRouter initialEntries={['/']}>
-            <RoutesRenderer routes={routes}/>
+            <RoutesRenderer routes={routes} />
           </MemoryRouter>,
         );
       });
@@ -333,7 +331,7 @@ describe('Guards in route', () => {
       TestRenderer.act(() => {
         renderer = TestRenderer.create(
           <MemoryRouter initialEntries={['/']}>
-            <RoutesRenderer routes={routes}/>
+            <RoutesRenderer routes={routes} />
           </MemoryRouter>,
         );
       });
@@ -360,7 +358,7 @@ describe('Guards in route', () => {
         TestRenderer.act(() => {
           renderer = TestRenderer.create(
             <MemoryRouter initialEntries={['/']}>
-              <RoutesRenderer routes={routes}/>
+              <RoutesRenderer routes={routes} />
             </MemoryRouter>,
           );
         });
@@ -387,7 +385,7 @@ describe('Guards in route', () => {
         TestRenderer.act(() => {
           renderer = TestRenderer.create(
             <MemoryRouter initialEntries={['/']}>
-              <RoutesRenderer routes={routes}/>
+              <RoutesRenderer routes={routes} />
             </MemoryRouter>,
           );
         });
@@ -411,7 +409,7 @@ describe('Guards in route', () => {
               path: '/',
               element: (
                 <div>
-                  Home <HelperOutlet/>
+                  Home <HelperOutlet />
                 </div>
               ),
               guards: [mockAsyncGuard(true, longestWorkDuration), mockSyncGuard(true)],
@@ -428,7 +426,7 @@ describe('Guards in route', () => {
           TestRenderer.act(() => {
             renderer = TestRenderer.create(
               <MemoryRouter initialEntries={['/']}>
-                <RoutesRenderer routes={routes} location={{ pathname: '/child' }}/>
+                <RoutesRenderer routes={routes} location={{ pathname: '/child' }} />
               </MemoryRouter>,
             );
           });
@@ -463,7 +461,7 @@ describe('Guards in route', () => {
               path: '/',
               element: (
                 <div>
-                  Home <HelperOutlet/>
+                  Home <HelperOutlet />
                 </div>
               ),
               guards: [mockSyncGuard(true), mockAsyncGuard(true, longestWorkDuration)],
@@ -480,7 +478,7 @@ describe('Guards in route', () => {
           TestRenderer.act(() => {
             renderer = TestRenderer.create(
               <MemoryRouter initialEntries={['/child']}>
-                <RoutesRenderer routes={routes} location={{ pathname: '/child' }}/>
+                <RoutesRenderer routes={routes} location={{ pathname: '/child' }} />
               </MemoryRouter>,
             );
           });
@@ -517,7 +515,7 @@ describe('Guards in route', () => {
               path: '/',
               element: (
                 <div>
-                  Home <HelperOutlet/>
+                  Home <HelperOutlet />
                 </div>
               ),
               children: [
@@ -533,7 +531,7 @@ describe('Guards in route', () => {
           TestRenderer.act(() => {
             renderer = TestRenderer.create(
               <MemoryRouter initialEntries={['/']}>
-                <RoutesRenderer routes={routes} location={{ pathname: '/child' }}/>
+                <RoutesRenderer routes={routes} location={{ pathname: '/child' }} />
               </MemoryRouter>,
             );
           });
@@ -564,7 +562,7 @@ describe('Guards in route', () => {
               path: '/',
               element: (
                 <div>
-                  Home <HelperOutlet/>
+                  Home <HelperOutlet />
                 </div>
               ),
               children: [
@@ -580,7 +578,7 @@ describe('Guards in route', () => {
           TestRenderer.act(() => {
             renderer = TestRenderer.create(
               <MemoryRouter initialEntries={['/child']}>
-                <RoutesRenderer routes={routes} location={{ pathname: '/child' }}/>
+                <RoutesRenderer routes={routes} location={{ pathname: '/child' }} />
               </MemoryRouter>,
             );
           });
@@ -622,7 +620,7 @@ describe('Guards in route', () => {
         TestRenderer.act(() => {
           TestRenderer.create(
             <MemoryRouter initialEntries={['/']}>
-              <RoutesRenderer routes={routes}/>
+              <RoutesRenderer routes={routes} />
             </MemoryRouter>,
           );
         });
@@ -644,7 +642,7 @@ describe('Guards in route', () => {
         TestRenderer.act(() => {
           TestRenderer.create(
             <MemoryRouter initialEntries={['/']}>
-              <RoutesRenderer routes={routes}/>
+              <RoutesRenderer routes={routes} />
             </MemoryRouter>,
           );
         });
@@ -668,7 +666,7 @@ describe('Guards in route', () => {
         TestRenderer.act(() => {
           TestRenderer.create(
             <MemoryRouter initialEntries={['/']}>
-              <RoutesRenderer routes={routes}/>
+              <RoutesRenderer routes={routes} />
             </MemoryRouter>,
           );
         });
@@ -694,7 +692,7 @@ describe('Guards in route', () => {
         TestRenderer.act(() => {
           TestRenderer.create(
             <MemoryRouter initialEntries={['/']}>
-              <RoutesRenderer routes={routes}/>
+              <RoutesRenderer routes={routes} />
             </MemoryRouter>,
           );
         });
@@ -716,7 +714,7 @@ describe('Guards in route', () => {
                 path: '/',
                 element: (
                   <div>
-                    Home <HelperOutlet/>
+                    Home <HelperOutlet />
                   </div>
                 ),
                 children: [{ path: 'child', element: <div>Child</div> }],
@@ -742,7 +740,7 @@ describe('Guards in route', () => {
                 path: '/',
                 element: (
                   <div>
-                    Home <HelperOutlet/>
+                    Home <HelperOutlet />
                   </div>
                 ),
                 children: [{ path: 'child', element: <div>Child</div> }],
@@ -768,7 +766,7 @@ describe('Guards in route', () => {
                 path: '/',
                 element: (
                   <div>
-                    Home <HelperOutlet/>
+                    Home <HelperOutlet />
                   </div>
                 ),
                 children: [
@@ -803,7 +801,7 @@ describe('Guards in route', () => {
                 path: '/',
                 element: (
                   <div>
-                    Home <HelperOutlet/>
+                    Home <HelperOutlet />
                   </div>
                 ),
                 children: [
@@ -842,7 +840,7 @@ describe('Guards in route', () => {
                 path: '/',
                 element: (
                   <div>
-                    Home <HelperOutlet/>
+                    Home <HelperOutlet />
                   </div>
                 ),
                 guards: [mockAsyncGuard(true, longestWorkDuration)],
@@ -874,7 +872,7 @@ describe('Guards in route', () => {
                 path: '/',
                 element: (
                   <div>
-                    Home <HelperOutlet/>
+                    Home <HelperOutlet />
                   </div>
                 ),
                 guards: [mockAsyncGuard(true, longestWorkDuration)],
@@ -885,7 +883,7 @@ describe('Guards in route', () => {
                     element: (
                       <div>
                         Child
-                        <HelperOutlet/>
+                        <HelperOutlet />
                       </div>
                     ),
                     children: [
@@ -921,7 +919,7 @@ describe('Guards in route', () => {
                 path: '/',
                 element: (
                   <div>
-                    Home <HelperOutlet/>
+                    Home <HelperOutlet />
                   </div>
                 ),
                 guards: [mockAsyncGuard(true, longestWorkDuration)],
@@ -932,7 +930,7 @@ describe('Guards in route', () => {
                     element: (
                       <div>
                         Child
-                        <HelperOutlet/>
+                        <HelperOutlet />
                       </div>
                     ),
                     children: [
@@ -942,7 +940,7 @@ describe('Guards in route', () => {
                         element: (
                           <div>
                             Child 2
-                            <HelperOutlet/>
+                            <HelperOutlet />
                           </div>
                         ),
                         children: [
@@ -983,7 +981,7 @@ describe('Guards in route', () => {
                 path: '/',
                 element: (
                   <div>
-                    Home <HelperOutlet/>
+                    Home <HelperOutlet />
                   </div>
                 ),
                 guards: [mockAsyncGuard(false, longestWorkDuration)],
@@ -1015,7 +1013,7 @@ describe('Guards in route', () => {
               path: '/',
               element: (
                 <div>
-                  Home <HelperOutlet/>
+                  Home <HelperOutlet />
                 </div>
               ),
               children: [
@@ -1044,7 +1042,7 @@ describe('Guards in route', () => {
               path: '/',
               element: (
                 <div>
-                  Home <HelperOutlet/>
+                  Home <HelperOutlet />
                 </div>
               ),
               children: [
@@ -1074,7 +1072,7 @@ describe('Guards in route', () => {
             path: '/',
             element: (
               <div>
-                Home <HelperOutlet/>
+                Home <HelperOutlet />
               </div>
             ),
             guards: [mockAsyncGuard(true, longestWorkDuration)],
@@ -1085,7 +1083,7 @@ describe('Guards in route', () => {
                 element: (
                   <div>
                     Child
-                    <HelperOutlet/>
+                    <HelperOutlet />
                   </div>
                 ),
                 children: [
@@ -1095,7 +1093,7 @@ describe('Guards in route', () => {
                     element: (
                       <div>
                         Child 2
-                        <HelperOutlet/>
+                        <HelperOutlet />
                       </div>
                     ),
                     children: [
@@ -1116,7 +1114,7 @@ describe('Guards in route', () => {
         TestRenderer.act(() => {
           renderer = TestRenderer.create(
             <MemoryRouter initialEntries={['/child/child2/child3']}>
-              <RoutesRenderer routes={routes} location={{ pathname: '/child/child2/child3' }}/>
+              <RoutesRenderer routes={routes} location={{ pathname: '/child/child2/child3' }} />
             </MemoryRouter>,
           );
         });
@@ -1190,18 +1188,18 @@ describe('Guards in route', () => {
       it('with 3 children, check guards to be correctly rendered and should not be rendered twice for parents', async () => {
         let renderer: TestRenderer.ReactTestRenderer;
 
-        const LinkToFirstChild = () => <GeneralLink link="./child" title="Link to first child"/>;
+        const LinkToFirstChild = () => <GeneralLink link="./child" title="Link to first child" />;
 
-        const LinkToSecondChild = () => <GeneralLink link="./child2" title="Link to second child"/>;
+        const LinkToSecondChild = () => <GeneralLink link="./child2" title="Link to second child" />;
 
-        const LinkToThirdChild = () => <GeneralLink link="./child3" title="Link to third child"/>;
+        const LinkToThirdChild = () => <GeneralLink link="./child3" title="Link to third child" />;
 
         const Home = () => {
           return (
             <div>
               <h1>Home test</h1>
-              <LinkToFirstChild/>
-              <HelperOutlet/>
+              <LinkToFirstChild />
+              <HelperOutlet />
             </div>
           );
         };
@@ -1209,16 +1207,16 @@ describe('Guards in route', () => {
         const Child = () => (
           <div>
             <h1>Child</h1>
-            <LinkToSecondChild/>
-            <HelperOutlet/>
+            <LinkToSecondChild />
+            <HelperOutlet />
           </div>
         );
 
         const Child2 = () => (
           <div>
             <h1>Child 2</h1>
-            <LinkToThirdChild/>
-            <HelperOutlet/>
+            <LinkToThirdChild />
+            <HelperOutlet />
           </div>
         );
 
@@ -1228,22 +1226,22 @@ describe('Guards in route', () => {
           {
             path: '/',
             guards: [mockAsyncGuard(true, longestWorkDuration)],
-            element: <Home/>,
+            element: <Home />,
             children: [
               {
                 path: 'child',
                 guards: [mockAsyncGuard(true, longestWorkDuration)],
-                element: <Child/>,
+                element: <Child />,
                 children: [
                   {
                     path: 'child2',
                     guards: [mockAsyncGuard(true, longestWorkDuration)],
-                    element: <Child2/>,
+                    element: <Child2 />,
                     children: [
                       {
                         path: 'child3',
                         guards: [mockAsyncGuard(true, longestWorkDuration)],
-                        element: <Child3/>,
+                        element: <Child3 />,
                       },
                     ],
                   },
@@ -1253,10 +1251,10 @@ describe('Guards in route', () => {
           },
         ];
 
-        TestRenderer.act(() => {
+        await TestRenderer.act(() => {
           renderer = TestRenderer.create(
             <MemoryRouter initialEntries={['/']}>
-              <RoutesRenderer routes={routes}/>
+              <RoutesRenderer routes={routes} />
             </MemoryRouter>,
           );
         });
@@ -1553,6 +1551,44 @@ describe('Guards in route', () => {
             </div>
           </div>
         `);
+
+        const linkToSecondChild3 = renderer.root.findByType(LinkToSecondChild);
+        act(() => {
+          linkToSecondChild3.findByType('button').props.onClick();
+        });
+
+        expect(renderer.toJSON()).toMatchInlineSnapshot(`
+          <div>
+            <h1>
+              Home test
+            </h1>
+            <button
+              onClick={[Function]}
+            >
+              Link to first child
+            </button>
+            <div>
+              <h1>
+                Child
+              </h1>
+              <button
+                onClick={[Function]}
+              >
+                Link to second child
+              </button>
+              <div>
+                <h1>
+                  Child 2
+                </h1>
+                <button
+                  onClick={[Function]}
+                >
+                  Link to third child
+                </button>
+              </div>
+            </div>
+          </div>
+        `);
       });
 
       it('quick navigation to different route, next guard should be cancelled', async () => {
@@ -1560,14 +1596,14 @@ describe('Guards in route', () => {
 
         const counter = { amount: 0 };
 
-        const LinkToLoginPage = () => <GeneralLink link="/login" title="Link to login page"/>;
+        const LinkToLoginPage = () => <GeneralLink link="/login" title="Link to login page" />;
 
         const Home = () => {
           return (
             <div>
               <h1>Home test</h1>
-              <LinkToLoginPage/>
-              <HelperOutlet/>
+              <LinkToLoginPage />
+              <HelperOutlet />
             </div>
           );
         };
@@ -1579,7 +1615,7 @@ describe('Guards in route', () => {
           },
           {
             path: '/',
-            element: <Home/>,
+            element: <Home />,
             children: [
               {
                 path: 'child',
@@ -1593,7 +1629,7 @@ describe('Guards in route', () => {
         TestRenderer.act(() => {
           renderer = TestRenderer.create(
             <MemoryRouter initialEntries={['/child']}>
-              <RoutesRenderer routes={routes}/>
+              <RoutesRenderer routes={routes} />
             </MemoryRouter>,
           );
         });
@@ -1626,7 +1662,7 @@ describe('Guards in route', () => {
           path: '/home',
           element: (
             <div>
-              Home <HelperOutlet/>
+              Home <HelperOutlet />
             </div>
           ),
           children: [
@@ -1645,7 +1681,7 @@ describe('Guards in route', () => {
         TestRenderer.act(() => {
           renderer = TestRenderer.create(
             <MemoryRouter initialEntries={['/home/1234']}>
-              <RoutesRenderer routes={routes} location={{ pathname: '/home/1234' }}/>
+              <RoutesRenderer routes={routes} location={{ pathname: '/home/1234' }} />
             </MemoryRouter>,
           );
         });
@@ -1668,7 +1704,7 @@ describe('Guards in route', () => {
         TestRenderer.act(() => {
           renderer = TestRenderer.create(
             <MemoryRouter initialEntries={['/home/12345']}>
-              <RoutesRenderer routes={routes} location={{ pathname: '/home/12345' }}/>
+              <RoutesRenderer routes={routes} location={{ pathname: '/home/12345' }} />
             </MemoryRouter>,
           );
         });
@@ -1694,7 +1730,6 @@ describe('Guards in route', () => {
         let renderer: TestRenderer.ReactTestRenderer;
         let status: RouteHelperStatus;
 
-
         const LoadingComponent = () => {
           const s = useGuardStatus();
           useEffect(() => {
@@ -1708,7 +1743,7 @@ describe('Guards in route', () => {
             path: '/',
             element: <div>Home</div>,
             guards: [guardWithException],
-            loadingComponent: <LoadingComponent/>,
+            loadingComponent: <LoadingComponent />,
             // onGuardStatusChange: (s: RouteHelperStatus) => {
             //   status = s;
             // },
@@ -1718,7 +1753,7 @@ describe('Guards in route', () => {
         TestRenderer.act(() => {
           renderer = TestRenderer.create(
             <MemoryRouter initialEntries={['/']}>
-              <RoutesRenderer routes={routes}/>
+              <RoutesRenderer routes={routes} />
             </MemoryRouter>,
           );
         });
@@ -1746,14 +1781,14 @@ describe('Guards in route', () => {
             path: '/',
             element: (
               <div>
-                Home <HelperOutlet/>
+                Home <HelperOutlet />
               </div>
             ),
             children: [
               {
                 path: 'child',
                 element: <div>Child</div>,
-                loadingComponent: <LoadingComponent/>,
+                loadingComponent: <LoadingComponent />,
                 guards: [guardWithException],
               },
             ],
@@ -1763,7 +1798,7 @@ describe('Guards in route', () => {
         TestRenderer.act(() => {
           renderer = TestRenderer.create(
             <MemoryRouter initialEntries={['/child']}>
-              <RoutesRenderer routes={routes} location={{ pathname: '/child' }}/>
+              <RoutesRenderer routes={routes} location={{ pathname: '/child' }} />
             </MemoryRouter>,
           );
         });
@@ -1785,11 +1820,7 @@ describe('Guards in route', () => {
       const routes: HelperRouteObject[] = [
         {
           path: '/',
-          element: (
-            <div>
-              Home
-            </div>
-          ),
+          element: <div>Home</div>,
           guards: [mockAsyncGuard(true, longestWorkDuration)],
           children: [
             {
@@ -1823,7 +1854,7 @@ describe('Guards in route', () => {
           element: (
             <div>
               Home
-              <HelperOutlet/>
+              <HelperOutlet />
             </div>
           ),
           children: [
@@ -1855,9 +1886,7 @@ describe('Guards in route', () => {
           expect(counter.amount).toBe(0);
         },
       });
-
     });
-
   });
 });
 
@@ -1867,7 +1896,7 @@ async function renderTest({ routes, path, waitTimeBeforeCheck, expectedResult, e
   TestRenderer.act(() => {
     renderer = TestRenderer.create(
       <MemoryRouter initialEntries={[path]}>
-        <RoutesRenderer routes={routes} location={{ pathname: path }}/>
+        <RoutesRenderer routes={routes} location={{ pathname: path }} />
       </MemoryRouter>,
     );
   });
