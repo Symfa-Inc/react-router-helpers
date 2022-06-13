@@ -21,8 +21,10 @@ export const OutletContext = React.createContext<{
   wasParentOutletLoaded: boolean;
   wasOutletUsedAlready: boolean;
   setWasUsed: () => void;
+  resetOutletState: () => void;
 }>({
   wasParentOutletLoaded: false,
   wasOutletUsedAlready: false,
   setWasUsed: () => {},
+  resetOutletState: () => {},
 });

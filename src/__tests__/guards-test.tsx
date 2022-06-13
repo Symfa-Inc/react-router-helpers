@@ -1576,6 +1576,31 @@ describe('Guards in route', () => {
               >
                 Link to second child
               </button>
+            </div>
+          </div>
+        `);
+
+        await wait(longestWorkDuration + mediumWorkDuration);
+
+        expect(renderer.toJSON()).toMatchInlineSnapshot(`
+          <div>
+            <h1>
+              Home test
+            </h1>
+            <button
+              onClick={[Function]}
+            >
+              Link to first child
+            </button>
+            <div>
+              <h1>
+                Child
+              </h1>
+              <button
+                onClick={[Function]}
+              >
+                Link to second child
+              </button>
               <div>
                 <h1>
                   Child 2

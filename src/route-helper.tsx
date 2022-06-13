@@ -123,8 +123,8 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
   const initCancellationTitleResolvingForParent = (cancellationKey: string) => {
     cancelParentTitleResolving(cancellationKey);
     // console.log('initCancellationTitleResolvingForParent +++++++++++++++++++++++ ');
+    // console.log('initCancellationTitleResolvingForParent ' + COMPONENT_NAME);
     if (isComponentParentOrParentOutletWasInitialized() && isLastChild()) {
-      // console.log('initCancellationTitleResolvingForParent ' + COMPONENT_NAME);
       manager.setTitle();
 
       // If route was already loaded
@@ -153,14 +153,20 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
     return lastLocationKey.current !== lastCancellationKeyFromChild.current;
   };
 
-  const isComponentParentOrParentOutletWasInitialized = () => {
+  const isComponentParentOrParentOutletWasInitializedAndNotUsed = () => {
     // console.log(`outletContext.wasParentOutletLoaded ${outletContext.wasParentOutletLoaded} ${COMPONENT_NAME}`);
+    // console.log(`outletContext.wasOutletUsedAlready ${outletContext.wasOutletUsedAlready} ${COMPONENT_NAME}`);
     const wasOutletLoadedAndWasNotUsedAlready = (outletContext.wasParentOutletLoaded && !outletContext.wasOutletUsedAlready);
     if (wasOutletLoadedAndWasNotUsedAlready) {
       outletContext.setWasUsed();
     }
 
     return parentContext.isTheFirstParent || wasOutletLoadedAndWasNotUsedAlready;
+  };
+
+  const isComponentParentOrParentOutletWasInitialized = () => {
+
+    return parentContext.isTheFirstParent || outletContext.wasParentOutletLoaded;
   };
 
   //#region workers
@@ -188,9 +194,9 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
   };
 
   const evaluateGuardsAndResolvers = async () => {
+    console.log('evaluateGuardsAndResolvers ' + COMPONENT_NAME);
     const initialStatus = manager.getGuardsStatusBeforeEvaluating();
 
-    // console.log('send initial status ' + RouteHelperStatus[initialStatus] + " " + COMPONENT_NAME);
 
     setGuardStatusNormalized(initialStatus);
 
@@ -212,7 +218,19 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
   //   evaluateGuardsAndResolvers();
   // };
 
+
   //#region Triggers
+
+  const initWork = () => {
+    if (parentContext.canStartToLoadWorkers &&
+      isComponentParentOrParentOutletWasInitializedAndNotUsed() &&
+      !wereWorkersStartedRef.current
+    ) {
+      setWorkersStartedNormalized();
+      evaluateGuardsAndResolvers();
+    }
+  };
+
   useEffect(() => {
     // console.log('mount ' + COMPONENT_NAME);
     lastLocationKey.current = location.key;
@@ -222,23 +240,22 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
 
     isComponentStillAlive.current = true;
 
+    setTimeout(initWork, 50);
     return () => {
-      // console.log('unmount ' + COMPONENT_NAME);
+
+      outletContext.resetOutletState();
       isComponentStillAlive.current = false;
+      wereWorkersStartedRef.current = false;
+
+      console.log('unmount ' + COMPONENT_NAME);
     };
   }, []);
 
   useEffect(() => {
     // console.log('PARENT CONTEXT CHANGED ' + COMPONENT_NAME + ' ' + isComponentParentOrParentOutletWasInitialized());
-    if (parentContext.canStartToLoadWorkers &&
-      isComponentParentOrParentOutletWasInitialized() &&
-      !wereWorkersStartedRef.current
-    ) {
-      console.log('CALLED');
-      setWorkersStartedNormalized();
-      evaluateGuardsAndResolvers();
-    }
+    initWork();
   }, [parentContext]);
+
 
 
 
@@ -254,7 +271,7 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
 
   useEffect(() => {
     if (isUpdateOnNewLocation() && isComponentParentOrParentOutletWasInitialized()) {
-      // console.log('UPDATE AND CANCEL ' + COMPONENT_NAME);
+      console.log('UPDATE AND CANCEL ' + COMPONENT_NAME);
       resetCancellationTitleResolvingForParent();
       initCancellationTitleResolvingForParent(lastLocationKey.current);
 
@@ -371,11 +388,16 @@ export const HelperOutlet = (props: OutletProps) => {
     }
   };
 
+  const resetOutletState = () => {
+      setWasOutletUsed(false);
+  };
+
   return (
     <OutletContext.Provider value={{
       wasParentOutletLoaded,
       wasOutletUsedAlready: wasOutletUsed,
-      setWasUsed: setWasOutletUsedNormalized
+      setWasUsed: setWasOutletUsedNormalized,
+      resetOutletState
     }}>
       <Outlet {...props} />
     </OutletContext.Provider>);
