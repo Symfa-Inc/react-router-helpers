@@ -16,7 +16,8 @@ export interface OnlyHelperFields {
   resolvers?: Record<string, Resolver>;
   title?: string;
   titleResolver?: TitleResolver;
-  loadElement?: () => Promise<{default: React.ComponentType<any>}>;
+  // loadElement?: () => Promise<{default: React.ComponentType<any>}>;
+  loadElement?: any;
   loadingComponent?: React.ReactNode;
 }
 

@@ -32,6 +32,7 @@ describe('Guards in route', () => {
         },
         routes,
         initialPath: '/',
+        needToRunInDev: false,
         validate: async () => {
           await wait(minimalWorkDuration);
           expect(counter.amount).toBe(2);
@@ -67,6 +68,7 @@ describe('Guards in route', () => {
         },
         routes,
         initialPath: '/child',
+        needToRunInDev: false,
         validate: async () => {
           await wait(longestWorkDuration);
           expect(parentCounter.amount).toBe(2);
@@ -1703,10 +1705,10 @@ describe('Guards in route', () => {
       it('should return rendered page', async () => {
         let renderer: TestRenderer.ReactTestRenderer;
 
-        TestRenderer.act(() => {
+        await TestRenderer.act(() => {
           renderer = TestRenderer.create(
             <MemoryRouter initialEntries={['/home/1234']}>
-              <RoutesRenderer routes={routes} location={{ pathname: '/home/1234' }} />
+              <RoutesRenderer routes={routes}  />
             </MemoryRouter>,
           );
         });

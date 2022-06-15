@@ -1,4 +1,4 @@
-import React, { FC, PropsWithChildren, useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { OutletProps } from 'react-router/lib/components';
 import { OutletContext, RouteContext } from './context';
@@ -19,7 +19,6 @@ import { HelperManager, HelperRouteObjectProps, OnlyHelperFields, RouteHelperSta
 //   // TODO: Add lazy loading tests
 
 
-
 export const RouteHelper = (props: HelperRouteObjectProps) => {
 
   //#region hooks usage
@@ -28,9 +27,18 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
   const location = useLocation();
   //#endregion hooks usage
 
+  let loadedElement: any = null;
+  async function getComponent(loadFactory: any) {
+    // if (loadedElement !== null) {
+    //   return loadedElement;
+    // }
+    // loadedElement = React.lazy(loadFactory);
+    return React.lazy(() => loadFactory());
+  }
+
   const locationOnInit = useRef<string>("");
 
-  const COMPONENT_NAME = (props.element as any).type.name;
+  const COMPONENT_NAME = (props.element as any)?.type?.name;
 
   const initializeManagerParams = (): HelperManager => {
     const guards = props.guards || [];
@@ -292,15 +300,24 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
 
 
 
-  // const DefaultWrapper: FC<PropsWithChildren> = (props) => {
-  //   const elementToRender =
-  //     parentContext.canStartToLoadWorkers &&
+  // const DefaultWrapper: FC<PropsWithChildren> = (p) => {
+  //   const readyToMountElementCondition = parentContext.canStartToLoadWorkers &&
   //     guardStatus === RouteHelperStatus.Loaded &&
-  //     resolverStatus === RouteHelperStatus.Loaded ? (
-  //       props.children
-  //     ) : (
-  //       <Outlet/>
-  //     );
+  //     resolverStatus === RouteHelperStatus.Loaded;
+  //
+  //   if (readyToMountElementCondition) {
+  //     setReadyToMountElementNormalized();
+  //   }
+  //
+  //   const elementToRender = readyToMountElementCondition && isReadyToMountElement? (
+  //     p.children
+  //   ) : (
+  //     <>
+  //       {wereWorkersStarted && props.loadingComponent}
+  //       <Outlet />
+  //     </>
+  //   );
+  //
   //   return (
   //     <RouteContext.Provider
   //       value={{
@@ -315,33 +332,8 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
   //       <RouteContext.Consumer>{() => elementToRender}</RouteContext.Consumer>
   //     </RouteContext.Provider>
   //   )
-  // };
-
-
-  // if (props.loadElement != undefined) {
-  //   const LazyComponent = React.lazy(() => props.loadElement!());
   //
-  //   return (
-  //     <DefaultWrapper>
-  //       <React.Suspense fallback={<>Loading...</>}>
-  //         <LazyComponent />
-  //       </React.Suspense>
-  //     </DefaultWrapper>
-  //   );
-  // }
-
-
-
-  // const WW = React.memo(WrappedLoadingComponent);
-
-  // console.log('RENDER ' + Date.now());
-
-  const WrappedLoadingComponent = () => {
-    return (<>
-      {wereWorkersStarted && props.loadingComponent}
-      <Outlet/>
-    </>);
-  };
+  // };=
 
   const readyToMountElementCondition = parentContext.canStartToLoadWorkers &&
     guardStatus === RouteHelperStatus.Loaded &&
@@ -350,6 +342,73 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
   if (readyToMountElementCondition) {
     setReadyToMountElementNormalized();
   }
+
+  if (props.loadElement != undefined) {
+
+    const DefaultFallback = () => {
+      useEffect(() => {
+        console.log('mount');
+
+        return () => {
+          console.log('unmount');
+        };
+      }, []);
+      return <></>;
+    };
+    // console.log('wat?');
+
+    // React.lazy();
+    // const El: any = getComponent(props.loadElement!);
+    // const El: any = React.lazy(() => {
+    //   console.log('ask?');
+    //   return props.loadElement!();
+    // });
+    // const El = React.lazy(() => props.loadElement!())
+
+  //
+  //   return (
+  //     <DefaultWrapper>
+  //       <React.Suspense fallback={<>Loading...</>}>
+  //         <LazyComponent />
+  //       </React.Suspense>
+  //     </DefaultWrapper>
+  //   );
+
+    // const CP = props.loadElement;
+    const elementToRender = readyToMountElementCondition && isReadyToMountElement? (
+      props.loadElement
+    ) : (
+      <>
+        {wereWorkersStarted && props.loadingComponent}
+        <Outlet />
+      </>
+    );
+
+    return (
+      <RouteContext.Provider
+        value={{
+          routeResolverInfos: loadedResolverInfos,
+          canStartToLoadWorkers: canChildStartWorkers,
+          cancelTitleResolvingForParent: setCancellationKeyForCurrentRoute,
+          isTheFirstParent: isParent,
+          guardStatus,
+          resolverStatus,
+        }}
+      >
+        <RouteContext.Consumer>{() =>
+          <React.Suspense fallback={<DefaultFallback />}>
+            {elementToRender}
+          </React.Suspense>}</RouteContext.Consumer>
+      </RouteContext.Provider>
+    )
+  }
+
+
+
+  // const WW = React.memo(WrappedLoadingComponent);
+
+  // console.log('RENDER ' + Date.now());
+
 
   const elementToRender = readyToMountElementCondition && isReadyToMountElement? (
       props.element
@@ -374,6 +433,11 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
       <RouteContext.Consumer>{() => elementToRender}</RouteContext.Consumer>
     </RouteContext.Provider>
   )
+  // return (<>
+  //   <DefaultWrapper>
+  //     {props.element}
+  //   </DefaultWrapper>
+  // </>);
 };
 
 

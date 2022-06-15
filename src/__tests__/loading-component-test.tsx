@@ -523,70 +523,70 @@ describe('loadingComponent', () => {
       });
     });
 
-    // describe('for child with parent guard', () => {
-    //   describe('tests to commit 2 different behaviours with re-renders for child path', () => {
-    //
-    //     let parentStatuses: RouteHelperStatus[] = [];
-    //     let childStatuses: RouteHelperStatus[] = [];
-    //
-    //     const expectedStatuses = [RouteHelperStatus.Loading, RouteHelperStatus.Loaded];
-    //
-    //     const routes: HelperRouteObject[] = [
-    //       {
-    //         path: '/',
-    //         element: <div>
-    //           Home
-    //           <HelperOutlet/>
-    //         </div>,
-    //         guards: [mockAsyncGuard(true, workerDuration), mockAsyncGuard(true, workerDuration)],
-    //         loadingComponent: <LoadingComponent onGuardStatusChange={(status: RouteHelperStatus) => {
-    //           parentStatuses.push(status);
-    //         }} />,
-    //         children: [
-    //           {
-    //             path: 'child',
-    //             element: <div>Child</div>,
-    //             guards: [mockAsyncGuard(true, workerDuration), mockAsyncGuard(true, workerDuration)],
-    //             loadingComponent: <LoadingComponent onGuardStatusChange={(status: RouteHelperStatus) => {
-    //               childStatuses.push(status);
-    //             }} />,
-    //           },
-    //         ],
-    //       },
-    //     ];
-    //
-    //     testIn3DifferentModes({
-    //       routes,
-    //       initialPath: '/child',
-    //       validateResultInTestEnv: async () => {
-    //
-    //         await wait(minimalWorkDuration);
-    //
-    //         expect(parentStatuses.length).toBe(1);
-    //         expect(childStatuses.length).toBe(0);
-    //
-    //         expect(parentStatuses[0]).toBe(RouteHelperStatus.Loading);
-    //
-    //         await wait(workerDuration * 2 + workerDurationTimeBeforeCheck * 2 + minimalWorkDuration * 2);
-    //         expect(parentStatuses.length).toBe(2);
-    //
-    //         parentStatuses.forEach((status, index) => {
-    //           expect(status).toBe(expectedStatuses[index]);
-    //         });
-    //
-    //         expect(childStatuses.length).toBe(1);
-    //         expect(childStatuses[0]).toBe(RouteHelperStatus.Loading);
-    //
-    //         await wait(workerDuration * 2 + workerDurationTimeBeforeCheck * 2);
-    //         expect(childStatuses.length).toBe(2);
-    //
-    //         childStatuses.forEach((status, index) => {
-    //           expect(status).toBe(expectedStatuses[index]);
-    //         });
-    //       },
-    //     });
-    //   });
-    // });
+    describe('for child with parent guard', () => {
+      describe('tests to commit 2 different behaviours with re-renders for child path', () => {
+
+        let parentStatuses: RouteHelperStatus[] = [];
+        let childStatuses: RouteHelperStatus[] = [];
+
+        const expectedStatuses = [RouteHelperStatus.Loading, RouteHelperStatus.Loaded];
+
+        const routes: HelperRouteObject[] = [
+          {
+            path: '/',
+            element: <div>
+              Home
+              <HelperOutlet/>
+            </div>,
+            guards: [mockAsyncGuard(true, longestWorkDuration), mockAsyncGuard(true, longestWorkDuration)],
+            loadingComponent: <LoadingComponent onGuardStatusChange={(status: RouteHelperStatus) => {
+              parentStatuses.push(status);
+            }} />,
+            children: [
+              {
+                path: 'child',
+                element: <div>Child</div>,
+                guards: [mockAsyncGuard(true, longestWorkDuration), mockAsyncGuard(true, longestWorkDuration)],
+                loadingComponent: <LoadingComponent onGuardStatusChange={(status: RouteHelperStatus) => {
+                  childStatuses.push(status);
+                }} />,
+              },
+            ],
+          },
+        ];
+
+        testIn3DifferentModes({
+          routes,
+          initialPath: '/child',
+          validateResultInTestEnv: async () => {
+
+            await wait(minimalWorkDuration);
+
+            expect(parentStatuses.length).toBe(1);
+            expect(childStatuses.length).toBe(0);
+
+            expect(parentStatuses[0]).toBe(RouteHelperStatus.Loading);
+
+            await wait(longestWorkDuration * 2 + mediumWorkDuration * 2 + minimalWorkDuration * 2);
+            expect(parentStatuses.length).toBe(2);
+
+            parentStatuses.forEach((status, index) => {
+              expect(status).toBe(expectedStatuses[index]);
+            });
+
+            expect(childStatuses.length).toBe(1);
+            expect(childStatuses[0]).toBe(RouteHelperStatus.Loading);
+
+            await wait(longestWorkDuration * 2 + mediumWorkDuration * 2);
+            expect(childStatuses.length).toBe(2);
+
+            childStatuses.forEach((status, index) => {
+              expect(status).toBe(expectedStatuses[index]);
+            });
+          },
+        });
+      });
+    });
 
     describe('sync and async mixed', () => {
       it('parent component has 2 guards', async () => {
@@ -937,15 +937,13 @@ describe('loadingComponent', () => {
             },
           ];
 
-          TestRenderer.act(() => {
+          await TestRenderer.act(() => {
             renderer = TestRenderer.create(
               <MemoryRouter initialEntries={['/child']}>
                 <RoutesRenderer routes={routes}/>
               </MemoryRouter>,
             );
           });
-
-          expect(statuses.length).toBe(0);
 
           await wait(minimalWorkDuration);
           expect(statuses.length).toBe(2);
@@ -1607,7 +1605,7 @@ describe('loadingComponent', () => {
             childGuardStatuses = [];
             childResolverStatuses = [];
           },
-          isOnlyRealProdEnv: true,
+          needToRunInDev: false,
           routes,
           initialPath: '/child',
           validateResultInRealEnv: async () => {
@@ -1686,7 +1684,7 @@ describe('loadingComponent', () => {
         });
 
         testIn3DifferentModes({
-          isOnlyRealDevEnv: true,
+          needToRunInProd: false,
           routes,
           initialPath: '/child',
           validateResultInRealEnv: async () => {

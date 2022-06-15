@@ -1,10 +1,11 @@
+import { expect } from '@jest/globals';
 import * as React from 'react';
 import { HelperOutlet } from '../route-helper';
 import { HelperRouteObject } from '../types';
 import { testIn3DifferentModes } from './utils/check-with-3-different-envs';
 import { longestWorkDuration, mediumWorkDuration, minimalWorkDuration } from './utils/general-utils';
+import { mockAsyncGuard } from './utils/mock-async-guard';
 import { wait } from './utils/wait';
-import { expect } from '@jest/globals';
 
 describe('title in route', () => {
   describe('title field only', () => {
@@ -22,7 +23,7 @@ describe('title in route', () => {
           routes,
           initialPath: '/',
           validate: async () => {
-            await wait(longestWorkDuration);
+            await wait(minimalWorkDuration);
 
             expect(global.window.document.title).toBe('Home - Title');
           },
@@ -37,7 +38,7 @@ describe('title in route', () => {
           const routes: HelperRouteObject[] = [
             {
               path: '/',
-              element: <div>Home <HelperOutlet /></div>,
+              element: <div>Home <HelperOutlet/></div>,
               children: [
                 {
                   path: 'child',
@@ -64,7 +65,7 @@ describe('title in route', () => {
           const routes: HelperRouteObject[] = [
             {
               path: '/',
-              element: <div>Home <HelperOutlet /></div>,
+              element: <div>Home <HelperOutlet/></div>,
               title: 'Home - Title',
               children: [
                 {
@@ -80,7 +81,7 @@ describe('title in route', () => {
             routes,
             initialPath: '/child',
             validate: async () => {
-              await wait(longestWorkDuration);
+              await wait(minimalWorkDuration);
 
               expect(global.window.document.title).toBe('Child - Title');
             },
@@ -97,7 +98,7 @@ describe('title in route', () => {
           const routes: HelperRouteObject[] = [
             {
               path: '/',
-              element: <div>Home <HelperOutlet /> </div>,
+              element: <div>Home <HelperOutlet/></div>,
               children: [
                 {
                   path: 'child',
@@ -106,7 +107,7 @@ describe('title in route', () => {
                     {
                       path: 'child2',
                       element: <div>Child2</div>,
-                      title: 'Child2 - Title',
+                      title: 'Child2 - Title - Nest',
                     },
                   ],
                 },
@@ -118,9 +119,9 @@ describe('title in route', () => {
             routes,
             initialPath: '/child/child2',
             validate: async () => {
-              await wait(longestWorkDuration);
+              await wait(minimalWorkDuration);
 
-              expect(global.window.document.title).toBe('Child2 - Title');
+              expect(global.window.document.title).toBe('Child2 - Title - Nest');
             },
           });
         });
@@ -130,18 +131,18 @@ describe('title in route', () => {
           const routes: HelperRouteObject[] = [
             {
               path: '/',
-              element: <div>Home <HelperOutlet /></div>,
+              element: <div>Home <HelperOutlet/></div>,
               title: 'Home - Title',
               children: [
                 {
                   path: 'child',
-                  element: <div>Child</div>,
+                  element: <div>Child <HelperOutlet/></div>,
                   title: 'Child - Title',
                   children: [
                     {
                       path: 'child2',
                       element: <div>Child2</div>,
-                      title: 'Child2 - Title',
+                      title: 'Child2 - Title - Nest Parent has title',
                     },
                   ],
                 },
@@ -152,10 +153,13 @@ describe('title in route', () => {
           testIn3DifferentModes({
             routes,
             initialPath: '/child/child2',
+            msWaitAfterTests: mediumWorkDuration,
             validate: async () => {
-              await wait(longestWorkDuration);
+              await wait(mediumWorkDuration);
 
-              expect(global.window.document.title).toBe('Child2 - Title');
+              expect(global.window.document.title).toBe('Child2 - Title - Nest Parent has title');
+
+              global.window.document.title = '';
             },
           });
 
@@ -173,18 +177,15 @@ describe('title in route', () => {
             element: <div>Home</div>,
             title: 'Home - Title',
             titleResolver: () => async () => {
-              await wait(longestWorkDuration);
-              return "Home - Title from resolver";
-            }
+              await wait(mediumWorkDuration);
+              return 'Home - Title from resolver';
+            },
           },
         ];
 
         testIn3DifferentModes({
           afterEach: () => {
-            global.window.document.title = "";
-          },
-          beforeEach: () => {
-            global.window.document.title = "";
+            global.window.document.title = '';
           },
           routes,
           initialPath: '/',
@@ -193,7 +194,7 @@ describe('title in route', () => {
 
             expect(global.window.document.title).toBe('');
 
-            await wait(longestWorkDuration + mediumWorkDuration);
+            await wait(mediumWorkDuration * 2);
 
             expect(global.window.document.title).toBe('Home - Title from resolver');
           },
@@ -206,16 +207,16 @@ describe('title in route', () => {
           const routes: HelperRouteObject[] = [
             {
               path: '/',
-              element: <div>Home <HelperOutlet /></div>,
+              element: <div>Home <HelperOutlet/></div>,
               children: [
                 {
                   path: 'child',
                   element: <div>Child</div>,
                   title: 'Child - Title',
                   titleResolver: () => async () => {
-                    await wait(longestWorkDuration);
-                    return "Child - Title from resolver";
-                  }
+                    await wait(mediumWorkDuration);
+                    return 'Child - Title from resolver';
+                  },
                 },
               ],
             },
@@ -225,11 +226,11 @@ describe('title in route', () => {
             routes,
             initialPath: '/child',
             validate: async () => {
-              global.window.document.title = "";
+              global.window.document.title = '';
               await wait(minimalWorkDuration);
 
               expect(global.window.document.title).toBe('');
-              await wait(longestWorkDuration + mediumWorkDuration * 2);
+              await wait(mediumWorkDuration * 2);
 
               expect(global.window.document.title).toBe('Child - Title from resolver');
             },
@@ -242,7 +243,7 @@ describe('title in route', () => {
           const routes: HelperRouteObject[] = [
             {
               path: '/',
-              element: <div>Home <HelperOutlet /></div>,
+              element: <div>Home <HelperOutlet/></div>,
               title: 'Home - Title',
               children: [
                 {
@@ -255,15 +256,14 @@ describe('title in route', () => {
           ];
 
           testIn3DifferentModes({
-            beforeEach: () => {
-              global.window.document.title = "";
-            },
             routes,
             initialPath: '/child',
             validate: async () => {
-              await wait(longestWorkDuration);
+              await wait(minimalWorkDuration);
 
               expect(global.window.document.title).toBe('Child - Title');
+
+              global.window.document.title = '';
             },
           });
 
@@ -281,7 +281,70 @@ describe('title in route', () => {
 
 
   describe('title must be applied before workers', () => {
-    // TODO: Add tests
+    describe('for parent route', () => {
+      describe('should set title', () => {
+        const routes: HelperRouteObject[] = [
+          {
+            path: '/',
+            element: <div>Home</div>,
+            title: 'Home - Title',
+            guards: [mockAsyncGuard(true, mediumWorkDuration)],
+          },
+        ];
+
+        testIn3DifferentModes({
+          routes,
+          initialPath: '/',
+          validate: async () => {
+            await wait(mediumWorkDuration + minimalWorkDuration);
+
+            expect(global.window.document.title).toBe('Home - Title');
+
+            global.window.document.title = '';
+          },
+        });
+      });
+    });
+
+    describe('for nested route', () => {
+      describe('should set title', () => {// TODO: REAL FAIL
+        afterEach(() => {
+          global.window.document.title = '';
+        });
+
+        const routes: HelperRouteObject[] = [
+          {
+            path: '/',
+            element: <div>Home <HelperOutlet/></div>,
+            guards: [mockAsyncGuard(true, minimalWorkDuration)],
+            children: [
+              {
+                path: 'child',
+                element: <div>Child</div>,
+                title: 'Child - Title 2',
+                guards: [mockAsyncGuard(true, minimalWorkDuration)],
+              },
+            ],
+          },
+        ];
+        testIn3DifferentModes({
+          routes,
+          initialPath: '/child',
+          afterEach: () => {
+            global.window.document.title = '';
+          },
+          validate: async () => {
+            await wait(minimalWorkDuration);
+            const titleAfterRender = global.window.document.title;
+
+            await wait(longestWorkDuration);
+
+            expect(titleAfterRender).toBe('Child - Title 2');
+          },
+        });
+      });
+
+    });
   });
   describe('titleResolver must be applied after workers', () => {
     // TODO: Add tests
@@ -297,25 +360,24 @@ describe('title in route', () => {
               Home
             </div>
           ),
-          title: "Home - Title",
+          title: 'Home - Title',
           children: [
             {
               path: 'child',
               element: <div>Child</div>,
-              title: "Child - Title"
+              title: 'Child - Title',
             },
           ],
         },
       ];
 
       testIn3DifferentModes({
-        beforeEach: () => {
-          window.document.title = "";
-        },
         routes,
         initialPath: '/child',
+        msWaitBeforeTests: mediumWorkDuration,
+        msWaitAfterTests: mediumWorkDuration,
         validate: async () => {
-          await wait(longestWorkDuration);
+          await wait(minimalWorkDuration);
 
           expect(global.window.document.title).toBe('');
         },
@@ -331,17 +393,17 @@ describe('title in route', () => {
               Home
             </div>
           ),
-          title: "Home - Title",
+          title: 'Home - Title',
           children: [
             {
               path: 'child',
               element: <div>Child</div>,
-              title: "Child - Title",
+              title: 'Child - Title',
               children: [
                 {
                   path: 'child2',
                   element: <div>Child2</div>,
-                  title: "Child2 - Title",
+                  title: 'Child2 - Title',
                 },
               ],
             },
@@ -353,7 +415,7 @@ describe('title in route', () => {
         routes,
         initialPath: '/child/child2',
         validate: async () => {
-          await wait(longestWorkDuration + mediumWorkDuration);
+          await wait(minimalWorkDuration);
 
           expect(global.window.document.title).toBe('');
         },
@@ -364,9 +426,8 @@ describe('title in route', () => {
 });
 
 
-
 function click(anchor: HTMLAnchorElement, eventInit?: MouseEventInit) {
-  let event = new MouseEvent("click", {
+  let event = new MouseEvent('click', {
     view: window,
     bubbles: true,
     cancelable: true,

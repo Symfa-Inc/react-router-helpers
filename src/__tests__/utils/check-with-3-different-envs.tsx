@@ -1,103 +1,27 @@
 import * as React from 'react';
 import ReactDOM from 'react-dom/client';
 import { act } from 'react-dom/test-utils';
-import { BrowserRouter, MemoryRouter } from 'react-router-dom';
+import { MemoryRouter } from 'react-router-dom';
 import * as TestRenderer from 'react-test-renderer';
 import { HelperRouteObject } from '../../types';
 import { RoutesRenderer } from './RoutesRenderer';
 import { wait } from './wait';
 
-// export async function testIn3DifferentModes(options: RenderInModesOptions) {
-//
-//   afterEach(() => {
-//     if (typeof options.afterEach === 'function') {
-//       options.afterEach();
-//     }
-//   });
-//
-//   const hasValidateFunction = typeof options.validate === 'function';
-//   const hasTestEnvValidateFunction = typeof options.validateResultInTestEnv === 'function';
-//   const hasRealEnvValidateFunction = typeof options.validateResultInRealEnv === 'function';
-//
-//   if (hasValidateFunction || hasTestEnvValidateFunction) {
-//     it('render in test mode', async () => {
-//       await wait(10);
-//       let renderer: TestRenderer.ReactTestRenderer;
-//       act(() => {
-//         renderer = TestRenderer.create(
-//           <MemoryRouter initialEntries={[options.initialPath]}>
-//             <RoutesRenderer routes={options.routes} location={{ pathname: options.initialPath }} />
-//           </MemoryRouter>,
-//         );
-//       });
-//
-//       if (hasValidateFunction) {
-//         await options.validate!();
-//       }
-//       if (hasTestEnvValidateFunction) {
-//         await options.validateResultInTestEnv!(renderer!);
-//       }
-//
-//       await wait(10);
-//     });
-//   }
-//
-//   // if (hasValidateFunction || hasRealEnvValidateFunction) {
-//   //   it('render in real dev mode', async () => {
-//   //     await wait(200);
-//   //     const rootNode = document.createElement('div') as HTMLElement;
-//   //     const rootToMount = ReactDOM.createRoot(rootNode as HTMLElement);
-//   //
-//   //     act(() => {
-//   //       rootToMount.render(
-//   //         <React.StrictMode>
-//   //           <MemoryRouter initialEntries={[options.initialPath]} key="1234">
-//   //             <RoutesRenderer routes={options.routes} />
-//   //           </MemoryRouter>,
-//   //         </React.StrictMode>,
-//   //       );
-//   //     });
-//   //
-//   //     if (hasValidateFunction) {
-//   //       await options.validate!();
-//   //     }
-//   //     if (hasRealEnvValidateFunction) {
-//   //       await options.validateResultInRealEnv!(rootNode);
-//   //     }
-//   //   });
-//   //
-//   //   // it('render in real production mode', async () => {
-//   //   //   await wait(2000);
-//   //   //   const rootNode = document.createElement('div') as HTMLElement;
-//   //   //   const rootToMount = ReactDOM.createRoot(rootNode as HTMLElement);
-//   //   //
-//   //   //   act(() => {
-//   //   //     rootToMount.render(
-//   //   //       <MemoryRouter initialEntries={[options.initialPath]} key="123">
-//   //   //         <RoutesRenderer routes={options.routes} location={{ pathname: options.initialPath }} />
-//   //   //       </MemoryRouter>,
-//   //   //     );
-//   //   //   });
-//   //   //   if (hasValidateFunction) {
-//   //   //     await options.validate!();
-//   //   //   }
-//   //   //   if (hasRealEnvValidateFunction) {
-//   //   //     await options.validateResultInRealEnv!(rootNode);
-//   //   //   }
-//   //   // });
-//   // }
-// }
-
-export async function testIn3DifferentModes(options: RenderInModesOptions) {
+export function testIn3DifferentModes(options: RenderInModesOptions) {
   const hasValidateFunction = typeof options.validate === 'function';
   const hasTestEnvValidateFunction = typeof options.validateResultInTestEnv === 'function';
   const hasRealEnvValidateFunction = typeof options.validateResultInRealEnv === 'function';
 
+  const waitTimeBeforeRunTests = options.msWaitBeforeTests ?? 0;
+  const waitTimeAfterRunTests = options.msWaitAfterTests ?? 0;
+
   const tests = [];
-  if (hasValidateFunction || hasTestEnvValidateFunction) {
+  const needToRunTest = options.needToRunInTest ?? true;
+  if ((hasValidateFunction || hasTestEnvValidateFunction) && needToRunTest) {
     tests.push({
       name: 'test mode',
       fn: async () => {
+        await wait(waitTimeBeforeRunTests);
         let renderer: TestRenderer.ReactTestRenderer;
         await TestRenderer.act(async () => {
           renderer = TestRenderer.create(
@@ -114,18 +38,23 @@ export async function testIn3DifferentModes(options: RenderInModesOptions) {
         if (hasTestEnvValidateFunction) {
           await options.validateResultInTestEnv!(renderer!);
         }
+
+        renderer.unmount();
+        await wait(waitTimeAfterRunTests);
       },
     });
   }
 
-  if ((hasValidateFunction || hasRealEnvValidateFunction) && options.isOnlyRealDevEnv) {
+  const needToRunInDev = options.needToRunInDev ?? true;
+  if ((hasValidateFunction || hasRealEnvValidateFunction) && needToRunInDev) {
     tests.push({
       name: 'real dev mode',
       fn: async () => {
+        await wait(waitTimeBeforeRunTests * 2);
         const rootNode = document.createElement('div') as HTMLElement;
         const rootToMount = ReactDOM.createRoot(rootNode as HTMLElement);
 
-        act(() => {
+        await TestRenderer.act(() => {
           rootToMount.render(
             <React.StrictMode>
               <MemoryRouter initialEntries={[options.initialPath]}>
@@ -141,18 +70,23 @@ export async function testIn3DifferentModes(options: RenderInModesOptions) {
         if (hasRealEnvValidateFunction) {
           await options.validateResultInRealEnv!(rootNode);
         }
+
+        rootToMount.unmount();
+        await wait(waitTimeAfterRunTests * 2);
       },
     });
   }
 
-  if ((hasValidateFunction || hasRealEnvValidateFunction) && options.isOnlyRealProdEnv) {
+  const needToRunInProd = options.needToRunInProd ?? true;
+  if ((hasValidateFunction || hasRealEnvValidateFunction) && needToRunInProd) {
     tests.push({
       name: 'real prod mode',
       fn: async () => {
+        await wait(waitTimeBeforeRunTests);
         const rootNode = document.createElement('div') as HTMLElement;
         const rootToMount = ReactDOM.createRoot(rootNode as HTMLElement);
 
-        act(() => {
+        await TestRenderer.act(() => {
           rootToMount.render(
             <MemoryRouter initialEntries={[options.initialPath]}>
               <RoutesRenderer routes={options.routes}  />
@@ -165,6 +99,10 @@ export async function testIn3DifferentModes(options: RenderInModesOptions) {
         if (hasRealEnvValidateFunction) {
           await options.validateResultInRealEnv!(rootNode);
         }
+
+        rootToMount.unmount();
+        await wait(waitTimeAfterRunTests);
+
       },
     });
   }
@@ -181,11 +119,11 @@ export async function testIn3DifferentModes(options: RenderInModesOptions) {
     }
   });
 
-  test.each(tests)('$name', async (t: any) => {
-    await wait(100);
-    const result = await t.fn();
-
-    return result;
+  return test.each(tests)('$name', async (t: any) => {
+    console.log('RUN ' + t.name);
+    const r =  await t.fn();
+    console.log('AFTER ' + t.name);
+    return r;
   });
 }
 
@@ -197,6 +135,9 @@ interface RenderInModesOptions {
   validateResultInRealEnv?: (root: HTMLElement) => void;
   afterEach?: () => void;
   beforeEach?: () => void;
-  isOnlyRealProdEnv?: boolean;
-  isOnlyRealDevEnv?: boolean;
+  needToRunInProd?: boolean;
+  needToRunInDev?: boolean;
+  needToRunInTest?: boolean;
+  msWaitBeforeTests?: number;
+  msWaitAfterTests?: number;
 }

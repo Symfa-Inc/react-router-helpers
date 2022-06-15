@@ -46,6 +46,7 @@ function Home() {
   return (
     <div>
       <h1>Home</h1>
+      <h2>{Date.now()}</h2>
       <nav>
         <Link to="/">Home</Link> |{' '}
         <Link to="/login">Login</Link> |{' '}
@@ -182,7 +183,7 @@ const RoutesWrapper = () => {
     // useEffect(() => {
     //   setTimeout(() => setLoading(true), 200);
     // }, []);
-    return <></>;
+    return <>loading...</>;
   };
   return useRoutesWithHelper([
     {
@@ -191,11 +192,12 @@ const RoutesWrapper = () => {
     },
     {
       path: "/",
-      element: <Home />,
+      // element: <Home />,
       // loadingComponent: <LoadingComponent />,
-      // loadElement: () => import('./LazyComponent'),
+      // loadElement: React.lazy(() => import('./LazyComponent')),
+      loadElement: <Lazy />,
       title: 'HOME',
-      // guards: [mockGuard(true, "HOME 1"), mockGuard(true, "HOME 2")],
+      guards: [mockGuard(true, "HOME 1"), mockGuard(true, "HOME 2")],
       // resolvers: {
       //   userInfo: () => async () => {
       //     await wait(2000);
