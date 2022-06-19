@@ -8,6 +8,8 @@ export const RouteContext = React.createContext<{
   isTheFirstParent: boolean;
   guardStatus: RouteHelperStatus;
   resolverStatus: RouteHelperStatus;
+  lazyComponentStatus: RouteHelperStatus;
+  status: RouteHelperStatus;
 }>({
   routeResolverInfos: {},
   canStartToLoadWorkers: true,
@@ -15,6 +17,8 @@ export const RouteContext = React.createContext<{
   isTheFirstParent: true,
   guardStatus: RouteHelperStatus.Initial,
   resolverStatus: RouteHelperStatus.Initial,
+  lazyComponentStatus: RouteHelperStatus.Initial,
+  status: RouteHelperStatus.Initial,
 });
 
 export const OutletContext = React.createContext<{

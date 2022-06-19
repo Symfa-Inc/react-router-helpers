@@ -12,3 +12,11 @@ export function useGuardStatus() {
 export function useResolverStatus() {
   return React.useContext(RouteContext).resolverStatus;
 }
+
+export function useLazyComponentStatus() {
+  return React.useContext(RouteContext).lazyComponentStatus;
+}
+
+export function useStatus() {
+  return React.useContext(RouteContext).status;
+}

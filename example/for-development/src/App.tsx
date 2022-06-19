@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Link, Outlet, useLocation, useNavigate, usePar
 import './App.css';
 import { mockGuard, useGetUserInfoResolver } from './guards/mock-guard';
 import { RouteHelperStatus, useRoutesWithHelper } from './reactRouterHelpers';
-import { HelperOutlet, useGuardStatus, useResolverStatus } from './reactRouterHelpers/index';
+import { HelperOutlet, useGuardStatus, useLazyComponentStatus, useResolverStatus } from './reactRouterHelpers/index';
 
 // const useResolverForHome = () => {
 //   const test = useParams();
@@ -159,6 +159,7 @@ const RoutesWrapper = () => {
   const LoadingComponent = () => {
     const guardStatus = useGuardStatus();
     const resolverStatus = useResolverStatus();
+    const lazyStatus = useLazyComponentStatus();
 
 
     useEffect(() => {
@@ -183,7 +184,17 @@ const RoutesWrapper = () => {
     // useEffect(() => {
     //   setTimeout(() => setLoading(true), 200);
     // }, []);
-    return <>loading...</>;
+
+    useEffect(() => {
+      console.log('lazyStatus CHANGED ' + RouteHelperStatus[lazyStatus]);
+    }, [lazyStatus]);
+    return <>
+      <div className="lds-ring">
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+      </div></>;
   };
   return useRoutesWithHelper([
     {
@@ -193,11 +204,10 @@ const RoutesWrapper = () => {
     {
       path: "/",
       // element: <Home />,
-      // loadingComponent: <LoadingComponent />,
-      // loadElement: React.lazy(() => import('./LazyComponent')),
+      loadingComponent: <LoadingComponent />,
       loadElement: <Lazy />,
-      title: 'HOME',
-      guards: [mockGuard(true, "HOME 1"), mockGuard(true, "HOME 2")],
+      // title: 'HOME',
+      // guards: [mockGuard(true, "HOME 1"), mockGuard(true, "HOME 2")],
       // resolvers: {
       //   userInfo: () => async () => {
       //     await wait(2000);
@@ -216,8 +226,9 @@ const RoutesWrapper = () => {
       children: [
         {
           path: "child",
+          loadElement: <Lazy2 />,
           element: <Child />,
-          // loadingComponent: <LoadingComponent />,
+          loadingComponent: <LoadingComponent />,
           // resolvers: {
           //   userInfo: () => async () => {
           //     // console.log('resolver info 1');
@@ -230,9 +241,9 @@ const RoutesWrapper = () => {
           //     return {userName: 'eugene', name: 'eugene', lastName: 'tsarenko'};
           //   }
           // },
-          title: "loading...",
+          title: "Child 2",
           // titleResolver: () => () => "test",
-          // guards: [mockGuard(true, 'HOME'), mockGuard(true, "HOME 2")],
+          guards: [mockGuard(true, 'HOME'), mockGuard(true, "HOME 2")],
           // titleResolver: () => async () => {
           //   await wait(2000);
           //   return "RESOLVED TITLE";
