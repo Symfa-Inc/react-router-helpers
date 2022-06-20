@@ -8,6 +8,7 @@ function LazyComponent() {
   console.log(data);
 
   useEffect(() => {
+    console.log('LazyComponent INIT');
     const test = bigFile.find((i: any) => i._id === 1);
     if (test) {console.log(test);}
   }, []);

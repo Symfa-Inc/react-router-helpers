@@ -90,6 +90,26 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
 
   const [isReadyToMountElement, setReadyToMountElement] = useState(false);
 
+  // const setInitialReadyToMountElementNormalized = () => {
+  //   if (isReadyToMountElement) {
+  //     setReadyToMountElement(true);
+  //   }
+  //
+  //   if (!isMinimalDurationExceed) {
+  //     setTimeout(() => {
+  //       setReadyToMountElement(false);
+  //     }, MINIMAL_TIMEOUT_BEFORE_SHOW_LOADING);
+  //   }
+  // };
+
+  const setMinimalDurationTimer = () => {
+    if (!isMinimalDurationExceed) {
+      setTimeout(() => {
+        setMinimalDurationExceed(true);
+      }, MINIMAL_TIMEOUT_BEFORE_SHOW_LOADING);
+    }
+  };
+
   const setReadyToMountElementNormalized = () => {
     if (!isReadyToMountElement) {
       setTimeout(() => {
@@ -97,11 +117,6 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
       }, 1);
     }
 
-    if (!isMinimalDurationExceed) {
-      setTimeout(() => {
-        setMinimalDurationExceed(true);
-      }, MINIMAL_TIMEOUT_BEFORE_SHOW_LOADING);
-    }
   };
 
   const setGuardStatusNormalized = (status: RouteHelperStatus) => {
@@ -252,6 +267,8 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
 
     isComponentStillAlive.current = true;
 
+
+
     return () => {
       isComponentStillAlive.current = false;
       wereWorkersStartedRef.current = false;
@@ -296,6 +313,7 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
   if (props.loadElement == undefined) {
     if (defaultReadyToMountCondition) {
       setReadyToMountElementNormalized();
+      setMinimalDurationTimer();
     }
 
     const elementToRender = defaultReadyToMountCondition && isReadyToMountElement ? (
@@ -330,6 +348,10 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
   //#region lazy
   const wasLoadingTriggeredFromFallback = useRef(false);
 
+  const [needToShowLoadingComponentToReceivedStatus, setNeedToShowLoadingComponentToReceivedStatus] = useState(false);
+  // const isFirstRender = useRef(true);
+
+
   // const showLoading = useState(false);
   // const wasLazyLoadingTimerForNormalizingSet = useRef(false);
   // const wasLazyLoadingNormalizationInitiated = useRef(false);
@@ -343,8 +365,13 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
 
   const lazyDefaultReadyToMountCondition = useMemo(() => {
     return defaultReadyToMountCondition &&
-      resolverStatus === RouteHelperStatus.Loaded;
+      lazyComponentStatus === RouteHelperStatus.Loaded;
   }, [defaultReadyToMountCondition, lazyComponentStatus]);
+
+  // if (isFirstRender.current) {
+  //   isFirstRender.current = false;
+  //   setInitialReadyToMountElementNormalized();
+  // }
 
   // const initNormalizationForLazyLoading = () => {
   //   if (!wasLazyLoadingNormalizationInitiated.current) {
@@ -363,23 +390,26 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
   //   }
   // };
 
-  // useEffect(() => {
-  //   if (defaultReadyToMountCondition) {
-  //     initNormalizationForLazyLoading();
-  //     console.log('defaultReadyToMountCondition ' + Date.now());
-  //   }
-  // }, [defaultReadyToMountCondition]);
-
   useEffect(() => {
     if (lazyDefaultReadyToMountCondition) {
-      // console.log('BEFORE SET');
-      setReadyToMountElementNormalized();
+      setTimeout(() => {
+        if (needToShowLoadingComponentToReceivedStatus) {
+          setNeedToShowLoadingComponentToReceivedStatus(false);
+        }
+      }, 10);
     }
   }, [lazyDefaultReadyToMountCondition]);
 
+  useEffect(() => {
+    if (defaultReadyToMountCondition) {
+      setMinimalDurationTimer();
+    }
+  }, [defaultReadyToMountCondition]);
+
   //#region fallback methods
   const onDefaultFallbackInit = useCallback(() => {
-    wasLoadingTriggeredFromFallback.current = true;
+    // wasLoadingTriggeredFromFallback.current = true;
+    setNeedToShowLoadingComponentToReceivedStatus(true);
     setLazyComponentStatusNormalized(RouteHelperStatus.Loading);
   }, []);
 
@@ -409,7 +439,7 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
         guardStatus,
         resolverStatus,
         lazyComponentStatus,
-        status: RouteHelperStatus.Initial
+        status: RouteHelperStatus.Initial,
       }}
     >
       <RouteContext.Consumer>{() =>
@@ -420,7 +450,10 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
               {isMinimalDurationExceed && elementToRender}
             </React.Suspense>
           </ErrorBoundary>
-          {loadingConditionToShowLazyLoading && isMinimalDurationExceed && props.loadingComponent}
+          {((loadingConditionToShowLazyLoading && isMinimalDurationExceed) || needToShowLoadingComponentToReceivedStatus) &&
+            (<div style={{ display: !lazyDefaultReadyToMountCondition ? 'block' : 'none' }}>
+              {props.loadingComponent}
+            </div>)}
         </>}
 
       </RouteContext.Consumer>
