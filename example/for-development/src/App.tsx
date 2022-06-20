@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { lazy, useEffect, useState } from 'react';
 import { BrowserRouter as Router, Link, Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
 import './App.css';
 import { mockGuard, useGetUserInfoResolver } from './guards/mock-guard';
 import { RouteHelperStatus, useRoutesWithHelper } from './reactRouterHelpers';
-import { HelperOutlet, useGuardStatus, useLazyComponentStatus, useResolverStatus } from './reactRouterHelpers/index';
+import { HelperOutlet, useGuardStatus, useResolverStatus, useLazyComponentStatus } from './reactRouterHelpers/index';
 
 // const useResolverForHome = () => {
 //   const test = useParams();
@@ -59,8 +59,9 @@ function Home() {
   );
 }
 
-const Lazy = React.lazy(() => import('./LazyComponent'));
-const Lazy2 = React.lazy(() => import('./LazyComponent2'));
+const Lazy = lazy(() => import('./LazyComponent'));
+const Lazy2 = lazy(() => import('./LazyComponent2'));
+
 
 function Child() {
   // const resolverInfos = useResolver<{ userName: string; lastName: string; }>();
@@ -159,7 +160,7 @@ const RoutesWrapper = () => {
   const LoadingComponent = () => {
     const guardStatus = useGuardStatus();
     const resolverStatus = useResolverStatus();
-    const lazyStatus = useLazyComponentStatus();
+    const lazyComponentStatus = useLazyComponentStatus();
 
 
     useEffect(() => {
@@ -179,15 +180,16 @@ const RoutesWrapper = () => {
     useEffect(() => {
       console.log('RESOLVER CHANGED ' + RouteHelperStatus[resolverStatus]);
     }, [resolverStatus]);
+
+    useEffect(() => {
+      console.log('lazyComponentStatus CHANGED ' + RouteHelperStatus[lazyComponentStatus]);
+    }, [lazyComponentStatus]);
     // const [isLoading, setLoading] = useState(false);
     //
     // useEffect(() => {
     //   setTimeout(() => setLoading(true), 200);
     // }, []);
 
-    useEffect(() => {
-      console.log('lazyStatus CHANGED ' + RouteHelperStatus[lazyStatus]);
-    }, [lazyStatus]);
     return <>
       <div className="lds-ring">
         <div></div>
@@ -203,7 +205,7 @@ const RoutesWrapper = () => {
     },
     {
       path: "/",
-      // element: <Home />,
+      element: <Home />,
       loadingComponent: <LoadingComponent />,
       loadElement: <Lazy />,
       // title: 'HOME',
@@ -227,7 +229,7 @@ const RoutesWrapper = () => {
         {
           path: "child",
           loadElement: <Lazy2 />,
-          element: <Child />,
+          // element: <Child />,
           loadingComponent: <LoadingComponent />,
           // resolvers: {
           //   userInfo: () => async () => {
@@ -243,7 +245,7 @@ const RoutesWrapper = () => {
           // },
           title: "Child 2",
           // titleResolver: () => () => "test",
-          guards: [mockGuard(true, 'HOME'), mockGuard(true, "HOME 2")],
+          // guards: [mockGuard(true, 'HOME'), mockGuard(true, "HOME 2")],
           // titleResolver: () => async () => {
           //   await wait(2000);
           //   return "RESOLVED TITLE";

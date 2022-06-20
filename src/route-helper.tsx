@@ -1,4 +1,14 @@
-import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  ComponentType,
+  createElement,
+  forwardRef, lazy,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { OutletProps } from 'react-router/lib/components';
 import { OutletContext, RouteContext } from './context';
@@ -6,7 +16,10 @@ import { ErrorBoundary } from './ErrorBoundary';
 import { useManager } from './inner-hooks';
 import { HelperManager, HelperRouteObjectProps, OnlyHelperFields, RouteHelperStatus } from './types';
 
-const LAZY_LOADING_NORMALIZATION_TIME = 150;
+const LAZY_LOADING_NORMALIZATION_TIME_PARENT = 150;
+const LAZY_LOADING_NORMALIZATION_TIME_CHILD = 10;
+
+const MINIMAL_TIMEOUT_BEFORE_SHOW_LOADING = 10;
 
 //   // TODO: Add metadata (title)
 //   // TODO: Add metadata (title) tests
@@ -20,6 +33,9 @@ const LAZY_LOADING_NORMALIZATION_TIME = 150;
 //
 //   // TODO: Add lazy loading
 //   // TODO: Add lazy loading tests
+
+// Loading component re-renders in slow networks
+// Cannot pass to loading component lazy loading status
 
 
 export const RouteHelper = (props: HelperRouteObjectProps) => {
@@ -70,6 +86,8 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
   const [resolverStatus, setResolverStatus] = useState<RouteHelperStatus>(RouteHelperStatus.Initial);
   const [lazyComponentStatus, setLazyComponentStatus] = useState<RouteHelperStatus>(RouteHelperStatus.Initial);
 
+  const [isMinimalDurationExceed, setMinimalDurationExceed] =  useState(false);
+
   const [isReadyToMountElement, setReadyToMountElement] = useState(false);
 
   const setReadyToMountElementNormalized = () => {
@@ -77,6 +95,12 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
       setTimeout(() => {
         setReadyToMountElement(true);
       }, 1);
+    }
+
+    if (!isMinimalDurationExceed) {
+      setTimeout(() => {
+        setMinimalDurationExceed(true);
+      }, MINIMAL_TIMEOUT_BEFORE_SHOW_LOADING);
     }
   };
 
@@ -94,6 +118,7 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
 
   const setLazyComponentStatusNormalized = (status: RouteHelperStatus) => {
     if (lazyComponentStatus !== status) {
+      // console.log('setLazyComponentStatusNormalized ' + status);
       setLazyComponentStatus(status);
     }
   };
@@ -277,7 +302,7 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
       props.element
     ) : (
       <>
-        {wereWorkersStarted && props.loadingComponent}
+        {wereWorkersStarted && isMinimalDurationExceed && props.loadingComponent}
         <Outlet/>
       </>
     );
@@ -304,45 +329,50 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
 
   //#region lazy
   const wasLoadingTriggeredFromFallback = useRef(false);
-  const wasLazyLoadingTimerForNormalizingSet = useRef(false);
-  const wasLazyLoadingNormalizationInitiated = useRef(false);
+
+  // const showLoading = useState(false);
+  // const wasLazyLoadingTimerForNormalizingSet = useRef(false);
+  // const wasLazyLoadingNormalizationInitiated = useRef(false);
 
   const loadingConditionToShowLazyLoading = useMemo(() => {
     return parentContext.canStartToLoadWorkers && wereWorkersStarted &&
       (guardStatus !== RouteHelperStatus.Loaded ||
         resolverStatus !== RouteHelperStatus.Loaded ||
-        lazyComponentStatus !== RouteHelperStatus.Loaded);
+        ![RouteHelperStatus.Initial, RouteHelperStatus.Loaded].includes(lazyComponentStatus));
   }, [parentContext, guardStatus, resolverStatus, lazyComponentStatus, wereWorkersStarted]);
+
   const lazyDefaultReadyToMountCondition = useMemo(() => {
     return defaultReadyToMountCondition &&
       resolverStatus === RouteHelperStatus.Loaded;
   }, [defaultReadyToMountCondition, lazyComponentStatus]);
 
-  const initNormalizationForLazyLoading = () => {
-    if (!wasLazyLoadingNormalizationInitiated.current) {
-      wasLazyLoadingNormalizationInitiated.current = true;
-      setLazyComponentStatusNormalized(RouteHelperStatus.Loading);
-    }
+  // const initNormalizationForLazyLoading = () => {
+  //   if (!wasLazyLoadingNormalizationInitiated.current) {
+  //     wasLazyLoadingNormalizationInitiated.current = true;
+  //     setLazyComponentStatusNormalized(RouteHelperStatus.Loading);
+  //   }
+  //
+  //   if (!wasLazyLoadingTimerForNormalizingSet.current) {
+  //     wasLazyLoadingTimerForNormalizingSet.current = true;
+  //
+  //     setTimeout(() => {
+  //       if (!wasLoadingTriggeredFromFallback.current) {
+  //         setLazyComponentStatusNormalized(RouteHelperStatus.Loaded);
+  //       }
+  //     },  LAZY_LOADING_NORMALIZATION_TIME_PARENT);
+  //   }
+  // };
 
-    if (!wasLazyLoadingTimerForNormalizingSet.current) {
-      wasLazyLoadingTimerForNormalizingSet.current = true;
-
-      setTimeout(() => {
-        if (!wasLoadingTriggeredFromFallback.current) {
-          setLazyComponentStatusNormalized(RouteHelperStatus.Loaded);
-        }
-      }, LAZY_LOADING_NORMALIZATION_TIME);
-    }
-  };
-
-  useEffect(() => {
-    if (defaultReadyToMountCondition) {
-      initNormalizationForLazyLoading();
-    }
-  }, [defaultReadyToMountCondition]);
+  // useEffect(() => {
+  //   if (defaultReadyToMountCondition) {
+  //     initNormalizationForLazyLoading();
+  //     console.log('defaultReadyToMountCondition ' + Date.now());
+  //   }
+  // }, [defaultReadyToMountCondition]);
 
   useEffect(() => {
     if (lazyDefaultReadyToMountCondition) {
+      // console.log('BEFORE SET');
       setReadyToMountElementNormalized();
     }
   }, [lazyDefaultReadyToMountCondition]);
@@ -352,18 +382,23 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
     wasLoadingTriggeredFromFallback.current = true;
     setLazyComponentStatusNormalized(RouteHelperStatus.Loading);
   }, []);
+
   const onDefaultFallbackDestroy = useCallback(() => {
     setLazyComponentStatusNormalized(RouteHelperStatus.Loaded);
   }, []);
   //#endregion fallback methods
 
 
-  const elementToRender = defaultReadyToMountCondition && isReadyToMountElement ? ( // need to keep defaultReadyToMountCondition to start lazy loading for lazy component
+  const elementToRender = defaultReadyToMountCondition ? ( // need to keep defaultReadyToMountCondition to start lazy loading for lazy component
     props.loadElement
   ) : (
     <Outlet/>
   );
 
+  // const OtherComponent = lazyWithPreload(props.loadElement);
+  // OtherComponent.preload();
+  // console.log(elementToRender);
+  // const Laz = props.loadElement;
   return (
     <RouteContext.Provider
       value={{
@@ -382,10 +417,10 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
           <ErrorBoundary onError={handleSetLazyError}>
             <React.Suspense
               fallback={<DefaultFallback onInit={onDefaultFallbackInit} onDestroy={onDefaultFallbackDestroy}/>}>
-              {!loadingConditionToShowLazyLoading && elementToRender}
-              {loadingConditionToShowLazyLoading && props.loadingComponent}
+              {isMinimalDurationExceed && elementToRender}
             </React.Suspense>
           </ErrorBoundary>
+          {loadingConditionToShowLazyLoading && isMinimalDurationExceed && props.loadingComponent}
         </>}
 
       </RouteContext.Consumer>
@@ -435,3 +470,34 @@ const DefaultFallback = React.memo<{ onInit: () => void; onDestroy: () => void; 
 
   return <></>;
 });
+
+
+export type PreloadableComponent<T extends ComponentType<any>> = T & {
+  preload: () => Promise<void>;
+};
+
+export default function lazyWithPreload<T extends ComponentType<any>>(
+  factory: () => Promise<{ default: T }>
+): PreloadableComponent<T> {
+  const LazyComponent = lazy(factory);
+  let factoryPromise: Promise<void> | undefined;
+  let LoadedComponent: T | undefined;
+
+  const Component = (forwardRef(function LazyWithPreload(props, ref) {
+    return createElement(
+      LoadedComponent ?? LazyComponent,
+      Object.assign(ref ? { ref } : {}, props) as any
+    );
+  }) as any) as PreloadableComponent<T>;
+
+  Component.preload = () => {
+    if (!factoryPromise) {
+      factoryPromise = factory().then((module) => {
+        LoadedComponent = module.default;
+      });
+    }
+
+    return factoryPromise;
+  };
+  return Component;
+}
