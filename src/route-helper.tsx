@@ -90,6 +90,8 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
 
   const [isReadyToMountElement, setReadyToMountElement] = useState(false);
 
+  const isFirstRender = useRef(true);
+
   // const setInitialReadyToMountElementNormalized = () => {
   //   if (isReadyToMountElement) {
   //     setReadyToMountElement(true);
@@ -267,7 +269,9 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
 
     isComponentStillAlive.current = true;
 
-
+    setTimeout(() => {
+      isFirstRender.current = false;
+    }, 10);
 
     return () => {
       isComponentStillAlive.current = false;
@@ -311,9 +315,12 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
 
   //#region usual component handling
   if (props.loadElement == undefined) {
+
+    if (isFirstRender.current) {
+      setMinimalDurationTimer();
+    }
     if (defaultReadyToMountCondition) {
       setReadyToMountElementNormalized();
-      setMinimalDurationTimer();
     }
 
     const elementToRender = defaultReadyToMountCondition && isReadyToMountElement ? (

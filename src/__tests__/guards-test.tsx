@@ -7,7 +7,12 @@ import * as TestRenderer from 'react-test-renderer';
 import { HelperOutlet, useGuardStatus } from '../index';
 import { HelperRouteObject, RouteHelperStatus } from '../types';
 import { testIn3DifferentModes } from './utils/check-with-3-different-envs';
-import { minimalWorkDuration, longestWorkDuration, mediumWorkDuration } from './utils/general-utils';
+import {
+  minimalWorkDuration,
+  longestWorkDuration,
+  mediumWorkDuration,
+  minimalDurationBeforeShowLoading,
+} from './utils/general-utils';
 import { mockAsyncGuard } from './utils/mock-async-guard';
 import { mockGuardWithCounter } from './utils/mock-guard-with-counter';
 import { mockSyncGuard } from './utils/mock-sync-guard';
@@ -1785,7 +1790,7 @@ describe('Guards in route', () => {
           );
         });
 
-        await wait(minimalWorkDuration);
+        await wait(minimalWorkDuration + minimalDurationBeforeShowLoading + 50);
         expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
         expect(status).toBe(RouteHelperStatus.Failed);
       });
@@ -1830,7 +1835,7 @@ describe('Guards in route', () => {
           );
         });
 
-        await wait(minimalWorkDuration + mediumWorkDuration);
+        await wait(minimalWorkDuration + mediumWorkDuration + minimalDurationBeforeShowLoading);
         expect(renderer.toJSON()).toMatchInlineSnapshot(`
           <div>
             Home 

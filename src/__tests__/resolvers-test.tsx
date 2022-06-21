@@ -6,7 +6,12 @@ import * as TestRenderer from 'react-test-renderer';
 import { useResolver } from '../hooks';
 import { HelperOutlet } from '../route-helper';
 import { HelperRouteObject } from '../types';
-import { minimalWorkDuration, longestWorkDuration, mediumWorkDuration } from './utils/general-utils';
+import {
+  minimalWorkDuration,
+  longestWorkDuration,
+  mediumWorkDuration,
+  minimalDurationBeforeShowLoading,
+} from './utils/general-utils';
 import { GeneralLink } from './utils/GeneralLink';
 import { mockAsyncResolver } from './utils/mock-async-resolver';
 import { mockShouldNeverBeCalledResolver } from './utils/mock-should-never-be-called-resolver';
@@ -1018,7 +1023,7 @@ describe('Resolvers in route', () => {
           );
         });
 
-        await wait(minimalWorkDuration);
+        await wait(minimalWorkDuration + minimalDurationBeforeShowLoading * 2);
 
         expect(renderer.toJSON()).toMatchInlineSnapshot(`
           <div>

@@ -1,7 +1,7 @@
 import React, { lazy, useEffect, useState } from 'react';
 import { BrowserRouter as Router, Link, Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
 import './App.css';
-import { mockGuard, useGetUserInfoResolver } from './guards/mock-guard';
+import { mockGuard, mockGuardSync, useGetUserInfoResolver } from './guards/mock-guard';
 import { RouteHelperStatus, useRoutesWithHelper } from './reactRouterHelpers';
 import { HelperOutlet, useGuardStatus, useResolverStatus, useLazyComponentStatus } from './reactRouterHelpers/index';
 
@@ -207,9 +207,9 @@ const RoutesWrapper = () => {
       path: "/",
       element: <Home />,
       loadingComponent: <LoadingComponent />,
-      loadElement: <Lazy />,
+      // loadElement: <Lazy />,
       // title: 'HOME',
-      // guards: [mockGuard(true, "HOME 1"), mockGuard(true, "HOME 2")],
+      guards: [mockGuardSync(true, "HOME 1")],
       // resolvers: {
       //   userInfo: () => async () => {
       //     await wait(2000);

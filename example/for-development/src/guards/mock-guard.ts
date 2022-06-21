@@ -10,6 +10,11 @@ export const mockGuard = (canActivate: boolean = true, message: string = "") => 
   return canActivate;
 };
 
+export const mockGuardSync = (canActivate: boolean = true, message: string = "") => () => () => {
+  console.log(message);
+  return canActivate;
+};
+
 function wait(number = 1000) {
   return new Promise(res => {
     setTimeout(res, number);
