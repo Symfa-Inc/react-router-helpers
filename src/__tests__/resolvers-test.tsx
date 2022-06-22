@@ -1161,8 +1161,8 @@ describe('Resolvers in route', () => {
             </MemoryRouter>,
           );
         });
-
-        await wait(minimalWorkDuration);
+        expect(renderer.toJSON()).toMatchInlineSnapshot(`null`);
+        await wait(minimalWorkDuration + minimalDurationBeforeShowLoading);
 
         expect(renderer.toJSON()).toMatchInlineSnapshot(`
           <div>

@@ -7,7 +7,7 @@ import { longestWorkDuration, mediumWorkDuration, minimalWorkDuration } from './
 import { mockAsyncGuard } from './utils/mock-async-guard';
 import { wait } from './utils/wait';
 
-describe('title in route', () => {
+describe.skip('title in route', () => {
   describe('title field only', () => {
     describe('for parent route', () => {
       describe('should set title', () => {
