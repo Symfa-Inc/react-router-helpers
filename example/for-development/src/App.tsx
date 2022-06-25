@@ -203,25 +203,24 @@ const RoutesWrapper = () => {
       path: 'login',
       element:<div>Login page</div>
     },
-    {
+     {
       path: "/",
       element: <Home />,
-      // loadingComponent: <LoadingComponent />,
+      loadingComponent: <LoadingComponent />,
       // loadElement: <Lazy />,
       // title: 'HOME',
       guards: [mockGuardSync(true, "HOME 1")],
-      resolvers: {
-        userInfo: () => async () => {
-          await wait(2000);
-          // console.log('HOME resolver info 1');
-          return {userName: 'eugene', name: 'eugene', lastName: 'tsarenko'};
-        },
-        userInfo2: () => async () => {
-          await wait(2000);
-          // console.log('HOME resolver info 2');
-          return {userName: 'eugene', name: 'eugene', lastName: 'tsarenko'};
-        }
-      },
+      // resolvers: {
+      //   userInfo: () => () => {
+      //     // console.log('HOME resolver info 1');
+      //     return {userName: 'eugene', name: 'eugene', lastName: 'tsarenko'};
+      //   },
+      //   // userInfo2: () => async () => {
+      //   //   await wait(2000);
+      //   //   // console.log('HOME resolver info 2');
+      //   //   return {userName: 'eugene', name: 'eugene', lastName: 'tsarenko'};
+      //   // }
+      // },
       // resolvers: {
       //   userInfo: useGetUserInfoResolver,
       // },
@@ -232,20 +231,20 @@ const RoutesWrapper = () => {
           element: <Child />,
           loadingComponent: <LoadingComponent />,
           resolvers: {
-            userInfo: () => async () => {
+            userInfo: () => () => {
               // console.log('resolver info 1');
-              await wait(1000);
+              // await wait(5000);
               return {userName: 'eugene', name: 'eugene', lastName: 'tsarenko'};
             },
-            userInfo2: () => async () => {
-              // console.log('resolver info 2');
-              await wait(1000);
-              return {userName: 'eugene', name: 'eugene', lastName: 'tsarenko'};
-            }
+            // userInfo2: () => async () => {
+            //   // console.log('resolver info 2');
+            //   await wait(1000);
+            //   return {userName: 'eugene', name: 'eugene', lastName: 'tsarenko'};
+            // }
           },
-          title: "Child 2",
+          // title: "Child 2",
           // titleResolver: () => () => "test",
-          guards: [mockGuard(true, 'HOME'), mockGuard(true, "HOME 2")],
+          // guards: [mockGuard(true, 'HOME'), mockGuard(true, "HOME 2")],
           // titleResolver: () => async () => {
           //   await wait(2000);
           //   return "RESOLVED TITLE";

@@ -1289,7 +1289,7 @@ describe('Resolvers in route', () => {
           },
         ];
 
-        TestRenderer.act(() => {
+        await TestRenderer.act(() => {
           renderer = TestRenderer.create(
             <MemoryRouter initialEntries={['/']}>
               <RoutesRenderer routes={routes} />
@@ -1297,7 +1297,7 @@ describe('Resolvers in route', () => {
           );
         });
 
-        await wait(minimalWorkDuration);
+        await wait(minimalWorkDuration + minimalDurationBeforeShowLoading);
 
         expect(renderer.toJSON()).toMatchInlineSnapshot(`
           <div>
@@ -1341,7 +1341,7 @@ describe('Resolvers in route', () => {
           );
         });
 
-        await wait(minimalWorkDuration);
+        await wait(minimalWorkDuration + minimalDurationBeforeShowLoading);
 
         expect(renderer.toJSON()).toMatchInlineSnapshot(`
           <div>

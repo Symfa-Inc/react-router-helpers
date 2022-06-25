@@ -16,10 +16,7 @@ import { ErrorBoundary } from './ErrorBoundary';
 import { useManager } from './inner-hooks';
 import { HelperManager, HelperRouteObjectProps, OnlyHelperFields, RouteHelperStatus } from './types';
 
-const LAZY_LOADING_NORMALIZATION_TIME_PARENT = 150;
-const LAZY_LOADING_NORMALIZATION_TIME_CHILD = 10;
-
-const MINIMAL_TIMEOUT_BEFORE_SHOW_LOADING = 10;
+const MINIMAL_TIMEOUT_BEFORE_SHOW_LOADING = 100;
 
 //   // TODO: Add metadata (title)
 //   // TODO: Add metadata (title) tests
