@@ -276,7 +276,7 @@ describe('loadingComponent', () => {
           );
         });
 
-        await wait(minimalWorkDuration + minimalDurationBeforeShowLoading);
+        await wait(mediumWorkDuration + minimalDurationBeforeShowLoading);
 
         expect(statuses.length).toBe(1);
         expect(statuses[0]).toBe(RouteHelperStatus.Loading);
@@ -941,7 +941,7 @@ describe('loadingComponent', () => {
             );
           });
 
-          await wait(minimalWorkDuration + minimalDurationBeforeShowLoading);
+          await wait(mediumWorkDuration + minimalDurationBeforeShowLoading);
           expect(statuses.length).toBe(1);
 
           expect(statuses[0]).toBe(RouteHelperStatus.Loading);
@@ -1070,7 +1070,7 @@ describe('loadingComponent', () => {
 
           expect(statuses[0]).toBe(RouteHelperStatus.Loading);
 
-          await wait(longestWorkDuration + minimalWorkDuration);
+          await wait(longestWorkDuration + mediumWorkDuration);
 
           expect(childStatuses.length).toBe(1);
 
@@ -1528,7 +1528,7 @@ describe('loadingComponent', () => {
           );
         });
 
-        await wait(minimalDurationBeforeShowLoading);
+        await wait(minimalDurationBeforeShowLoading + minimalWorkDuration * 2);
         expect(guardStatuses.length).toBe(1);
         expect(guardStatuses[0]).toBe(RouteHelperStatus.Loading);
         expect(resolverStatuses.length).toBe(1);

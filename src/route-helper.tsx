@@ -1,7 +1,8 @@
 import React, {
   ComponentType,
   createElement,
-  forwardRef, lazy,
+  forwardRef,
+  lazy,
   useCallback,
   useContext,
   useEffect,
@@ -14,7 +15,16 @@ import { OutletProps } from 'react-router/lib/components';
 import { OutletContext, RouteContext } from './context';
 import { ErrorBoundary } from './ErrorBoundary';
 import { useManager } from './inner-hooks';
-import { HelperManager, HelperRouteObjectProps, OnlyHelperFields, RouteHelperStatus } from './types';
+import {
+  HelperManager,
+  HelperRouteObjectProps,
+  LazyLoadingInnerStatus,
+  OnlyHelperFields,
+  RouteHelperStatus,
+} from './types';
+
+const LAZY_LOADING_NORMALIZATION_TIME_PARENT = 1;
+const LAZY_LOADING_NORMALIZATION_TIME_CHILD = 10;
 
 const MINIMAL_TIMEOUT_BEFORE_SHOW_LOADING = 100;
 
@@ -89,6 +99,8 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
 
   const isFirstRender = useRef(true);
 
+  const hasTaskForMinimalDurationTimer = useRef(false);
+
   // const setInitialReadyToMountElementNormalized = () => {
   //   if (isReadyToMountElement) {
   //     setReadyToMountElement(true);
@@ -102,10 +114,15 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
   // };
 
   const setMinimalDurationTimer = () => {
-    if (!isMinimalDurationExceed) {
-      setTimeout(() => {
+    if (!hasTaskForMinimalDurationTimer.current) {
+      hasTaskForMinimalDurationTimer.current = true;
+      if (MINIMAL_TIMEOUT_BEFORE_SHOW_LOADING === null) {
         setMinimalDurationExceed(true);
-      }, MINIMAL_TIMEOUT_BEFORE_SHOW_LOADING);
+      } else {
+        setTimeout(() => {
+          setMinimalDurationExceed(true);
+        }, MINIMAL_TIMEOUT_BEFORE_SHOW_LOADING);
+      }
     }
   };
 
@@ -307,15 +324,25 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
 
   const handleSetLazyError = (error: { message:string; stack: string; }, errorInfo: { componentStack: string; }) => {
     setLazyComponentStatusNormalized(RouteHelperStatus.Failed);
+    setLazyLoadingInnerStatus(LazyLoadingInnerStatus.Failed);
     console.log('error ' + JSON.stringify(error) + JSON.stringify(errorInfo));
   };
+
+  useEffect(() => {
+    if (parentContext.canStartToLoadWorkers && wereWorkersStartedRef.current) {
+      setMinimalDurationTimer();
+    }
+  }, [parentContext, wereWorkersStarted]);
+  // if (isFirstRender.current) {
+  //   setMinimalDurationTimer();
+  // }
 
   //#region usual component handling
   if (props.loadElement == undefined) {
 
-    if (isFirstRender.current) {
-      setMinimalDurationTimer();
-    }
+    // if (isFirstRender.current) {
+    //   setMinimalDurationTimer();
+    // }
     if (defaultReadyToMountCondition) {
       setReadyToMountElementNormalized();
     }
@@ -353,6 +380,10 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
   const wasLoadingTriggeredFromFallback = useRef(false);
 
   const [needToShowLoadingComponentToReceivedStatus, setNeedToShowLoadingComponentToReceivedStatus] = useState(false);
+  const wasTaskForLazyLoadingNormalizationInited = useRef(false);
+  const [minimalDurationToNormalizeLazy, setMinimalDurationToNormalizeLazy] = useState(false);
+  const [wasLazyLoadedStarted, setWasLazyLoadedStarted] = useState(false);
+  const [lazyLoadingInnerStatus, setLazyLoadingInnerStatus] = useState(LazyLoadingInnerStatus.Initial);
   // const isFirstRender = useRef(true);
 
 
@@ -361,15 +392,22 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
   // const wasLazyLoadingNormalizationInitiated = useRef(false);
 
   const loadingConditionToShowLazyLoading = useMemo(() => {
+    // let lazyCondition: boolean;
+    // if (lazyLoadingInnerStatus === LazyLoadingInnerStatus.ManualTriggeredLoading) {
+    //   lazyCondition = true;
+    // } else {
+    //   lazyCondition = lazyComponentStatus !== RouteHelperStatus.Loaded;
+    // }
+
     return parentContext.canStartToLoadWorkers && wereWorkersStarted &&
       (guardStatus !== RouteHelperStatus.Loaded ||
         resolverStatus !== RouteHelperStatus.Loaded ||
-        ![RouteHelperStatus.Initial, RouteHelperStatus.Loaded].includes(lazyComponentStatus));
-  }, [parentContext, guardStatus, resolverStatus, lazyComponentStatus, wereWorkersStarted]);
+        lazyLoadingInnerStatus !== LazyLoadingInnerStatus.Loaded);
+  }, [parentContext, guardStatus, resolverStatus, lazyComponentStatus, wereWorkersStarted, lazyLoadingInnerStatus]);
 
   const lazyDefaultReadyToMountCondition = useMemo(() => {
     return defaultReadyToMountCondition &&
-      lazyComponentStatus === RouteHelperStatus.Loaded;
+      lazyLoadingInnerStatus === LazyLoadingInnerStatus.Loaded;
   }, [defaultReadyToMountCondition, lazyComponentStatus]);
 
   // if (isFirstRender.current) {
@@ -394,6 +432,29 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
   //   }
   // };
 
+  const initLazyLoadingNormalization = () => {
+    if (!wasTaskForLazyLoadingNormalizationInited.current) {
+      wasTaskForLazyLoadingNormalizationInited.current = true;
+      setLazyLoadingInnerStatus(LazyLoadingInnerStatus.ManualTriggeredLoading);
+
+      setTimeout(() => {
+        if (lazyLoadingInnerStatus !== LazyLoadingInnerStatus.RealTriggeredLoading) {
+          setLazyLoadingInnerStatus(LazyLoadingInnerStatus.Loaded);
+        }
+      }, LAZY_LOADING_NORMALIZATION_TIME_PARENT);
+    }
+  };
+
+  const wasSetRealTriggerForLazyLoading = useRef(false);
+
+  const markInitLazyLoadingFromFallback = () => {
+    setNeedToShowLoadingComponentToReceivedStatus(true);
+    if (!wasSetRealTriggerForLazyLoading.current) {
+      wasSetRealTriggerForLazyLoading.current = true;
+      setLazyLoadingInnerStatus(LazyLoadingInnerStatus.RealTriggeredLoading);
+    }
+  };
+
   useEffect(() => {
     if (lazyDefaultReadyToMountCondition) {
       setTimeout(() => {
@@ -405,20 +466,22 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
   }, [lazyDefaultReadyToMountCondition]);
 
   useEffect(() => {
+
     if (defaultReadyToMountCondition) {
-      setMinimalDurationTimer();
+      initLazyLoadingNormalization();
+      // setWasLazyLoadedStarted(true);
     }
   }, [defaultReadyToMountCondition]);
 
   //#region fallback methods
   const onDefaultFallbackInit = useCallback(() => {
-    // wasLoadingTriggeredFromFallback.current = true;
-    setNeedToShowLoadingComponentToReceivedStatus(true);
+    markInitLazyLoadingFromFallback();
     setLazyComponentStatusNormalized(RouteHelperStatus.Loading);
   }, []);
 
   const onDefaultFallbackDestroy = useCallback(() => {
     setLazyComponentStatusNormalized(RouteHelperStatus.Loaded);
+    setLazyLoadingInnerStatus(LazyLoadingInnerStatus.Loaded);
   }, []);
   //#endregion fallback methods
 
@@ -433,6 +496,7 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
   // OtherComponent.preload();
   // console.log(elementToRender);
   // const Laz = props.loadElement;
+  const needToRenderLoading = (loadingConditionToShowLazyLoading && isMinimalDurationExceed) || needToShowLoadingComponentToReceivedStatus;
   return (
     <RouteContext.Provider
       value={{
@@ -454,7 +518,7 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
               {isMinimalDurationExceed && elementToRender}
             </React.Suspense>
           </ErrorBoundary>
-          {((loadingConditionToShowLazyLoading && isMinimalDurationExceed) || needToShowLoadingComponentToReceivedStatus) &&
+          {needToRenderLoading &&
             (<div style={{ display: !lazyDefaultReadyToMountCondition ? 'block' : 'none' }}>
               {props.loadingComponent}
             </div>)}
