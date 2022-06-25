@@ -34,6 +34,14 @@ export enum RouteHelperStatus {
   Failed,
 }
 
+export enum LazyLoadingInnerStatus {
+  Initial,
+  ManualTriggeredLoading,
+  RealTriggeredLoading,
+  Loaded,
+  Failed
+}
+
 export interface HelperManager {
   resolvers: Record<string, InnerResolver>;
   guards: InnerGuard[];

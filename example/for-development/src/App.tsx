@@ -34,15 +34,15 @@ function Home() {
 
   const [needToShow, setNeedToShow] = useState(false);
 
-  // useEffect(() => {
+  useEffect(() => {
   //   setTimeout(() => {
   //     console.log('SET OUTLET');
   //     setNeedToShow(true);
   //   }, 2000);
-  //   // console.log('rendered HOME', resolverInfos);
+    console.log('rendered HOME');
   //   // useResolverForHome();
   //   // manager();
-  // }, []);
+  }, []);
   return (
     <div>
       <h1>Home</h1>
@@ -205,21 +205,22 @@ const RoutesWrapper = () => {
     },
      {
       path: "/",
-      element: <Home />,
+      // element: <Home />,
       loadingComponent: <LoadingComponent />,
-      // loadElement: <Lazy />,
+      loadElement: <Lazy />,
       // title: 'HOME',
-      guards: [mockGuardSync(true, "HOME 1")],
+      guards: [mockGuard(true, "HOME 1")],
       // resolvers: {
-      //   userInfo: () => () => {
+      //   userInfo: () => async () => {
+      //     await wait(2000);
       //     // console.log('HOME resolver info 1');
       //     return {userName: 'eugene', name: 'eugene', lastName: 'tsarenko'};
       //   },
-      //   // userInfo2: () => async () => {
-      //   //   await wait(2000);
-      //   //   // console.log('HOME resolver info 2');
-      //   //   return {userName: 'eugene', name: 'eugene', lastName: 'tsarenko'};
-      //   // }
+      //   userInfo2: () => async () => {
+      //     await wait(2000);
+      //     // console.log('HOME resolver info 2');
+      //     return {userName: 'eugene', name: 'eugene', lastName: 'tsarenko'};
+      //   }
       // },
       // resolvers: {
       //   userInfo: useGetUserInfoResolver,
@@ -227,8 +228,8 @@ const RoutesWrapper = () => {
       children: [
         {
           path: "child",
-          // loadElement: <Lazy2 />,
-          element: <Child />,
+          loadElement: <Lazy2 />,
+          // element: <Child />,
           loadingComponent: <LoadingComponent />,
           resolvers: {
             userInfo: () => () => {
@@ -244,7 +245,7 @@ const RoutesWrapper = () => {
           },
           // title: "Child 2",
           // titleResolver: () => () => "test",
-          // guards: [mockGuard(true, 'HOME'), mockGuard(true, "HOME 2")],
+          guards: [mockGuard(true, 'CHILD'), mockGuard(true, "CHILD 2")],
           // titleResolver: () => async () => {
           //   await wait(2000);
           //   return "RESOLVED TITLE";
