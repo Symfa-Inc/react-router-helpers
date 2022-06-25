@@ -419,7 +419,8 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
 
   //#region fallback methods
   const onDefaultFallbackInit = useCallback(() => {
-    markInitLazyLoadingFromFallback();
+    // wasLoadingTriggeredFromFallback.current = true;
+    setNeedToShowLoadingComponentToReceivedStatus(true);
     setLazyComponentStatusNormalized(RouteHelperStatus.Loading);
   }, []);
 
