@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { RouteContext } from "./context";
 
 export function useResolver<T = any>(): T {
