@@ -1,9 +1,16 @@
 import React, { lazy, useEffect, useState } from 'react';
-import { BrowserRouter as Router, Link, Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
+import { BrowserRouter as Router, Link, Outlet, useParams } from 'react-router-dom';
 import './App.css';
-import { mockGuard, mockGuardSync, useGetUserInfoResolver } from './guards/mock-guard';
-import { RouteHelperStatus, useRoutesWithHelper } from './reactRouterHelpers';
-import { HelperOutlet, useGuardStatus, useResolverStatus, useLazyComponentStatus } from './reactRouterHelpers/index';
+import { mockGuard } from './guards/mock-guard';
+import {
+  RouteHelperStatus,
+  useLazyError,
+  useRoutesWithHelper,
+  HelperOutlet,
+  useGuardStatus,
+  useResolverStatus,
+  useLazyStatus,
+} from './reactRouterHelpers';
 
 // const useResolverForHome = () => {
 //   const test = useParams();
@@ -160,8 +167,12 @@ const RoutesWrapper = () => {
   const LoadingComponent = () => {
     const guardStatus = useGuardStatus();
     const resolverStatus = useResolverStatus();
-    const lazyComponentStatus = useLazyComponentStatus();
+    const lazyComponentStatus = useLazyStatus();
+    const error = useLazyError();
 
+    useEffect(() => {
+      console.log(error);
+    },[error]);
 
     useEffect(() => {
       console.log('INITED');
@@ -190,13 +201,13 @@ const RoutesWrapper = () => {
     //   setTimeout(() => setLoading(true), 200);
     // }, []);
 
-    return <>
-      <div className="lds-ring">
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
-      </div></>;
+    return (<> {error ? <>Error occured</> : (<div className="lds-ring">
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+    </div>)}
+      </>);
   };
   return useRoutesWithHelper([
     {

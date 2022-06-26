@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useLazyError } from '../../../src/hooks';
 import { HelperOutlet, useResolver } from './reactRouterHelpers';
 import bigFile from './big-file.json';
 
@@ -7,11 +8,13 @@ function LazyHome() {
   const data = useResolver();
   console.log(data);
 
+
   useEffect(() => {
     console.log('LazyHome INIT');
     const test = bigFile.find((i: any) => i._id === 1);
     if (test) {console.log(test);}
   }, []);
+
   return (
     <div>
       <h2>LAZY</h2>

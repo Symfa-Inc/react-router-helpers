@@ -17,7 +17,7 @@ export interface OnlyHelperFields {
   title?: string;
   titleResolver?: TitleResolver;
   // loadElement?: () => Promise<{default: React.ComponentType<any>}>;
-  loadElement?: any;
+  loadElement?: React.LazyExoticComponent<() => JSX.Element> | React.ReactNode;
   loadingComponent?: React.ReactNode;
 }
 
@@ -59,4 +59,9 @@ export enum TitleResolverStatus {
   RouteFailed,
 
   RouteUpdate
+}
+
+export interface LazyLoadError {
+  error: { message: string; stack: string; };
+  errorInfo: { componentStack: string; };
 }

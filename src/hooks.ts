@@ -1,5 +1,5 @@
-import React from "react";
-import { RouteContext } from "./context";
+import React from 'react';
+import { RouteContext } from './context';
 
 export function useResolver<T = any>(): T {
   return React.useContext(RouteContext).routeResolverInfos;
@@ -13,10 +13,14 @@ export function useResolverStatus() {
   return React.useContext(RouteContext).resolverStatus;
 }
 
-export function useLazyComponentStatus() {
+export function useLazyStatus() {
   return React.useContext(RouteContext).lazyComponentStatus;
 }
 
 export function useStatus() {
   return React.useContext(RouteContext).status;
+}
+
+export function useLazyError() {
+  return React.useContext(RouteContext).lazyLoadingError;
 }

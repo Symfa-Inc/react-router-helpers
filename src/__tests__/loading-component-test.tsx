@@ -1,12 +1,14 @@
 import { expect } from '@jest/globals';
 import * as React from 'react';
 import { FC, useEffect } from 'react';
+import { Simulate } from 'react-dom/test-utils';
 import { MemoryRouter, useNavigate } from 'react-router-dom';
 import * as TestRenderer from 'react-test-renderer';
-import { useGuardStatus, useLazyComponentStatus, useResolverStatus } from '../hooks';
+import { useGuardStatus, useLazyStatus, useLazyError, useResolverStatus } from '../hooks';
 import { HelperOutlet } from '../route-helper';
-import { HelperRouteObject, RouteHelperStatus } from '../types';
+import { HelperRouteObject, LazyLoadError, RouteHelperStatus } from '../types';
 import { testIn3DifferentModes } from './utils/check-with-3-different-envs';
+import { render, screen } from '@testing-library/react';
 import {
   longestWorkDuration,
   mediumWorkDuration,
@@ -20,16 +22,19 @@ import { mockSyncGuard } from './utils/mock-sync-guard';
 import { RoutesRenderer } from './utils/RoutesRenderer';
 import { wait } from './utils/wait';
 const LazyHome = React.lazy(() => import('../components-for-test/LazyHome'));
+const LazyHomeWithAnError = React.lazy(() => import('../components-for-test/LazyHomeWithAnError'));
 
 const LoadingComponent: FC<{
   onGuardStatusChange?: (s: RouteHelperStatus) => void;
   onResolverStatusChange?: (s: RouteHelperStatus) => void;
   onLazyComponentStatusChange?: (s: RouteHelperStatus) => void;
+  onLazyError?: (e?: LazyLoadError) => void;
   onMount?: () => void;
 }> = props => {
   const guardStatus = useGuardStatus();
   const resolverStatus = useResolverStatus();
-  const lazyComponentStatus = useLazyComponentStatus();
+  const lazyComponentStatus = useLazyStatus();
+  const lazyError = useLazyError();
 
   useEffect(() => {
     if (typeof props.onMount === 'function') {
@@ -54,6 +59,12 @@ const LoadingComponent: FC<{
       props.onLazyComponentStatusChange(lazyComponentStatus);
     }
   }, [lazyComponentStatus]);
+
+  useEffect(() => {
+    if (typeof props.onLazyError === 'function') {
+      props.onLazyError(lazyError);
+    }
+  }, [lazyError]);
 
   return <></>;
 };
@@ -1708,7 +1719,7 @@ describe('loadingComponent', () => {
           routes: prodRoutes,
           initialPath: '/child',
           validateResultInRealEnv: async () => {
-            await wait(minimalDurationBeforeShowLoading + minimalWorkDuration);
+            await wait(minimalDurationBeforeShowLoading + mediumWorkDuration);
             expect(prodParentGuardStatuses.length).toBe(1);
             expect(prodParentGuardStatuses[0]).toBe(RouteHelperStatus.Loading);
 
@@ -1897,6 +1908,43 @@ describe('loadingComponent', () => {
       await wait(longestWorkDuration + mediumWorkDuration);
       expect(statuses.length).toBe(1);
       expect(statuses[0]).toBe(RouteHelperStatus.Initial);
+    });
+
+    it('should receive an error',  async () => {
+
+      const lazyStatuses: RouteHelperStatus[] = [];
+      let error;
+      const routes: HelperRouteObject[] = [
+        {
+          path: '/',
+          loadElement: <LazyHomeWithAnError />,
+          loadingComponent: (
+            <LoadingComponent
+              onLazyComponentStatusChange={(s: RouteHelperStatus) => {
+                lazyStatuses.push(s);
+              }}
+              onLazyError={e => {
+                error = e;
+              }}
+            />
+          ),
+        },
+      ];
+
+      await TestRenderer.act(() => {
+        render(
+          <MemoryRouter initialEntries={['/']}>
+            <RoutesRenderer routes={routes} />
+          </MemoryRouter>,
+        );
+      });
+
+      await wait(longestWorkDuration);
+
+      expect(lazyStatuses.length).toBe(1);
+      expect(lazyStatuses[0]).toBe(RouteHelperStatus.Failed);
+
+      expect(error).not.toBeFalsy();
     });
   });
 });

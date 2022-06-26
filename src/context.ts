@@ -1,5 +1,5 @@
 import React from 'react';
-import { RouteHelperStatus } from './types';
+import { LazyLoadError, RouteHelperStatus } from './types';
 
 export const RouteContext = React.createContext<{
   routeResolverInfos: any;
@@ -10,6 +10,7 @@ export const RouteContext = React.createContext<{
   resolverStatus: RouteHelperStatus;
   lazyComponentStatus: RouteHelperStatus;
   status: RouteHelperStatus;
+  lazyLoadingError?: LazyLoadError;
 }>({
   routeResolverInfos: {},
   canStartToLoadWorkers: true,

@@ -17,7 +17,7 @@ import { ErrorBoundary } from './ErrorBoundary';
 import { useManager } from './inner-hooks';
 import {
   HelperManager,
-  HelperRouteObjectProps,
+  HelperRouteObjectProps, LazyLoadError,
   LazyLoadingInnerStatus,
   OnlyHelperFields,
   RouteHelperStatus,
@@ -112,6 +112,10 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
   const [guardStatus, setGuardStatus] = useState<RouteHelperStatus>(RouteHelperStatus.Initial);
   const [resolverStatus, setResolverStatus] = useState<RouteHelperStatus>(RouteHelperStatus.Initial);
   const [lazyComponentStatus, setLazyComponentStatus] = useState<RouteHelperStatus>(RouteHelperStatus.Initial);
+  const [lazyLoadingError, setLazyLoadingError] = useState<LazyLoadError>({
+    error: { message: '', stack: ''},
+    errorInfo: { componentStack: '' }
+  });
 
   const [isMinimalDurationExceed, setMinimalDurationExceed] = useState(false);
 
@@ -432,7 +436,7 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
   const handleSetLazyError = useCallback((error: { message: string; stack: string; }, errorInfo: { componentStack: string; }) => {
     setLazyComponentStatusNormalized(RouteHelperStatus.Failed);
     setLazyLoadingInnerStatusNormalized(LazyLoadingInnerStatus.Failed);
-    console.log('error ' + JSON.stringify(error) + JSON.stringify(errorInfo));
+    setLazyLoadingError({ error, errorInfo });
   }, []);
   //#endregion fallback methods
 
@@ -455,6 +459,7 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
         resolverStatus,
         lazyComponentStatus,
         status: RouteHelperStatus.Initial,
+        lazyLoadingError
       }}
     >
       <RouteContext.Consumer>{() =>
