@@ -11,10 +11,13 @@ import {
   minimalDurationBeforeShowLoading,
   minimalWorkDuration,
 } from './utils/general-utils';
+import { mockAsyncGuard } from './utils/mock-async-guard';
+import { mockAsyncResolver } from './utils/mock-async-resolver';
 import { RoutesRenderer } from './utils/RoutesRenderer';
 import { wait } from './utils/wait';
 
 const LazyHome = React.lazy(() => import('../components-for-test/LazyHome'));
+const LazyHomeWithResolvers = React.lazy(() => import('../components-for-test/LazyHomeWithResolvers'));
 const LazyChild1 = React.lazy(() => import('../components-for-test/LazyChild1'));
 const LazyChild2 = React.lazy(() => import('../components-for-test/LazyChild2'));
 const LazyHomeWithOutlet = React.lazy(() => import('../components-for-test/LazyHomeWithOutlet'));
@@ -25,7 +28,7 @@ describe('loadElement', () => {
       const routes: HelperRouteObject[] = [
         {
           path: '/',
-          loadElement: <LazyHome/>,
+          loadElement: <LazyHome />,
         },
       ];
 
@@ -47,11 +50,11 @@ describe('loadElement', () => {
       const routes: HelperRouteObject[] = [
         {
           path: '/',
-          element: <LazyHome/>,
+          element: <LazyHome />,
           children: [
             {
               path: 'child',
-              element: <LazyChild1/>,
+              element: <LazyChild1 />,
             },
           ],
         },
@@ -60,8 +63,9 @@ describe('loadElement', () => {
       await TestRenderer.act(() => {
         render(
           <MemoryRouter initialEntries={['/child']}>
-            <RoutesRenderer routes={routes}/>
-          </MemoryRouter>);
+            <RoutesRenderer routes={routes} />
+          </MemoryRouter>,
+        );
       });
 
       await wait(minimalDurationBeforeShowLoading + minimalWorkDuration);
@@ -73,15 +77,15 @@ describe('loadElement', () => {
       const routes: HelperRouteObject[] = [
         {
           path: '/',
-          element: <LazyHome/>,
+          element: <LazyHome />,
           children: [
             {
               path: 'child',
-              element: <LazyChild1/>,
+              element: <LazyChild1 />,
               children: [
                 {
                   path: 'child2',
-                  element: <LazyChild2/>,
+                  element: <LazyChild2 />,
                 },
               ],
             },
@@ -89,12 +93,12 @@ describe('loadElement', () => {
         },
       ];
 
-
       await TestRenderer.act(() => {
         render(
           <MemoryRouter initialEntries={['/child/child2']}>
-            <RoutesRenderer routes={routes}/>
-          </MemoryRouter>);
+            <RoutesRenderer routes={routes} />
+          </MemoryRouter>,
+        );
       });
 
       await wait(minimalDurationBeforeShowLoading * 2 + minimalWorkDuration);
@@ -108,11 +112,11 @@ describe('loadElement', () => {
       const routes: HelperRouteObject[] = [
         {
           path: '/',
-          element: <LazyHome/>,
+          element: <LazyHome />,
           children: [
             {
               path: 'child',
-              element: <LazyChild1/>,
+              element: <LazyChild1 />,
             },
           ],
         },
@@ -137,11 +141,11 @@ describe('loadElement', () => {
       const routes: HelperRouteObject[] = [
         {
           path: '/',
-          element: <LazyHomeWithOutlet/>,
+          element: <LazyHomeWithOutlet />,
           children: [
             {
               path: 'child',
-              element: <LazyChild1/>,
+              element: <LazyChild1 />,
             },
           ],
         },
@@ -150,8 +154,9 @@ describe('loadElement', () => {
       await TestRenderer.act(() => {
         render(
           <MemoryRouter initialEntries={['/child']}>
-            <RoutesRenderer routes={routes}/>
-          </MemoryRouter>);
+            <RoutesRenderer routes={routes} />
+          </MemoryRouter>,
+        );
       });
 
       await wait(minimalDurationBeforeShowLoading + minimalWorkDuration);
@@ -161,4 +166,89 @@ describe('loadElement', () => {
     });
   });
 
+  describe('with guards', () => {
+    describe('can activate true', () => {
+      const routes: HelperRouteObject[] = [
+        {
+          path: '/',
+          loadElement: <LazyHome />,
+          guards: [mockAsyncGuard(true, longestWorkDuration)],
+        },
+      ];
+
+      testIn3DifferentModes({
+        routes,
+        initialPath: '/',
+        validateResultInTestEnv: async renderer => {
+          await wait(longestWorkDuration + mediumWorkDuration);
+
+          expect(renderer.toJSON()).toMatchInlineSnapshot(`
+          <div>
+            Home
+          </div>
+        `);
+        },
+      });
+    });
+
+    describe('can activate false', () => {
+      const routes: HelperRouteObject[] = [
+        {
+          path: '/',
+          loadElement: <LazyHome />,
+          guards: [mockAsyncGuard(false, longestWorkDuration)],
+        },
+      ];
+
+      testIn3DifferentModes({
+        routes,
+        initialPath: '/',
+        validateResultInTestEnv: async renderer => {
+          await wait(longestWorkDuration + mediumWorkDuration);
+
+          expect(renderer.toJSON()).toMatchInlineSnapshot(`
+              <div
+                style={
+                  Object {
+                    "display": "block",
+                  }
+                }
+              />
+           `);
+        },
+      });
+    });
+  });
+
+  describe('with resolvers', () => {
+    describe('with 2 resolvers', () => {
+      const routes: HelperRouteObject[] = [
+        {
+          path: '/',
+          loadElement: <LazyHomeWithResolvers />,
+          resolvers: {
+            userName: mockAsyncResolver(longestWorkDuration, 'doe'),
+            permissions: mockAsyncResolver(longestWorkDuration, 'admin'),
+          },
+        },
+      ];
+
+      testIn3DifferentModes({
+        routes,
+        initialPath: '/',
+        validateResultInTestEnv: async renderer => {
+          await wait(longestWorkDuration + mediumWorkDuration);
+
+          expect(renderer.toJSON()).toMatchInlineSnapshot(`
+            <div>
+              Home
+              doe
+               - 
+              admin
+            </div>
+           `);
+        },
+      });
+    });
+  });
 });
