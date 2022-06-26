@@ -1,6 +1,6 @@
 import React from 'react';
 
-describe('title in route', () => {
+describe.skip('title in route', () => {
   describe('click on the same link', () => {
     it('with absolute path', () => {
       cy.visit('http://localhost:3006/child/1234').then(() => {

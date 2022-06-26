@@ -251,4 +251,28 @@ describe('loadElement', () => {
       });
     });
   });
+
+  describe('if loadComponent was passed, usual component should be ignored', () => {
+    const routes: HelperRouteObject[] = [
+      {
+        path: '/',
+        element: <>Not lazy home</>,
+        loadElement: <LazyHome />,
+      },
+    ];
+
+    testIn3DifferentModes({
+      routes,
+      initialPath: '/',
+      validateResultInTestEnv: async renderer => {
+        await wait(longestWorkDuration + mediumWorkDuration);
+
+        expect(renderer.toJSON()).toMatchInlineSnapshot(`
+          <div>
+            Home
+          </div>
+        `);
+      },
+    });
+  });
 });

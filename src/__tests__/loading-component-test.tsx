@@ -3,7 +3,7 @@ import * as React from 'react';
 import { FC, useEffect } from 'react';
 import { MemoryRouter, useNavigate } from 'react-router-dom';
 import * as TestRenderer from 'react-test-renderer';
-import { useGuardStatus, useResolverStatus } from '../hooks';
+import { useGuardStatus, useLazyComponentStatus, useResolverStatus } from '../hooks';
 import { HelperOutlet } from '../route-helper';
 import { HelperRouteObject, RouteHelperStatus } from '../types';
 import { testIn3DifferentModes } from './utils/check-with-3-different-envs';
@@ -19,14 +19,17 @@ import { mockSyncResolver } from './utils/mock-resolver';
 import { mockSyncGuard } from './utils/mock-sync-guard';
 import { RoutesRenderer } from './utils/RoutesRenderer';
 import { wait } from './utils/wait';
+const LazyHome = React.lazy(() => import('../components-for-test/LazyHome'));
 
 const LoadingComponent: FC<{
   onGuardStatusChange?: (s: RouteHelperStatus) => void;
   onResolverStatusChange?: (s: RouteHelperStatus) => void;
+  onLazyComponentStatusChange?: (s: RouteHelperStatus) => void;
   onMount?: () => void;
 }> = props => {
   const guardStatus = useGuardStatus();
   const resolverStatus = useResolverStatus();
+  const lazyComponentStatus = useLazyComponentStatus();
 
   useEffect(() => {
     if (typeof props.onMount === 'function') {
@@ -45,6 +48,12 @@ const LoadingComponent: FC<{
       props.onResolverStatusChange(resolverStatus);
     }
   }, [resolverStatus]);
+
+  useEffect(() => {
+    if (typeof props.onLazyComponentStatusChange === 'function') {
+      props.onLazyComponentStatusChange(lazyComponentStatus);
+    }
+  }, [lazyComponentStatus]);
 
   return <></>;
 };
@@ -1777,7 +1786,7 @@ describe('loadingComponent', () => {
           routes: devRoutes,
           initialPath: '/child',
           validateResultInRealEnv: async () => {
-            await wait(minimalDurationBeforeShowLoading);
+            await wait(minimalDurationBeforeShowLoading + minimalWorkDuration);
             expect(parentGuardStatuses.length).toBe(2); // 1 in prod env
             expect(parentGuardStatuses[0]).toBe(RouteHelperStatus.Loading);
 
@@ -1852,6 +1861,42 @@ describe('loadingComponent', () => {
           },
         });
       });
+    });
+  });
+
+  describe('for lazy component', () => {
+    it('should not receive lazy component status', async () => {
+      const statuses: RouteHelperStatus[] = [];
+
+      const routes: HelperRouteObject[] = [
+        {
+          path: '/',
+          element: <LazyHome />,
+          guards: [mockAsyncGuard(true, longestWorkDuration)],
+          resolvers: {
+            lastName: mockAsyncResolver(longestWorkDuration, 'doe'),
+          },
+          loadingComponent: (
+            <LoadingComponent
+              onLazyComponentStatusChange={(s: RouteHelperStatus) => {
+                statuses.push(s);
+              }}
+            />
+          ),
+        },
+      ];
+
+      await TestRenderer.act(() => {
+        TestRenderer.create(
+          <MemoryRouter initialEntries={['/']}>
+            <RoutesRenderer routes={routes} />
+          </MemoryRouter>,
+        );
+      });
+
+      await wait(longestWorkDuration + mediumWorkDuration);
+      expect(statuses.length).toBe(1);
+      expect(statuses[0]).toBe(RouteHelperStatus.Initial);
     });
   });
 });

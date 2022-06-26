@@ -59,8 +59,8 @@ function Home() {
   );
 }
 
-const Lazy = lazy(() => import('./LazyComponent'));
-const Lazy2 = lazy(() => import('./LazyComponent2'));
+const Lazy = lazy(() => import('./LazyHome'));
+const Lazy2 = lazy(() => import('./LazyChild'));
 
 
 function Child() {
@@ -316,7 +316,7 @@ function App() {
       {/*  /!*  element={*!/*/}
       {/*  /!*    <RouteHelper*!/*/}
       {/*  /!*      guards={[mockGuard()]}*!/*/}
-      {/*  /!*      load={import('./LazyComponent')}*!/*/}
+      {/*  /!*      load={import('./LazyHome')}*!/*/}
       {/*  /!*    />*!/*/}
       {/*  /!*  }*!/*/}
       {/*  /!*>*!/*/}
