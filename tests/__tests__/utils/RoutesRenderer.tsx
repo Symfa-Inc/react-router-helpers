@@ -1,5 +1,5 @@
-import { useRoutesWithHelper } from '../../route-helper-wrappers';
-import { HelperRouteObject } from '../../types';
+import { useRoutesWithHelper } from '../../../src/route-helper-wrappers';
+import { HelperRouteObject } from '../../../src/types';
 
 export function RoutesRenderer({
   routes,

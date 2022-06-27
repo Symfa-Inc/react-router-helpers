@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client';
 import { act } from 'react-dom/test-utils';
 import { MemoryRouter } from 'react-router-dom';
 import * as TestRenderer from 'react-test-renderer';
-import { HelperRouteObject } from '../../types';
+import { HelperRouteObject } from '../../../src/types';
 import { RoutesRenderer } from './RoutesRenderer';
 import { wait } from './wait';
 

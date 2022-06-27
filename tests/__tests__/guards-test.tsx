@@ -4,8 +4,8 @@ import { FC, useEffect } from 'react';
 import { act } from 'react-dom/test-utils';
 import { MemoryRouter, useNavigate, useParams } from 'react-router-dom';
 import * as TestRenderer from 'react-test-renderer';
-import { HelperOutlet, useGuardStatus } from '../index';
-import { HelperRouteObject, RouteHelperStatus } from '../types';
+import { HelperOutlet, useGuardStatus } from '../../src';
+import { HelperRouteObject, RouteHelperStatus } from '../../src/types';
 import { testIn3DifferentModes } from './utils/check-with-3-different-envs';
 import {
   minimalWorkDuration,

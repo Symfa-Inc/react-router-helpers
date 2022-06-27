@@ -3,9 +3,9 @@ import { FC } from 'react';
 import { act } from 'react-dom/test-utils';
 import { MemoryRouter, Outlet, useNavigate, useParams } from 'react-router-dom';
 import * as TestRenderer from 'react-test-renderer';
-import { useResolver } from '../hooks';
-import { HelperOutlet } from '../route-helper';
-import { HelperRouteObject } from '../types';
+import { useResolver } from '../../src/hooks';
+import { HelperOutlet } from '../../src/route-helper';
+import { HelperRouteObject } from '../../src/types';
 import {
   minimalWorkDuration,
   longestWorkDuration,

@@ -1,8 +1,8 @@
 import { expect } from '@jest/globals';
 import * as React from 'react';
 import { Outlet } from 'react-router-dom';
-import { HelperOutlet } from '../index';
-import { HelperRouteObject } from '../types';
+import { HelperOutlet } from '../../src';
+import { HelperRouteObject } from '../../src/types';
 import { testIn3DifferentModes } from './utils/check-with-3-different-envs';
 import { longestWorkDuration, mediumWorkDuration } from './utils/general-utils';
 import { wait } from './utils/wait';

@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react';
 import * as React from 'react';
 import { MemoryRouter } from 'react-router-dom';
 import * as TestRenderer from 'react-test-renderer';
-import { HelperRouteObject } from '../types';
+import { HelperRouteObject } from '../../src/types';
 import { testIn3DifferentModes } from './utils/check-with-3-different-envs';
 import {
   longestWorkDuration,

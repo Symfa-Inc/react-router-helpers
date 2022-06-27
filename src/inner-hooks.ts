@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { HelperManager, OnStatusChange, RouteHelperStatus, TitleResolverStatus } from './types';
+import { HelperManager, RouteHelperStatus, TitleResolverStatus } from './types';
 
 const isNullOrUndefined = (obj?: any) => {
   return obj === null || obj === undefined;
@@ -8,18 +8,6 @@ const isNullOrUndefined = (obj?: any) => {
 export function useManager({ guards, resolvers, title, titleResolver }: HelperManager) {
 
   const previouslyResolvedTitleRef = useRef<string>('');
-  // useEffect(() => {
-  //   if (hasRouteTitle()) {
-  //     const prevTitle = document.title;
-  //     document.title = title!;
-  //
-  //     return () => {
-  //       if (hasRouteTitle()) {
-  //         document.title = prevTitle;
-  //       }
-  //     };
-  //   }
-  // }, []);
 
   async function evaluateGuards(isComponentAliveRef: React.MutableRefObject<boolean>): Promise<RouteHelperStatus | null> {
     for (const guard of guards) {
@@ -32,7 +20,7 @@ export function useManager({ guards, resolvers, title, titleResolver }: HelperMa
           return RouteHelperStatus.Failed;
         }
       } catch (e) {
-        console.error("Error in guards");
+        console.error('Error in guards');
         console.error(e);
         return RouteHelperStatus.Failed;
       }
@@ -55,7 +43,7 @@ export function useManager({ guards, resolvers, title, titleResolver }: HelperMa
     }
 
     const resultOfResolvers = await Promise.all(promises).catch(e => {
-      console.error("Error in resolvers");
+      console.error('Error in resolvers');
       console.error(e);
       status = RouteHelperStatus.Failed;
     });
@@ -63,7 +51,7 @@ export function useManager({ guards, resolvers, title, titleResolver }: HelperMa
     if (status === RouteHelperStatus.Failed) {
       return {
         status,
-        infos: {}
+        infos: {},
       };
     }
 
@@ -74,7 +62,7 @@ export function useManager({ guards, resolvers, title, titleResolver }: HelperMa
 
     return {
       infos,
-      status
+      status,
     };
   }
 
@@ -87,12 +75,11 @@ export function useManager({ guards, resolvers, title, titleResolver }: HelperMa
   }
 
   function setTitleWithName(title: string) {
-    // console.log('SET TITLE +++++++++++++++++++++++ ' + title);
     document.title = title;
   }
 
   function hasRouteTitleResolver(): boolean {
-    return typeof titleResolver == "function";
+    return typeof titleResolver == 'function';
   }
 
   function setTitle() {
@@ -123,6 +110,6 @@ export function useManager({ guards, resolvers, title, titleResolver }: HelperMa
     evaluateResolvers,
     getResolversStatusBeforeEvaluating,
     resolveTitle,
-    setTitle
+    setTitle,
   };
 }

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
-import { useResolver } from '../hooks';
-import { HelperOutlet } from '../route-helper';
+import { useResolver } from '../../src/hooks';
+import { HelperOutlet } from '../../src/route-helper';
 
 const LazyHomeWithResolvers = () => {
   const info = useResolver<{ userName: string; permissions: string; }>();

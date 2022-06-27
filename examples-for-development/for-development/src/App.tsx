@@ -27,15 +27,7 @@ import {
 //   };
 // };
 
-// function Another() {
-//   useEffect(() => {
-//     console.log('Another inited');
-//     return () => {
-//       console.log('Another uninited');
-//     };
-//   }, []);
-//   return <>Hello</>
-// }
+
 
 function Home() {
 
@@ -201,12 +193,12 @@ const RoutesWrapper = () => {
     //   setTimeout(() => setLoading(true), 200);
     // }, []);
 
-    return (<> {error ? <>Error occured</> : (<div className="lds-ring">
+    return (<> <div className="lds-ring">
       <div></div>
       <div></div>
       <div></div>
       <div></div>
-    </div>)}
+    </div>
       </>);
   };
   return useRoutesWithHelper([
@@ -220,7 +212,7 @@ const RoutesWrapper = () => {
       loadingComponent: <LoadingComponent />,
       loadElement: <Lazy />,
       // title: 'HOME',
-      guards: [mockGuard(true, "HOME 1")],
+      // guards: [mockGuard(true, "HOME 1")],
       // resolvers: {
       //   userInfo: () => async () => {
       //     await wait(2000);
@@ -278,7 +270,6 @@ const RoutesWrapper = () => {
               path: ":id",
               element: <Child2 />,
               // guards: [mockGuard(true, 'CHILD 1 =========================='), mockGuard(true, 'CHILD 1-2 ==========================')],
-              title: "2 test title",
               // guards: [mockGuard(true, "CHILD GUARD")],
               // resolvers: {
               //     userInfo: () => async () => {

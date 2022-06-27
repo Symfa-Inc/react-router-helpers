@@ -8,6 +8,6 @@ cypress/screenshots
 .idea
 package-lock.json
 /coverage/
-/example/cypress-testing-app/src/reactRouterHelpers/
-/example/for-development/build/
-/example/for-development/src/reactRouterHelpers/
+/examples-for-development/cypress-testing-app/src/reactRouterHelpers/
+/examples-for-development/for-development/build/
+/examples-for-development/for-development/src/reactRouterHelpers/

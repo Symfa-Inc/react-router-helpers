@@ -45,12 +45,11 @@
   "scripts": {
     "build": "rollup -c",
     "build:watch": "rollup -c -w",
-    "install:all": "npm i && cd example/for-development && npm i",
-    "start:example-for-test": "cd example/for-development && npm start",
-    "dev:example-for-test": "concurrently --kill-others \"npm run build:watch\" \"npm run start:example-for-test\"",
-    "lint:example-for-test": "eslint ./src/**/*.ts ./src/**/*.tsx example/for-development/src/**/*.ts example/for-development/src/**/*.ts",
-    "lint:example-for-test:fix": "npm run lint:example-for-test -- --fix",
-    "deploy-example": "cd example && npm run deploy",
+    "install:all": "npm i && cd examples-for-development/for-development && npm i",
+    "start:example-for-test": "cd examples-for-development/for-development && npm start",
+    "dev:example-for-test": "concurrently --kill-others \"npm run build:watch\" \"npm run start:examples-for-development-for-test\"",
+    "lint:example-for-test": "eslint ./src/**/*.ts ./src/**/*.tsx examples-for-development/for-development/src/**/*.ts examples-for-development/for-development/src/**/*.ts",
+    "lint:example-for-test:fix": "npm run lint:examples-for-development-for-test -- --fix",
     "pretest": "npm run build",
     "test": "jest",
     "test:cy": "cypress run"

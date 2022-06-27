@@ -4,9 +4,9 @@ import { FC, useEffect } from 'react';
 import { Simulate } from 'react-dom/test-utils';
 import { MemoryRouter, useNavigate } from 'react-router-dom';
 import * as TestRenderer from 'react-test-renderer';
-import { useGuardStatus, useLazyStatus, useLazyError, useResolverStatus } from '../hooks';
-import { HelperOutlet } from '../route-helper';
-import { HelperRouteObject, LazyLoadError, RouteHelperStatus } from '../types';
+import { useGuardStatus, useLazyStatus, useLazyError, useResolverStatus } from '../../src/hooks';
+import { HelperOutlet } from '../../src/route-helper';
+import { HelperRouteObject, LazyLoadError, RouteHelperStatus } from '../../src/types';
 import { testIn3DifferentModes } from './utils/check-with-3-different-envs';
 import { render, screen } from '@testing-library/react';
 import {

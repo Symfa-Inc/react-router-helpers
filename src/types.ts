@@ -14,10 +14,9 @@ export type OnStatusChange = (status: RouteHelperStatus) => void;
 export interface OnlyHelperFields {
   guards?: Guard[];
   resolvers?: Record<string, Resolver>;
-  title?: string;
-  titleResolver?: TitleResolver;
-  // loadElement?: () => Promise<{default: React.ComponentType<any>}>;
-  loadElement?: React.LazyExoticComponent<() => JSX.Element> | React.ReactNode;
+  // title?: string;
+  // titleResolver?: TitleResolver;
+  loadElement?: JSX.Element;
   loadingComponent?: React.ReactNode;
 }
 

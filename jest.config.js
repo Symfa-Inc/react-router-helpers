@@ -3,6 +3,6 @@ module.exports = {
   transform: {
     '\\.[jt]sx?$': './jest-transformer.js',
   },
-  setupFilesAfterEnv: ['./src/__tests__/utils/setupTests.js'],
+  setupFilesAfterEnv: ['./tests/__tests__/utils/setupTests.js'],
   testEnvironment: 'jsdom',
 };

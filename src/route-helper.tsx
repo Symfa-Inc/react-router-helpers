@@ -23,26 +23,15 @@ import {
   RouteHelperStatus,
 } from './types';
 
-const LAZY_LOADING_NORMALIZATION_TIME_PARENT = 1;
-const LAZY_LOADING_NORMALIZATION_TIME_CHILD = 10;
+const LAZY_LOADING_NORMALIZATION_TIME = 1;
 
 const MINIMAL_TIMEOUT_BEFORE_SHOW_LOADING = 100;
 
-//   // TODO: Add metadata (title)
-//   // TODO: Add metadata (title) tests
+// TODO: Add metadata (title)
+// TODO: Add metadata (title) tests
 
-// TODO: BUG if press on the same link again
-// TODO: BUG if press on the last link - title was set from first parent
-// TODO: BUG if first press on child1 and then second press on child 2 - title was set from child1
-
-//  // TODO: Add preserve query params strategy for Link component
-//  // TODO: Add preserve query params strategy for Link component tests
-//
-//   // TODO: Add lazy loading
-//   // TODO: Add lazy loading tests
-
-// Loading component re-renders in slow networks
-// Cannot pass to loading component lazy loading status
+// TODO: Add preserve query params strategy for Link component
+// TODO: Add preserve query params strategy for Link component tests
 
 
 export const RouteHelper = (props: HelperRouteObjectProps) => {
@@ -53,18 +42,18 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
   const location = useLocation();
   //#endregion hooks usage
 
-  const COMPONENT_NAME = (props.element as any)?.type?.name;
-
   const initializeManagerParams = (): HelperManager => {
     const guards = props.guards || [];
     const resolvers = props.resolvers || {};
-    const titleResolver = props.titleResolver || null;
+    // const titleResolver = props.titleResolver || null;
 
     return {
       guards: guards.map(g => g()),
       resolvers: Object.keys(resolvers).reduce((acc, next) => ({ ...acc, [next]: resolvers[next]() }), {}),
-      title: props.title,
-      titleResolver: titleResolver !== null ? titleResolver() : null,
+      // title: props.title,
+      // titleResolver: titleResolver !== null ? titleResolver() : null,
+      title: undefined,
+      titleResolver: null,
     };
   };
   const manager = useManager(initializeManagerParams());
@@ -247,7 +236,6 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
   const evaluateGuardsAndResolvers = async () => {
     const initialStatus = manager.getGuardsStatusBeforeEvaluating();
 
-
     setGuardStatusNormalized(initialStatus);
 
     const guardStatus = await manager.evaluateGuards(isComponentStillAlive);
@@ -390,7 +378,7 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
         if (lazyLoadingInnerStatus !== LazyLoadingInnerStatus.RealTriggeredLoading) {
           setLazyLoadingInnerStatusNormalized(LazyLoadingInnerStatus.Loaded);
         }
-      }, LAZY_LOADING_NORMALIZATION_TIME_PARENT);
+      }, LAZY_LOADING_NORMALIZATION_TIME);
     }
   };
 
@@ -399,6 +387,7 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
     if (!wasSetRealTriggerForLazyLoading.current) {
       wasSetRealTriggerForLazyLoading.current = true;
       setLazyLoadingInnerStatusNormalized(LazyLoadingInnerStatus.RealTriggeredLoading);
+      setLazyComponentStatusNormalized(RouteHelperStatus.Loading);
     }
   };
 
@@ -423,9 +412,7 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
 
   //#region fallback methods
   const onDefaultFallbackInit = useCallback(() => {
-    // wasLoadingTriggeredFromFallback.current = true;
-    setNeedToShowLoadingComponentToReceivedStatus(true);
-    setLazyComponentStatusNormalized(RouteHelperStatus.Loading);
+    markInitLazyLoadingFromFallback();
   }, []);
 
   const onDefaultFallbackDestroy = useCallback(() => {

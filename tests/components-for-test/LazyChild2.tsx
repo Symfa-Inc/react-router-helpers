@@ -1,5 +1,5 @@
 import React from "react";
-import { HelperOutlet } from '../route-helper';
+import { HelperOutlet } from '../../src/route-helper';
 
 const LazyChild2 = () => {
   return <div>Child 2<HelperOutlet/></div>;

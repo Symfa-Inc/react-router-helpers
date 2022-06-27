@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { MemoryRouter, Outlet, Route, Routes } from 'react-router-dom';
 import * as TestRenderer from 'react-test-renderer';
-import { HelperOutlet, RouteHelper } from '../route-helper';
+import { HelperOutlet, RouteHelper } from '../../src/route-helper';
 import { mediumWorkDuration, longestWorkDuration, minimalWorkDuration } from './utils/general-utils';
 import { mockAsyncGuard } from './utils/mock-async-guard';
 import { wait } from './utils/wait';

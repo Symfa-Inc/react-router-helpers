@@ -1,7 +1,7 @@
 import { expect } from '@jest/globals';
 import * as React from 'react';
-import { HelperOutlet } from '../route-helper';
-import { HelperRouteObject } from '../types';
+import { HelperOutlet } from '../../src/route-helper';
+import { HelperRouteObject } from '../../src/types';
 import { testIn3DifferentModes } from './utils/check-with-3-different-envs';
 import { longestWorkDuration, mediumWorkDuration, minimalWorkDuration } from './utils/general-utils';
 import { mockAsyncGuard } from './utils/mock-async-guard';
