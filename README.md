@@ -1,25 +1,34 @@
-## Основная информация:
+# Why do you need it?
+The goals for that library are simplify, standardize and shift responsibility from for route protection
+from component to library.
 
-### Зачем вообще нужен этот роутер?
-  Цель этой библиотеки упростить и стандартизировать и переложить отвественность за защиту роута с самого компонента на плечи библиотеки.
-  Что входит в библиотеку:
-  * Защита роута (guard)
-  * Предоставление данных роуту перед его отображением (resolver)
-  * Встроенная поддержка lazy компонентов
-  * Если у юзера нету доступа к запрашиваемому lazy компоненту, то lazy компонент даже не будет загружаться по сети
-  * Встроенная поддержка спиннера и предоставление подробных статусов с помощью хуков на всех этапах загрузки компонента
+What the library can do:
+* Route protection (`guard`)
+* Providing data for component pages (`resolver`)
+* Lazy component support out of the box
+* If the user doesn't have access to the lazy component, then the lazy component won't even be loaded over network
+* Show loading component and provide detailed statuses with hooks on each step of component loading
 
-**Ну и конечно в библиотеку входит простой, в стиле реакта и не перегруженный интерфейс взаимодействия с библиотекой.**
+**Well, of course, the library includes a simple, react-style and not overloaded interface for interacting with the library. 😃**
 
-## Установка:
+# Setup:
 
-установить react-router-dom
-установить react-router-helper
+* install react-router-dom
 
-Как мигрировать с обычного react-router-dom:
+* install react-router-helper
 
-Начиная с версии react-router 6 более удобный способ настройки роутера - через javascript объекты, рассмотрим миграцию react-router с использованием useRoutes
-#### Example: ####
+# How to migrate from react-router-dom:
+
+Since the 6 version of react-router - the more convenient way of use router - 
+with javascript objects, lets go through setup react-router with `useRoutes`
+
+To fully migrate you need to:
+* Just need to replace `useRoutes` with `useRoutesWithHelper`
+* Replace `<Outlet />` to `<HelperOutlet />` in all places
+
+#### Example default react-router-dom: ####
+<br />
+
 ```tsx
 import { useRoutes } from "react-router-dom";
 
@@ -41,9 +50,11 @@ function App() {
   return element;
 }
 ```
+<br />
 
-Нам всего лишь надо заменить useRoutes на useRoutesWithHelper
-#### Example: ####
+#### Example with replaced `useRoute` to `useRoutesWithHelper`: ####
+<br />
+
 ```tsx
 import { useRoutesWithHelper } from "react-router-helper";
 
@@ -65,8 +76,11 @@ function App() {
   return element;
 }
 ```
-Так же, во всех местах где используется `<Outlet />` надо заменить на `<HelperOutlet />`
-#### Example: ####
+<br />
+
+#### Example before replace: ####
+<br />
+
 ```tsx
 import { Outlet } from 'react-router-dom';
 
@@ -80,7 +94,11 @@ function Dashboard() {
   );
 }
 ```
-Просто заменяем:
+<br />
+
+#### Example after replace: ####
+<br />
+
 ```tsx
 import { HelperOutlet } from "react-router-helper";
 
@@ -88,47 +106,53 @@ function Dashboard() {
   return (
     <div>
       <h1>Dashboard</h1>
-      
+
       <HelperOutlet />
     </div>
   );
 }
 ```
 
-**И все, фукнционал помощника может быть использовал в полной мере!**
+**That's all, the library's functionality can be fully used!**
 
-В библиотеке есть 3 вида сущностей:
+There are 3 types of entities in the library:
 * Guard
 * Resolver
 * Lazy component
-* 
-У всех у них есть индикаторы работы - статусы, всего есть 4 типа статусов:
-* **Initial** - Ещё не запущен
-* **Loading** - Загружается
-* **Loaded** - Загружен
-* **Failed** - По каком либо причине не смог отработать
 
-Получить статусы можно внутри компонента `LoadingComponent`:
-* Для получение статусов гардов - useGuardStatus
-* Для получение статусов резолверов - useResolverStatus
-* Для получение статусов lazy компонента - useLazyStatus
+All of them have indicators of work - statuses, there are 4 types of statuses in total:
+* **Initial** - Not initiated yet
+* **Loading** - Loading ( ͡° ͜ʖ ͡°)
+* **Loaded** - Loaded ( ͡° ͜ʖ ͡°)
+* **Failed** - Couldn't work for some reason
 
-Статусы нужны для более гибкого отображение индикаторов загрузки и ошибок.
-`LoadingComponent` по мимо того что принимает статусы, ещё используется в качество индикатора загрузки - лоадера.
+You can get statuses inside the `LoadingComponent` component:
+* To get guard statuses - useGuardStatus
+* To get resolver statuses - useResolverStatus
+* To get lazy component statuses - useLazyStatus
 
-## Guard:
 
-Когда вам нужно ‘защитить’ страницу от не авторизованного пользователя, ограничить обычного пользователя от админской страницы - гарды придут вам на помощь.
-К роутеру всего лишь надо создать сам гард и использовать его на необходимом маршруте, вот как выглядит созданный гард который не пустит не авторизованного пользователя на страницу нашего приложения:
+Statuses are needed for more flexible display of indicators
+loads and errors. `LoadingComponent`, in addition to accepting statuses, is also used as a loading indicator - a loader.
+
+# Guard:
+When you need to 'guard' a page from an unauthorized user or restrict a normal user from the admin page - guards will be helpful to you.
+You just need to create the guard itself and use it on the needed route,
+Here is what the created guard looks like that will not let an unauthorized user to hit the page of your application:
+
+<br />
+
 #### Example: ####
+<br />
+
 ```tsx
 export const authorizationGuard = () => () => {
   return localStorage.getItem('token') !== null;
 };
 ```
 
-И его использование:
-#### Example: ####
+Usage:
+
 ```tsx
 import { useRoutesWithHelper } from "react-router-helper";
 
@@ -144,11 +168,15 @@ function App() {
 }
 ```
 
+In other words, the guard must return true if the user can enter the given route and false if user cannot enter.
+Protection for our route - ready!
+To handle the situation when the guard returned false and the page was not loaded,
+we need to add a loadingComponent and inside that component we have access to hooks that can tell us about status changes of the guard!
+<br />
 
-То есть гард должен вернуть true если пользователь может зайти на данный марштут и false если он не может зайти. Защита для нашего маршрута - готова!
-Что бы обработать ситуацию когда гард вернул false и страница не была загружена, нам надо добавить loadingComponent и внутри него у нас есть доступ к хукам которые скажут нам о изменение статуса гарда!
-Создание loading component с редиректом:
-#### Example: ####
+#### Example creating a loading component with a redirect: ####
+<br />
+
 ```tsx
 import { useGuardStatus, RouteHelperStatus } from "react-router-helper";
 
@@ -165,8 +193,11 @@ export const LoadingComponent = () => {
   return <>Loading...</>;
 };
 ```
+<br />
 
 #### Example: ####
+<br />
+
 ```tsx
 import { useRoutesWithHelper } from "react-router-helper";
 
@@ -183,21 +214,22 @@ function App() {
 }
 ```
 
-### Более подробная информация о гардах:
+### More detailed information about guards:
 
-* Гарды могут быть как синхронные так и ассинхронные
+* Guards can be either synchronous or asynchronous.
+* In the guard, you can use hooks to get data from the store/route params or dispatch actions.
+* If the guard returns `false` - then the status of the guard is `Failed`
+* Guard statuses can be received inside LoadingComponent using the `useGuardStatus` hook
+* Since the guards field in the route is an array, there can be several guards
+* The order in which guards are called the same as they placed in an array - from left to right
+* As soon as one guard returns false, all guards on the right of failed one are not called.
+* If the guard threw an error, and it was not wrapped in a `try catch` block within the guard, then the guard's status will be `Failed`.
 
-* В гарде можно использовать хуки для получение данных со стора / параметров маршрута либо диспатчить экшены.
+<br />
 
-* Если гард возвращает `false` - то статус гардов становится `Failed`
+#### Example with dispatch: ####
+<br />
 
-* Статусы гардов можно получить внутри LoadingComponent с помощью хука `useGuardStatus`
-
-* Так как в роуте поле guards - это массив, гардов может быть несколько, порядок вызова гардов, такой как она располагаются в массиве - то есть слево на право, как только один гард возвращает false, все гарды которые находяться правее его - не вызываются.
-
-* Если гард бросил ошибку и она не была обернута в `try catch` внутри гарда - то статус гарда будет - `Failed`.
-
-#### Example с диспатчем: ####
 ```tsx
 export const userProfilePageGuard = () => {
   const params = useParams();
@@ -208,8 +240,11 @@ export const userProfilePageGuard = () => {
   };
 };
 ```
+<br />
 
-#### Example с получением статусов: ####
+#### Example with status receiving: ####
+<br />
+
 ```tsx
 import { useGuardStatus } from "react-router-helper";
 
@@ -224,11 +259,16 @@ export const LoadingComponent = () => {
 };
 ```
 
-## Resolver:
-Бывает, что нужно показать компонент и предварительно подтянуть к нему данные с сервера
-и обычно приходиться использовать `useEffect`, загружать данные, использовать `useState`
-для индикации загрузки данных, и здесь как раз нам приходит на помощь - `resolver`.
-#### Example - создание резолвера: ####
+# Resolver:
+It happens that you need to show a component and first pull data from the server to it,
+and usually you have to use `useEffect`, load data, use `useState`
+to indicate data loading, and this is where `resolver` comes to our help.
+
+<br />
+
+#### Example - resolver creation: ####
+<br />
+
 ```tsx
 export const userInfoResolver = () => async () => {
   const userInfo = await getUserInfo();
@@ -236,7 +276,11 @@ export const userInfoResolver = () => async () => {
   return userInfo;
 };
 ```
-#### Example использование резолвера: ####
+<br />
+
+#### Example resolver usage: ####
+<br />
+
 ```tsx
 import { useRoutesWithHelper } from "react-router-helper";
 
@@ -254,9 +298,13 @@ function App() {
 }
 ```
 
-Пока данные грузяться можно показать индикатор загрузки с помощью `LoadingComponent`
+While the data is being loaded, you can show a loading indicator using `LoadingComponent`
+
+<br />
 
 #### Example: ####
+<br />
+
 ```tsx
 import { useRoutesWithHelper } from "react-router-helper";
 
@@ -279,8 +327,13 @@ function App() {
 }
 ```
 
-Как только резолверы закончат свою работу, компонент будет отрендерен а данные которые резолверы вернут - можно получить с помощью хука - `useResolver`
+As soon as the resolvers finish their work, the component will be rendered and the data that the resolvers will
+return can be received with the hook - `useResolver`
+
+<br />
+
 #### Example: ####
+<br />
 
 ```tsx
 import { useRoutesWithHelper, useResolver } from "react-router-helper";
@@ -295,18 +348,21 @@ export function Dashboard() {
 }
 ```
 
-### Подробная информация по `resolver`:
+### More detailed information about resolver:
+* Resolvers can be either synchronous or asynchronous.
+* Resolvers, unlike guards, run simultaneously
+* In the resolver, you can use hooks to get data from the store / route parameters or dispatch actions.
+* Resolver statuses can be received inside LoadingComponent with the `useResolverStatus` hook
+* Since the `resolvers` field in the route is an object, there can be multiple resolvers.
+* The name of the key in the resolvers object is the name of the key to get values inside
+the component when using the `useResolver` hook.
+* If the resolver threw an error, and it was not wrapped in a `try catch` within the resolver, then the resolver status will be `Failed`.
 
-* резолверы могут быть как синхронные так и ассинхронные
+<br />
 
-* В резолвере можно использовать хуки для получение данных со стора / параметров марштура либо диспатчить экшены.
-* Статусы резолверов можно получить внутри LoadingComponent с помощью хука `useResolverStatus`
-* Так как в роуте поле `resolvers` - это объект, резолверов может быть несколько.
-* Название ключа в объекте резолверов - это название ключа для получения значений внутри компонента при использование хука `useResolver`.
+#### Example usage with redux toolkit: ####
+<br />
 
-* Если резолвер бросил ошибку и она не была обернута в `try catch` внутри резолвера- то статус резолвера будет - `Failed`.
-
-#### Example с использование с redux toolkit: ####
 ```tsx
 export const profilePageResolver = () => {
   const params = useParams();
@@ -317,7 +373,11 @@ export const profilePageResolver = () => {
   };
 };
 ```
-#### Example с получением статусов резолвера: ####
+<br />
+
+#### Example with status receiving: ####
+<br />
+
 ```tsx
 import { useResolverStatus } from "react-router-helper";
 
@@ -332,13 +392,16 @@ export const LoadingComponent = () => {
 };
 ```
 
-
-## Lazy Component:
+# Lazy Component:
 Библиотека поддерживает `lazy` компоненты из коробки и позволяет использовать их без дополнительных обёрток в виде `React.Suspense`
 и так же, позволяет при помощи *guards* оставить загрузку lazy компонента,
 если у пользователя нету доступа к странице / компонента - по ангуляровской аналогии *canLoad*.
 
+<br />
+
 #### Example стандартное использование lazy компонента в роутере: ####
+<br />
+
 ```tsx
 import { useRoutes } from 'react-router-dom';
 const Dashboard = React.lazy(() => import("./pages/Dashboard"));
@@ -357,8 +420,11 @@ function App() {
   return element;
 }
 ```
+<br />
 
 #### Example использование с помощью библиотеки: ####
+<br />
+
 ```tsx
 import { useRoutesWithHelper } from "react-router-helper";
 const Dashboard = React.lazy(() => import("./pages/Dashboard"));
@@ -374,7 +440,12 @@ function App() {
 }
 ```
 С использование `LoadingComponent` можно показать индикатор загрузки `lazy` компонента.
+
+<br />
+
 #### Example использование lazy компонента и отображение загрузки: ####
+<br />
+
 ```tsx
 import { useRoutesWithHelper } from "react-router-helper";
 const Dashboard = React.lazy(() => import("./pages/Dashboard"));
@@ -393,8 +464,7 @@ function App() {
 }
 ```
 
-
-### Подробная информация по lazy component:
+### More detailed information about lazy component:
 * Если на роутер у lazy компонента есть гард который вернёт false - lazy компонент даже не начнёт загружаться по сети.
 **Таким образом юзер который и не должен получить доступ к запрашиваемой странице - не будет загружать её бандл.**
 * С lazy компонентом так же можно использовать `resolvers` и получать значения через `useResolver` внутри lazy компонента
@@ -404,7 +474,11 @@ function App() {
 * то подробную информацию об ошибке можно получить внутри lazy loading компонента при помощи хука - `useLazyError`
 <Код с получение информации об ошибки>
 
+<br />
+
 #### Example с получением статусов lazy компонента: ####
+<br />
+
 ```tsx
 import { useLazyStatus } from "react-router-helper";
 
@@ -418,8 +492,11 @@ export const LoadingComponent = () => {
   return <>Loading...</>;
 };
 ```
+<br />
 
 #### Example получение информации об ошибки: ####
+<br />
+
 ```tsx
 import { useLazyStatus, useLazyError } from "react-router-helper";
 
@@ -439,19 +516,28 @@ export const LoadingComponent = () => {
 };
 ```
 
-## Loading Component:
+# Loading Component:
 `Loading component` - обычной компонент и универсальный способ для отображения загрузки и обработки изменений
 статусов от `guards`, `resolvers` и от `lazy component`. Внутри Loading component можно использовать стандартные
 хуки реакта / диспатчить экшены.
 Для того, что бы просто показать загрузку пока гарды, резолверы, lazy component загружаются / работают, достаточно просто написать:
+
+<br />
+
 #### Example с отображением загрузки: ####
+<br />
+
 ```tsx
 export const LoadingComponent = () => {
   return <>Loading...</>;
 };
 ```
 
+<br />
+
 #### Example с использованием LoadingComponent: ####
+<br />
+
 ```tsx
 import { useRoutesWithHelper } from "react-router-helper";
 
@@ -473,7 +559,10 @@ function App() {
 * для lazy component - useLazyStatus
 * для получение подробной ошибки при загрузки `lazy component` - `useLazyError`
 
+<br />
+
 #### Example с использованием LoadingComponent: ####
+<br />
 
 ```tsx
 import { RouteHelperStatus } from './types';
