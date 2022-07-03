@@ -486,7 +486,7 @@ function App() {
   let element = useRoutesWithHelper([
     {
       path: "/",
-      loadElement: <Dashboard />,
+      lazyElement: <Dashboard />,
     },
   ]);
   return element;
@@ -509,7 +509,7 @@ function App() {
   let element = useRoutesWithHelper([
     {
       path: "/",
-      loadElement: <Dashboard />,
+      lazyElement: <Dashboard />,
       loadingElement: <LoadingComponent />
     },
   ]);

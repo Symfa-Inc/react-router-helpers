@@ -210,7 +210,7 @@ const RoutesWrapper = () => {
       path: "/",
       // element: <Home />,
       loadingComponent: <LoadingComponent />,
-      loadElement: <Lazy />,
+      lazyElement: <Lazy />,
       // title: 'HOME',
       // guards: [mockGuard(true, "HOME 1")],
       // resolvers: {
@@ -231,7 +231,7 @@ const RoutesWrapper = () => {
       children: [
         {
           path: "child",
-          loadElement: <Lazy2 />,
+          lazyElement: <Lazy2 />,
           // element: <Child />,
           loadingComponent: <LoadingComponent />,
           resolvers: {

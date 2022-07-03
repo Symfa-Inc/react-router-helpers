@@ -16,7 +16,7 @@ export interface OnlyHelperFields {
   resolvers?: Record<string, Resolver>;
   // title?: string;
   // titleResolver?: TitleResolver;
-  loadElement?: JSX.Element;
+  lazyElement?: JSX.Element;
   loadingComponent?: React.ReactNode;
 }
 

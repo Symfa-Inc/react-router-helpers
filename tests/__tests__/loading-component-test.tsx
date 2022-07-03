@@ -1917,7 +1917,7 @@ describe('loadingComponent', () => {
       const routes: HelperRouteObject[] = [
         {
           path: '/',
-          loadElement: <LazyHomeWithAnError />,
+          lazyElement: <LazyHomeWithAnError />,
           loadingComponent: (
             <LoadingComponent
               onLazyComponentStatusChange={(s: RouteHelperStatus) => {

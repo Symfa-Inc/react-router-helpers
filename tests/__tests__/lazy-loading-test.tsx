@@ -22,13 +22,13 @@ const LazyChild1 = React.lazy(() => import('../components-for-test/LazyChild1'))
 const LazyChild2 = React.lazy(() => import('../components-for-test/LazyChild2'));
 const LazyHomeWithOutlet = React.lazy(() => import('../components-for-test/LazyHomeWithOutlet'));
 
-describe('loadElement', () => {
+describe('lazyElement', () => {
   describe('simple renders', () => {
     describe('one route should be rendered', () => {
       const routes: HelperRouteObject[] = [
         {
           path: '/',
-          loadElement: <LazyHome />,
+          lazyElement: <LazyHome />,
         },
       ];
 
@@ -171,7 +171,7 @@ describe('loadElement', () => {
       const routes: HelperRouteObject[] = [
         {
           path: '/',
-          loadElement: <LazyHome />,
+          lazyElement: <LazyHome />,
           guards: [mockAsyncGuard(true, longestWorkDuration)],
         },
       ];
@@ -195,7 +195,7 @@ describe('loadElement', () => {
       const routes: HelperRouteObject[] = [
         {
           path: '/',
-          loadElement: <LazyHome />,
+          lazyElement: <LazyHome />,
           guards: [mockAsyncGuard(false, longestWorkDuration)],
         },
       ];
@@ -225,7 +225,7 @@ describe('loadElement', () => {
       const routes: HelperRouteObject[] = [
         {
           path: '/',
-          loadElement: <LazyHomeWithResolvers />,
+          lazyElement: <LazyHomeWithResolvers />,
           resolvers: {
             userName: mockAsyncResolver(longestWorkDuration, 'doe'),
             permissions: mockAsyncResolver(longestWorkDuration, 'admin'),
@@ -257,7 +257,7 @@ describe('loadElement', () => {
       {
         path: '/',
         element: <>Not lazy home</>,
-        loadElement: <LazyHome />,
+        lazyElement: <LazyHome />,
       },
     ];
 

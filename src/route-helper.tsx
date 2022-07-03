@@ -308,7 +308,7 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
   }, [parentContext, guardStatus, resolverStatus]);
 
   //#region usual component handling
-  if (props.loadElement == undefined) {
+  if (props.lazyElement == undefined) {
     if (defaultReadyToMountCondition) {
       setReadyToMountElementNormalized();
     }
@@ -429,7 +429,7 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
 
 
   const elementToRender = defaultReadyToMountCondition ? ( // need to keep defaultReadyToMountCondition to start lazy loading for lazy component
-    props.loadElement
+    props.lazyElement
   ) : (
     <Outlet/>
   );

@@ -140,7 +140,7 @@ const RoutesWrapper = () => {
   return useRoutesWithHelper([
     {
       path: '/',
-      loadElement: <LazyHome/>,
+      lazyElement: <LazyHome/>,
       loadingComponent: <LoadingComponent/>,
       guards: [mockGuard(true, 400), mockGuard(true, 400)],
       resolvers: {
@@ -150,7 +150,7 @@ const RoutesWrapper = () => {
       children: [
         {
           path: 'child',
-          loadElement: <LazyChild />,
+          lazyElement: <LazyChild />,
           guards: [mockGuard(true, 400)],
         },
       ],
