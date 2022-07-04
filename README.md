@@ -19,8 +19,8 @@ What the library can do:
 
 # How to migrate from react-router-dom:
 
-Since the 6 version of react-router - the more convenient way of use router - 
-with javascript objects, this way is preferable to have more smooth experience.
+Since the 6 version of react-router - the more convenient way of using the router is with javascript objects,
+this way allows to have more smooth experience.
 
 To fully migrate you need to:
 * Just need to replace `useRoutes` with `useRoutesWithHelper`
@@ -79,7 +79,7 @@ function App() {
 ```
 <br />
 
-#### Example - before migration `<Outlet />` replace: ####
+#### Example - before migration `<Outlet />`: ####
 <br />
 
 ```tsx
@@ -97,7 +97,7 @@ function Dashboard() {
 ```
 <br />
 
-#### Example - after migration `<Outlet />` replace: ####
+#### Example - after migration to `<HelperOutlet />`: ####
 <br />
 
 ```tsx
@@ -173,8 +173,8 @@ There are 3 types of entities in the library:
 
 All of them have indicators of work - statuses, there are 4 types of statuses in total:
 * **Initial** - Not initiated yet
-* **Loading** - Loading ( ͡° ͜ʖ ͡°)
-* **Loaded** - Loaded ( ͡° ͜ʖ ͡°)
+* **Loading**
+* **Loaded**
 * **Failed** - Couldn't work for some reason
 
 You can get statuses inside the `LoadingComponent` component:
@@ -187,7 +187,7 @@ Statuses are needed for more flexible display of indicators
 loads and errors. `LoadingComponent`, in addition to accepting statuses, is also used as a loading indicator - a loader.
 
 # Guard:
-When you need to 'guard' a page from an unauthorized user or restrict a usual user from the admin page - guards will be helpful to you.
+When you need to 'guard' a page from an unauthorized user or regular a usual user from the admin page - guards will be helpful to you.
 You just need to create the guard itself and use it on the needed route.
 Here is what the created guard looks like that will not let an unauthorized user to hit the page of your application:
 
@@ -219,10 +219,10 @@ function App() {
 }
 ```
 
-In other words, the guard must return true if the user can enter the given route and false if user cannot enter.
+In other words, the guard must return `true` if the user can enter the given route and `false` if user cannot enter.
 Protection for our route - ready!
 
-To handle the situation when the guard returned false and the page was not loaded,
+To handle the situation when the guard returned `false` and the page was not loaded,
 we need to add a loadingComponent and inside that component we have access to hooks that can tell us about status changes of the guard!
 <br />
 
@@ -273,8 +273,8 @@ function App() {
 * If the guard returns `false` - then the status of the guard is `Failed`
 * Guard statuses can be received inside LoadingComponent using the `useGuardStatus` hook
 * Since the guards field in the route is an array, there can be several guards
-* The order in which guards are called the same as they placed in an array - from left to right
-* As soon as one guard returns false, all guards on the right of failed one are not called.
+* The order in which guards are called is the same as they placed in an array - from left to right
+* As soon as one guard returns `false`, all guards on the right of failed one are not called.
 * If the guard threw an error, and it was not wrapped in a `try catch` block within the guard, then the guard's status will be `Failed`.
 
 <br />
@@ -400,7 +400,7 @@ export function Dashboard() {
 }
 ```
 
-### More detailed information about resolver:
+### More detailed information about resolvers:
 * Resolvers can be either synchronous or asynchronous.
 * Resolvers, unlike guards, run simultaneously
 * In the resolver, you can use hooks to get data from the store / route parameters or dispatch actions.
@@ -518,7 +518,7 @@ function App() {
 ```
 
 ### More detailed information about lazy component:
-* If the lazy component has a guard on the router that returns false, the lazy component will not even start loading over the network.
+* If the lazy component has a guard on the router that returns `false`, the lazy component will not even start loading over the network.
 **In other words, a user who should not have access to the requested page / component will not download its bundle.**
 * With a lazy component, you can also use `resolvers` and get values with `useResolver` inside the lazy component
 * Detailed information about statuses `lazy` component can be received inside `LoadingComponent` with the `useLazyStatus` hook
@@ -607,7 +607,7 @@ function App() {
 }
 ```
 
-If you need to handle `Failed` status from `guards`, `resolvers`, `lazy component` - then you can use hooks
+If you need to handle statuses from `guards`, `resolvers`, `lazy components` - then you can use hooks
 * For `guards` - useGuardStatus
 * For `resolvers` - useResolverStatus
 * For `lazy component` - useLazyStatus
