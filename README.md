@@ -187,7 +187,7 @@ Statuses are needed for more flexible display of indicators
 loads and errors. `LoadingComponent`, in addition to accepting statuses, is also used as a loading indicator - a loader.
 
 # Guard:
-When you need to 'guard' a page from an unauthorized user or regular a usual user from the admin page - guards will be helpful to you.
+When you need to 'guard' a page from an unauthorized user or a regular user from the admin page - guards will be helpful to you.
 You just need to create the guard itself and use it on the needed route.
 Here is what the created guard looks like that will not let an unauthorized user to hit the page of your application:
 
