@@ -11,6 +11,10 @@ What the library can do:
 
 **Well, of course, the library includes a simple, react-style and not overloaded interface for interacting with the library. 😃**
 
+# Requirements:
+* React v16.8.0+
+* React Router DOM v6.0.0+
+
 # Setup:
 
 * install react-router-dom
