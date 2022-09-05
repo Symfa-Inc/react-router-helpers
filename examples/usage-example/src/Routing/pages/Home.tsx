@@ -13,6 +13,12 @@ export const HomePage = () => {
             <li className="nav-item">
               <NavLink to="/guards" className={(navData) => (navData.isActive ? 'active nav-link' : 'nav-link')}>Guards</NavLink>
             </li>
+            <li className="nav-item">
+              <NavLink to="/resolvers" className={(navData) => (navData.isActive ? 'active nav-link' : 'nav-link')}>Resolvers</NavLink>
+            </li>
+            <li className="nav-item">
+              <NavLink to="/lazy-components" className={(navData) => (navData.isActive ? 'active nav-link' : 'nav-link')}>Lazy components</NavLink>
+            </li>
           </ul>
         </div>
       </div>
