@@ -24,6 +24,11 @@ export default [
         format: 'es',
         banner: '/* eslint-disable */',
       },
+      {
+        file: 'examples/usage-example/src/reactRouterHelpers/index.js',
+        format: 'es',
+        banner: '/* eslint-disable */',
+      },
     ],
   },
 ];
