@@ -16,10 +16,11 @@ import { OutletContext, RouteContext } from './context';
 import { ErrorBoundary } from './ErrorBoundary';
 import { useManager } from './inner-hooks';
 import {
-  HelperManager, HelperRouteObject,
-  HelperRouteObjectProps, LazyLoadError,
+  HelperManager,
+  HelperRouteObject,
+  HelperRouteObjectProps,
+  LazyLoadError,
   LazyLoadingInnerStatus,
-  OnlyHelperFields,
   RouteHelperStatus,
 } from './types';
 
@@ -346,7 +347,6 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
   const [needToShowLoadingComponentToReceivedStatus, setNeedToShowLoadingComponentToReceivedStatus] = useState(false);
   const wasTaskForLazyLoadingNormalizationInited = useRef(false);
   const [lazyLoadingInnerStatus, setLazyLoadingInnerStatus] = useState(LazyLoadingInnerStatus.Initial);
-  const wasSetRealTriggerForLazyLoading = useRef(false);
 
   const setLazyLoadingInnerStatusNormalized = (nextStatus: LazyLoadingInnerStatus) => {
     setLazyLoadingInnerStatus(prevState => {
@@ -384,11 +384,8 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
 
   const markInitLazyLoadingFromFallback = () => {
     setNeedToShowLoadingComponentToReceivedStatus(true);
-    if (!wasSetRealTriggerForLazyLoading.current) {
-      wasSetRealTriggerForLazyLoading.current = true;
-      setLazyLoadingInnerStatusNormalized(LazyLoadingInnerStatus.RealTriggeredLoading);
-      setLazyComponentStatusNormalized(RouteHelperStatus.Loading);
-    }
+    setLazyLoadingInnerStatusNormalized(LazyLoadingInnerStatus.RealTriggeredLoading);
+    setLazyComponentStatusNormalized(RouteHelperStatus.Loading);
   };
 
 

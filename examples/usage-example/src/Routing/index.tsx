@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { Navigate } from 'react-router-dom';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 import { useRoutesWithHelper } from '../reactRouterHelpers';
@@ -6,9 +7,10 @@ import { AdminDashboardLoading } from './loadings/AdminDashboardLoading';
 import { GuardsPage } from './pages/Guards';
 import { AdminDashboard } from './pages/Guards/AdminDashboard';
 import { HomePage } from './pages/Home';
-import { LazyComponentsPage } from './pages/LazyComponents';
 import { ResolversPage } from './pages/Resolvers';
 import { loadPostInfo } from './resolvers/loadPostInfo';
+
+const LazyComponentsPage = React.lazy(() => import("./pages/LazyComponents"));
 
 export const RoutesWrapper = () => {
   return useRoutesWithHelper([
@@ -40,7 +42,8 @@ export const RoutesWrapper = () => {
 
         {
           path: '/lazy-components',
-          element: <LazyComponentsPage />,
+          lazyElement: <LazyComponentsPage />,
+          loadingComponent: <LoadingSpinner />
         }
       ]
     },
