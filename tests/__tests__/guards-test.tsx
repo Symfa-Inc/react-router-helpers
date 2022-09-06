@@ -1200,12 +1200,17 @@ describe('Guards in route', () => {
         const LinkToSecondChild = () => <GeneralLink link="./child2" title="Link to second child" />;
 
         const LinkToThirdChild = () => <GeneralLink link="./child3" title="Link to third child" />;
+        const LinkToSecondLayerChild = () => <GeneralLink link="./child-second-layer" title="Link to second Layer" />;
+
+        const LinkToHome = () => <GeneralLink link="/" title="Link to Home" />;
 
         const Home = () => {
           return (
             <div>
               <h1>Home test</h1>
+              <LinkToHome />
               <LinkToFirstChild />
+              <LinkToSecondLayerChild />
               <HelperOutlet />
             </div>
           );
@@ -1228,6 +1233,8 @@ describe('Guards in route', () => {
         );
 
         const Child3 = () => <div>Child 3</div>;
+
+        const counter = { amount: 0 };
 
         const routes = [
           {
@@ -1254,6 +1261,15 @@ describe('Guards in route', () => {
                   },
                 ],
               },
+              {
+                path: 'child-second-layer',
+                element: <>Child second layer</>,
+                guards: [mockGuardWithCounter(counter)],
+              },
+              {
+                path: 'another-second-layer-child',
+                element: <>Another second layer child</>
+              }
             ],
           },
         ];
@@ -1285,7 +1301,17 @@ describe('Guards in route', () => {
             <button
               onClick={[Function]}
             >
+              Link to Home
+            </button>
+            <button
+              onClick={[Function]}
+            >
               Link to first child
+            </button>
+            <button
+              onClick={[Function]}
+            >
+              Link to second Layer
             </button>
           </div>
         `);
@@ -1307,7 +1333,17 @@ describe('Guards in route', () => {
             <button
               onClick={[Function]}
             >
+              Link to Home
+            </button>
+            <button
+              onClick={[Function]}
+            >
               Link to first child
+            </button>
+            <button
+              onClick={[Function]}
+            >
+              Link to second Layer
             </button>
           </div>
         `);
@@ -1324,7 +1360,17 @@ describe('Guards in route', () => {
             <button
               onClick={[Function]}
             >
+              Link to Home
+            </button>
+            <button
+              onClick={[Function]}
+            >
               Link to first child
+            </button>
+            <button
+              onClick={[Function]}
+            >
+              Link to second Layer
             </button>
             <div>
               <h1>
@@ -1354,7 +1400,17 @@ describe('Guards in route', () => {
             <button
               onClick={[Function]}
             >
+              Link to Home
+            </button>
+            <button
+              onClick={[Function]}
+            >
               Link to first child
+            </button>
+            <button
+              onClick={[Function]}
+            >
+              Link to second Layer
             </button>
             <div>
               <h1>
@@ -1381,7 +1437,17 @@ describe('Guards in route', () => {
             <button
               onClick={[Function]}
             >
+              Link to Home
+            </button>
+            <button
+              onClick={[Function]}
+            >
               Link to first child
+            </button>
+            <button
+              onClick={[Function]}
+            >
+              Link to second Layer
             </button>
             <div>
               <h1>
@@ -1423,7 +1489,17 @@ describe('Guards in route', () => {
             <button
               onClick={[Function]}
             >
+              Link to Home
+            </button>
+            <button
+              onClick={[Function]}
+            >
               Link to first child
+            </button>
+            <button
+              onClick={[Function]}
+            >
+              Link to second Layer
             </button>
             <div>
               <h1>
@@ -1461,7 +1537,17 @@ describe('Guards in route', () => {
             <button
               onClick={[Function]}
             >
+              Link to Home
+            </button>
+            <button
+              onClick={[Function]}
+            >
               Link to first child
+            </button>
+            <button
+              onClick={[Function]}
+            >
+              Link to second Layer
             </button>
             <div>
               <h1>
@@ -1505,7 +1591,17 @@ describe('Guards in route', () => {
             <button
               onClick={[Function]}
             >
+              Link to Home
+            </button>
+            <button
+              onClick={[Function]}
+            >
               Link to first child
+            </button>
+            <button
+              onClick={[Function]}
+            >
+              Link to second Layer
             </button>
             <div>
               <h1>
@@ -1544,7 +1640,17 @@ describe('Guards in route', () => {
             <button
               onClick={[Function]}
             >
+              Link to Home
+            </button>
+            <button
+              onClick={[Function]}
+            >
               Link to first child
+            </button>
+            <button
+              onClick={[Function]}
+            >
+              Link to second Layer
             </button>
             <div>
               <h1>
@@ -1572,7 +1678,17 @@ describe('Guards in route', () => {
             <button
               onClick={[Function]}
             >
+              Link to Home
+            </button>
+            <button
+              onClick={[Function]}
+            >
               Link to first child
+            </button>
+            <button
+              onClick={[Function]}
+            >
+              Link to second Layer
             </button>
             <div>
               <h1>
@@ -1597,7 +1713,17 @@ describe('Guards in route', () => {
             <button
               onClick={[Function]}
             >
+              Link to Home
+            </button>
+            <button
+              onClick={[Function]}
+            >
               Link to first child
+            </button>
+            <button
+              onClick={[Function]}
+            >
+              Link to second Layer
             </button>
             <div>
               <h1>
@@ -1621,6 +1747,101 @@ describe('Guards in route', () => {
             </div>
           </div>
         `);
+
+        const linkToHomePage = renderer.root.findByType(LinkToHome);
+        act(() => {
+          linkToHomePage.findByType('button').props.onClick();
+        });
+
+        expect(renderer.toJSON()).toMatchInlineSnapshot(`
+          <div>
+            <h1>
+              Home test
+            </h1>
+            <button
+              onClick={[Function]}
+            >
+              Link to Home
+            </button>
+            <button
+              onClick={[Function]}
+            >
+              Link to first child
+            </button>
+            <button
+              onClick={[Function]}
+            >
+              Link to second Layer
+            </button>
+          </div>
+        `);
+
+        const linkToSecondLayerChild = renderer.root.findByType(LinkToSecondLayerChild);
+        act(() => {
+          linkToSecondLayerChild.findByType('button').props.onClick();
+        });
+
+        await wait(longestWorkDuration + mediumWorkDuration);
+
+        expect(renderer.toJSON()).toMatchInlineSnapshot(`
+          <div>
+            <h1>
+              Home test
+            </h1>
+            <button
+              onClick={[Function]}
+            >
+              Link to Home
+            </button>
+            <button
+              onClick={[Function]}
+            >
+              Link to first child
+            </button>
+            <button
+              onClick={[Function]}
+            >
+              Link to second Layer
+            </button>
+            Child second layer
+          </div>
+        `);
+
+        expect(counter.amount).toBe(1);
+
+        const linkToHomePageSecondOne = renderer.root.findByType(LinkToHome);
+        act(() => {
+          linkToHomePageSecondOne.findByType('button').props.onClick();
+        });
+
+        expect(renderer.toJSON()).toMatchInlineSnapshot(`
+          <div>
+            <h1>
+              Home test
+            </h1>
+            <button
+              onClick={[Function]}
+            >
+              Link to Home
+            </button>
+            <button
+              onClick={[Function]}
+            >
+              Link to first child
+            </button>
+            <button
+              onClick={[Function]}
+            >
+              Link to second Layer
+            </button>
+          </div>
+        `);
+
+        const linkToSecondLayerChildSecondOne = renderer.root.findByType(LinkToSecondLayerChild);
+        act(() => {
+          linkToSecondLayerChildSecondOne.findByType('button').props.onClick();
+        });
+        expect(counter.amount).toBe(2);
       });
 
       it('quick navigation to different route, next guard should be cancelled', async () => {
@@ -1713,7 +1934,7 @@ describe('Guards in route', () => {
         await TestRenderer.act(() => {
           renderer = TestRenderer.create(
             <MemoryRouter initialEntries={['/home/1234']}>
-              <RoutesRenderer routes={routes}  />
+              <RoutesRenderer routes={routes} />
             </MemoryRouter>,
           );
         });

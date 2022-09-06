@@ -50,6 +50,7 @@ function Home() {
         <Link to="/">Home</Link> |{' '}
         <Link to="/login">Login</Link> |{' '}
         <Link to="/child">Child</Link> |{' '}
+        <Link to="/admin-page">Admin page</Link> |{' '}
         <Link to="/child/1234">Child 2</Link> |{' '}
         <Link to="/child/child2/child3">Child 3</Link>
         <HelperOutlet />
@@ -141,7 +142,51 @@ function wait(number = 1000) {
   });
 }
 
+const LoadingComponent = () => {
+  const guardStatus = useGuardStatus();
+  const resolverStatus = useResolverStatus();
+  const lazyComponentStatus = useLazyStatus();
+  const error = useLazyError();
 
+  useEffect(() => {
+    console.log(error);
+  },[error]);
+
+  useEffect(() => {
+    console.log('INITED');
+    return () => {
+      console.log('UNINITED');
+    };
+  }, []);
+  //
+  useEffect(() => {
+    console.log('GUARD CHANGED ' + RouteHelperStatus[guardStatus]);
+    // if (guardStatus === RouteHelperStatus.Failed) {
+    //   navigate('/login');
+    // }
+  }, [guardStatus]);
+
+  useEffect(() => {
+    console.log('RESOLVER CHANGED ' + RouteHelperStatus[resolverStatus]);
+  }, [resolverStatus]);
+
+  useEffect(() => {
+    console.log('lazyComponentStatus CHANGED ' + RouteHelperStatus[lazyComponentStatus]);
+  }, [lazyComponentStatus]);
+  // const [isLoading, setLoading] = useState(false);
+  //
+  // useEffect(() => {
+  //   setTimeout(() => setLoading(true), 200);
+  // }, []);
+
+  return (<> <div className="lds-ring">
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+  </div>
+  </>);
+};
 const RoutesWrapper = () => {
   // const nav = useNavigate();
   // const navigator = useContext(UNSAFE_NavigationContext).navigator;
@@ -156,51 +201,7 @@ const RoutesWrapper = () => {
   //   const unlisten = (navigator as any).listen(listener);
   //   return unlisten;
   // }, [navigator]);
-  const LoadingComponent = () => {
-    const guardStatus = useGuardStatus();
-    const resolverStatus = useResolverStatus();
-    const lazyComponentStatus = useLazyStatus();
-    const error = useLazyError();
 
-    useEffect(() => {
-      console.log(error);
-    },[error]);
-
-    useEffect(() => {
-      console.log('INITED');
-      return () => {
-        console.log('UNINITED');
-      };
-    }, []);
-    //
-    useEffect(() => {
-      console.log('GUARD CHANGED ' + RouteHelperStatus[guardStatus]);
-      // if (guardStatus === RouteHelperStatus.Failed) {
-      //   navigate('/login');
-      // }
-    }, [guardStatus]);
-
-    useEffect(() => {
-      console.log('RESOLVER CHANGED ' + RouteHelperStatus[resolverStatus]);
-    }, [resolverStatus]);
-
-    useEffect(() => {
-      console.log('lazyComponentStatus CHANGED ' + RouteHelperStatus[lazyComponentStatus]);
-    }, [lazyComponentStatus]);
-    // const [isLoading, setLoading] = useState(false);
-    //
-    // useEffect(() => {
-    //   setTimeout(() => setLoading(true), 200);
-    // }, []);
-
-    return (<> <div className="lds-ring">
-      <div></div>
-      <div></div>
-      <div></div>
-      <div></div>
-    </div>
-      </>);
-  };
   return useRoutesWithHelper([
     {
       path: 'login',
@@ -248,7 +249,7 @@ const RoutesWrapper = () => {
           },
           // title: "Child 2",
           // titleResolver: () => () => "test",
-          guards: [mockGuard(true, 'CHILD'), mockGuard(true, "CHILD 2")],
+          // guards: [mockGuard(true, 'CHILD'), mockGuard(true, "CHILD 2")],
           // titleResolver: () => async () => {
           //   await wait(2000);
           //   return "RESOLVED TITLE";

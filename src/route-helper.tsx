@@ -16,7 +16,7 @@ import { OutletContext, RouteContext } from './context';
 import { ErrorBoundary } from './ErrorBoundary';
 import { useManager } from './inner-hooks';
 import {
-  HelperManager,
+  HelperManager, HelperRouteObject,
   HelperRouteObjectProps, LazyLoadError,
   LazyLoadingInnerStatus,
   OnlyHelperFields,
@@ -83,14 +83,6 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
 
   const [canChildStartWorkers, setCanChildStartWorkers] = useState(false);
 
-  const isComponentParentOrParentOutletWasInitializedAndNotUsed = () => {
-    const wasOutletLoadedAndWasNotUsedAlready = (outletContext.wasParentOutletLoaded && !outletContext.wasOutletUsedAlready);
-    if (wasOutletLoadedAndWasNotUsedAlready) {
-      outletContext.setWasUsed();
-    }
-
-    return parentContext.isTheFirstParent || wasOutletLoadedAndWasNotUsedAlready;
-  };
 
   const isComponentParentOrParentOutletWasInitialized = () => {
     return parentContext.isTheFirstParent || outletContext.wasParentOutletLoaded;
@@ -267,22 +259,30 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
     }, 10);
 
     return () => {
-      isComponentStillAlive.current = false;
-      wereWorkersStartedRef.current = false;
-
-      outletContext.resetOutletState();
+      hardResetComponent();
     };
   }, []);
 
+
+  const hardResetComponent = () => {
+    isComponentStillAlive.current = false;
+    sortResetComponent();
+  };
+
+  const sortResetComponent = () => {
+    wereWorkersStartedRef.current = false;
+    outletContext.resetOutletState();
+  };
+
   useEffect(() => {
     if (parentContext.canStartToLoadWorkers &&
-      isComponentParentOrParentOutletWasInitializedAndNotUsed() &&
+      isComponentParentOrParentOutletWasInitialized() &&
       !wereWorkersStartedRef.current
     ) {
       setWorkersStartedNormalized();
       evaluateGuardsAndResolvers();
     }
-  }, [parentContext]);
+  }, [parentContext, outletContext]);
 
 
   useEffect(() => {
@@ -318,7 +318,7 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
     ) : (
       <>
         {wereWorkersStarted && isMinimalDurationExceed && props.loadingComponent}
-        <Outlet/>
+        <FakeHelperOutlet />
       </>
     );
 
@@ -431,7 +431,7 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
   const elementToRender = defaultReadyToMountCondition ? ( // need to keep defaultReadyToMountCondition to start lazy loading for lazy component
     props.lazyElement
   ) : (
-    <Outlet/>
+    <FakeHelperOutlet />
   );
 
   const needToRenderLoading = (loadingConditionToShowLazyLoading && isMinimalDurationExceed) || needToShowLoadingComponentToReceivedStatus;
@@ -469,6 +469,17 @@ export const RouteHelper = (props: HelperRouteObjectProps) => {
   //#endregion lazy
 };
 
+const FakeHelperOutlet = () => {
+  return <OutletContext.Provider value={{
+    wasParentOutletLoaded: false,
+    wasOutletUsedAlready: false,
+    setWasUsed: () => '',
+    resetOutletState: () => '',
+  }}>
+    <Outlet/>
+  </OutletContext.Provider>;
+};
+
 
 export const HelperOutlet = (props: OutletProps) => {
   const [wasParentOutletLoaded] = useState(true);
@@ -495,8 +506,8 @@ export const HelperOutlet = (props: OutletProps) => {
     </OutletContext.Provider>);
 };
 
-export const wrapRouteToHelper = (props: OnlyHelperFields) => {
-  return <RouteHelper {...props} />;
+export const wrapRouteToHelper = (props: HelperRouteObject) => {
+  return <RouteHelper {...props} key={props.path} />;
 };
 
 const DefaultFallback = React.memo<{ onInit: () => void; onDestroy: () => void; }>((props) => {

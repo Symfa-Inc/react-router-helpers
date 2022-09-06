@@ -17,6 +17,15 @@ export const RoutesWrapper = () => {
       element: <HomePage />,
       children: [
         {
+          path: '/resolvers',
+          resolvers: {
+            postInfo: loadPostInfo,
+          },
+          element: <ResolversPage />,
+          loadingComponent: <LoadingSpinner />,
+        },
+
+        {
           path: '/guards',
           element: <GuardsPage />,
           children: [
@@ -29,14 +38,6 @@ export const RoutesWrapper = () => {
           ]
         },
 
-        {
-          path: '/resolvers',
-          resolvers: {
-            postInfo: loadPostInfo,
-          },
-          element: <ResolversPage />,
-          loadingComponent: <LoadingSpinner />,
-        },
         {
           path: '/lazy-components',
           element: <LazyComponentsPage />,
