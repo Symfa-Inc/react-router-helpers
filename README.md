@@ -190,6 +190,8 @@ You can get statuses inside the `LoadingComponent` component:
 Statuses are needed for more flexible display of indicators
 loads and errors. `LoadingComponent`, in addition to accepting statuses, is also used as a loading indicator - a loader.
 
+# Check out more our [examples](https://github.com/Aiscom-LLC/react-router-helpers/tree/master/examples/usage-example)!
+
 # Guard:
 When you need to 'guard' a page from an unauthorized user or a regular user from the admin page - guards will be helpful to you.
 You just need to create the guard itself and use it on the needed route.

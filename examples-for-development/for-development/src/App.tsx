@@ -136,11 +136,6 @@ function Child3() {
   );
 }
 
-function wait(number = 1000) {
-  return new Promise(res => {
-    setTimeout(res, number);
-  });
-}
 
 const LoadingComponent = () => {
   const guardStatus = useGuardStatus();
@@ -153,31 +148,20 @@ const LoadingComponent = () => {
   },[error]);
 
   useEffect(() => {
-    console.log('INITED');
-    return () => {
-      console.log('UNINITED');
-    };
-  }, []);
-  //
-  useEffect(() => {
-    console.log('GUARD CHANGED ' + RouteHelperStatus[guardStatus]);
+    console.log('Guard has changed ' + RouteHelperStatus[guardStatus]);
     // if (guardStatus === RouteHelperStatus.Failed) {
     //   navigate('/login');
     // }
   }, [guardStatus]);
 
   useEffect(() => {
-    console.log('RESOLVER CHANGED ' + RouteHelperStatus[resolverStatus]);
+    console.log('Resolver has changed ' + RouteHelperStatus[resolverStatus]);
   }, [resolverStatus]);
 
   useEffect(() => {
-    console.log('lazyComponentStatus CHANGED ' + RouteHelperStatus[lazyComponentStatus]);
+    console.log('lazyComponentStatus has changed ' + RouteHelperStatus[lazyComponentStatus]);
   }, [lazyComponentStatus]);
-  // const [isLoading, setLoading] = useState(false);
-  //
-  // useEffect(() => {
-  //   setTimeout(() => setLoading(true), 200);
-  // }, []);
+
 
   return (<> <div className="lds-ring">
     <div></div>
