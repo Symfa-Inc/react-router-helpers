@@ -17,9 +17,12 @@ What the library can do:
 
 # Setup:
 
-* install react-router-dom
+* npm i react-router-dom@6
 
-* install react-router-helper
+* npm i @symfa/react-router-helpers
+
+# Configuration:
+**NOTE**: Follow the [default tutorial](https://reactrouter.com/en/main/start/tutorial) for basic configuration!
 
 # How to migrate from react-router-dom:
 
@@ -87,7 +90,7 @@ function App() {
 <br />
 
 ```tsx
-import { Outlet } from 'react-router-dom';
+import { Outlet } from '@symfa/react-router-helpers';
 
 function Dashboard() {
   return (
@@ -462,7 +465,7 @@ if the user does not have access to the page / component - by the Angular analog
 <br />
 
 ```tsx
-import { useRoutes } from 'react-router-dom';
+import { useRoutes } from '@symfa/react-router-helpers';
 const Dashboard = React.lazy(() => import("./pages/Dashboard"));
 
 function App() {

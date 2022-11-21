@@ -1,3 +1,4 @@
+import React from 'react';
 import { RouteObject } from 'react-router-dom';
 
 export type Guard = () => () => Promise<boolean> | boolean;
@@ -20,7 +21,7 @@ export interface OnlyHelperFields {
   loadingComponent?: React.ReactNode;
 }
 
-export interface HelperRouteObject extends RouteObject, OnlyHelperFields {
+export type HelperRouteObject = RouteObject & OnlyHelperFields & {
   children?: HelperRouteObject[];
 }
 

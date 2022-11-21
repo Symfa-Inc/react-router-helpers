@@ -1,11 +1,15 @@
 {
-  "name": "react-router-helpers",
-  "version": "0.6.0",
+  "name": "@symfa/react-router-helpers",
+  "version": "1.0.1",
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
   "keywords": [
     "react",
-    "react-router-dom"
+    "react-router-dom",
+    "react router helpers",
+    "react router guards",
+    "react resolvers",
+    "react router lazy"
   ],
   "license": "MIT",
   "types": "dist/index.d.ts",
@@ -43,7 +47,8 @@
     "ts-node": "^8.3.0",
     "tslib": "^1.10.0",
     "typedoc": "^0.23.2",
-    "typescript": "^4.6.3"
+    "typescript": "^4.6.3",
+    "react-router-dom": "^6.3.0"
   },
   "scripts": {
     "build": "rollup -c",
@@ -62,7 +67,23 @@
   "files": [
     "dist"
   ],
-  "dependencies": {
+  "peerDependencies": {
+    "react": "^18.0.0",
     "react-router-dom": "^6.3.0"
-  }
+  },
+  "description": "The goals for that library are simplify, standardize and shift responsibility for the route protection\r from component to library.",
+  "directories": {
+    "doc": "docs",
+    "example": "examples",
+    "test": "tests"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://EugeneTsarenko@github.com/Aiscom-LLC/react-router-helpers.git"
+  },
+  "author": "Eugene Tsarenko",
+  "bugs": {
+    "url": "https://github.com/Aiscom-LLC/react-router-helpers/issues"
+  },
+  "homepage": "https://github.com/Aiscom-LLC/react-router-helpers#readme"
 }
