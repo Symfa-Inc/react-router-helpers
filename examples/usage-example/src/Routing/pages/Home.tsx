@@ -1,5 +1,5 @@
-import { Link, NavLink } from 'react-router-dom';
-import { HelperOutlet } from '../../reactRouterHelpers/index';
+import { HelperOutlet } from '@symfa/react-router-helpers';
+import { NavLink } from 'react-router-dom';
 
 export const HomePage = () => {
   return <>

@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { notify } from 'react-notify-toast';
 import { useNavigate } from 'react-router-dom';
 import { LoadingSpinner } from '../../components/LoadingSpinner';
-import { RouteHelperStatus, useGuardStatus } from '../../reactRouterHelpers';
+import { RouteHelperStatus, useGuardStatus } from '@symfa/react-router-helpers';
 
 export const AdminDashboardLoading = () => {
   const guardStatus = useGuardStatus();

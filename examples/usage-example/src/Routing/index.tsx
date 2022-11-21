@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Navigate } from 'react-router-dom';
 import { LoadingSpinner } from '../components/LoadingSpinner';
-import { useRoutesWithHelper } from '../reactRouterHelpers';
+import { useRoutesWithHelper } from '@symfa/react-router-helpers';
 import { isAdminGuard } from './guards/isAdminGuard';
 import { AdminDashboardLoading } from './loadings/AdminDashboardLoading';
 import { LoadingComponentFullPower } from './loadings/LoadingComponentFullPower';

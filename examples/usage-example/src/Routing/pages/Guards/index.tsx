@@ -1,6 +1,6 @@
 import { notify } from 'react-notify-toast';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { HelperOutlet } from '../../../reactRouterHelpers';
+import { HelperOutlet } from '@symfa/react-router-helpers';
 
 export const GuardsPage = () => {
   const nav = useNavigate();

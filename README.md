@@ -38,22 +38,22 @@ To fully migrate you need to:
 <br />
 
 ```tsx
-import { useRoutes } from "react-router-dom";
+import { useRoutes } from 'react-router-dom';
 
 function App() {
   let element = useRoutes([
     {
-      path: "/",
+      path: '/',
       element: <Dashboard />,
       children: [
         {
-          path: "messages",
+          path: 'messages',
           element: <DashboardMessages />,
         },
-        { path: "tasks", element: <DashboardTasks /> },
+        { path: 'tasks', element: <DashboardTasks /> },
       ],
     },
-    { path: "team", element: <AboutPage /> },
+    { path: 'team', element: <AboutPage /> },
   ]);
   return element;
 }
@@ -64,22 +64,22 @@ function App() {
 <br />
 
 ```tsx
-import { useRoutesWithHelper } from "react-router-helper";
+import { useRoutesWithHelper } from '@symfa/react-router-helpers';
 
 function App() {
   let element = useRoutesWithHelper([
     {
-      path: "/",
+      path: '/',
       element: <Dashboard />,
       children: [
         {
-          path: "messages",
+          path: 'messages',
           element: <DashboardMessages />,
         },
-        { path: "tasks", element: <DashboardTasks /> },
+        { path: 'tasks', element: <DashboardTasks /> },
       ],
     },
-    { path: "team", element: <AboutPage /> },
+    { path: 'team', element: <AboutPage /> },
   ]);
   return element;
 }
@@ -90,7 +90,7 @@ function App() {
 <br />
 
 ```tsx
-import { Outlet } from '@symfa/react-router-helpers';
+import { Outlet } from 'react-router-dom';
 
 function Dashboard() {
   return (
@@ -108,7 +108,7 @@ function Dashboard() {
 <br />
 
 ```tsx
-import { HelperOutlet } from "react-router-helper";
+import { HelperOutlet } from '@symfa/react-router-helpers';
 
 function Dashboard() {
   return (
@@ -130,7 +130,7 @@ function Dashboard() {
 root.render(
   <BrowserRouter>
     <Routes>
-      <Route path="/" element={<Dashboard />} />
+      <Route path='/' element={<Dashboard />} />
     </Routes>
   </BrowserRouter>
 );
@@ -141,12 +141,12 @@ root.render(
 <br />
 
 ```tsx
-import { RouteHelper } from "react-router-helper";
+import { RouteHelper } from '@symfa/react-router-helpers';
 
 root.render(
   <BrowserRouter>
     <Routes>
-      <Route path="/" element={<RouteHelper element={<Dashboard />} />} />
+      <Route path='/' element={<RouteHelper element={<Dashboard />} />} />
     </Routes>
   </BrowserRouter>
 );
@@ -157,12 +157,12 @@ root.render(
 <br />
 
 ```tsx
-import { RouteHelper } from "react-router-helper";
+import { RouteHelper } from '@symfa/react-router-helpers';
 
 root.render(
   <BrowserRouter>
     <Routes>
-      <Route path="/" element={<RouteHelper
+      <Route path='/' element={<RouteHelper
         element={<Dashboard />}
         guards={[authorizationGuard]}
       />} />
@@ -214,12 +214,12 @@ export const authorizationGuard = () => () => {
 Usage:
 
 ```tsx
-import { useRoutesWithHelper } from "react-router-helper";
+import { useRoutesWithHelper } from '@symfa/react-router-helpers';
 
 function App() {
   let element = useRoutesWithHelper([
     {
-      path: "/",
+      path: '/',
       element: <Dashboard />,
       guards: [authorizationGuard],
     },
@@ -239,7 +239,7 @@ we need to add a loadingComponent and inside that component we have access to ho
 <br />
 
 ```tsx
-import { useGuardStatus, RouteHelperStatus } from "react-router-helper";
+import { useGuardStatus, RouteHelperStatus } from '@symfa/react-router-helpers';
 
 export const LoadingComponent = () => {
   const guardStatus = useGuardStatus();
@@ -260,12 +260,12 @@ export const LoadingComponent = () => {
 <br />
 
 ```tsx
-import { useRoutesWithHelper } from "react-router-helper";
+import { useRoutesWithHelper } from '@symfa/react-router-helpers';
 
 function App() {
   let element = useRoutesWithHelper([
     {
-      path: "/",
+      path: '/',
       element: <Dashboard />,
       guards: [authorizationGuard],
       loadingComponent: <Loading />
@@ -307,7 +307,7 @@ export const userProfilePageGuard = () => {
 <br />
 
 ```tsx
-import { useGuardStatus } from "react-router-helper";
+import { useGuardStatus } from '@symfa/react-router-helpers';
 
 export const LoadingComponent = () => {
   const guardStatus = useGuardStatus();
@@ -343,12 +343,12 @@ export const userInfoResolver = () => async () => {
 <br />
 
 ```tsx
-import { useRoutesWithHelper } from "react-router-helper";
+import { useRoutesWithHelper } from '@symfa/react-router-helpers';
 
 function App() {
   let element = useRoutesWithHelper([
     {
-      path: "/",
+      path: '/',
       element: <Dashboard />,
       resolvers: {
         userInfo: userInfoResolver
@@ -367,7 +367,7 @@ While the data is being loaded, you can show a loading indicator using `LoadingC
 <br />
 
 ```tsx
-import { useRoutesWithHelper } from "react-router-helper";
+import { useRoutesWithHelper } from '@symfa/react-router-helpers';
 
 const Loading = () => {
   return <>Loading...</>;
@@ -376,7 +376,7 @@ const Loading = () => {
 function App() {
   let element = useRoutesWithHelper([
     {
-      path: "/",
+      path: '/',
       element: <Dashboard />,
       loadingComponent: <Loading />,
       resolvers: {
@@ -397,7 +397,7 @@ return can be received with the hook - `useResolver`
 <br />
 
 ```tsx
-import { useRoutesWithHelper, useResolver } from "react-router-helper";
+import { useRoutesWithHelper, useResolver } from '@symfa/react-router-helpers';
 
 export function Dashboard() {
   const { userInfo } = useResolver();
@@ -416,7 +416,7 @@ export function Dashboard() {
 * Resolver statuses can be received inside LoadingComponent with the `useResolverStatus` hook
 * Since the `resolvers` field in the route is an object, there can be multiple resolvers.
 * The name of the key in the resolvers object is the name of the key to get values inside
-the component when using the `useResolver` hook.
+  the component when using the `useResolver` hook.
 * If the resolver threw an error, and it was not wrapped in a `try catch` within the resolver, then the resolver status will be `Failed`.
 
 <br />
@@ -440,7 +440,7 @@ export const profilePageResolver = () => {
 <br />
 
 ```tsx
-import { useResolverStatus } from "react-router-helper";
+import { useResolverStatus } from '@symfa/react-router-helpers';
 
 export const LoadingComponent = () => {
   const resolverStatus = useResolverStatus();
@@ -465,13 +465,13 @@ if the user does not have access to the page / component - by the Angular analog
 <br />
 
 ```tsx
-import { useRoutes } from '@symfa/react-router-helpers';
-const Dashboard = React.lazy(() => import("./pages/Dashboard"));
+import { useRoutes } from 'react-router-dom';
+const Dashboard = React.lazy(() => import('./pages/Dashboard'));
 
 function App() {
   let element = useRoutes([
     {
-      path: "/",
+      path: '/',
       element: (
         <React.Suspense fallback={<>Loading</>}>
           <Dashboard />
@@ -488,13 +488,13 @@ function App() {
 <br />
 
 ```tsx
-import { useRoutesWithHelper } from "react-router-helper";
-const Dashboard = React.lazy(() => import("./pages/Dashboard"));
+import { useRoutesWithHelper } from '@symfa/react-router-helpers';
+const Dashboard = React.lazy(() => import('./pages/Dashboard'));
 
 function App() {
   let element = useRoutesWithHelper([
     {
-      path: "/",
+      path: '/',
       lazyElement: <Dashboard />,
     },
   ]);
@@ -509,15 +509,15 @@ If you need to show loading indicator - you can use `LoadingComponent`
 <br />
 
 ```tsx
-import { useRoutesWithHelper } from "react-router-helper";
-const Dashboard = React.lazy(() => import("./pages/Dashboard"));
+import { useRoutesWithHelper } from '@symfa/react-router-helpers';
+const Dashboard = React.lazy(() => import('./pages/Dashboard'));
 
 const LoadingComponent = () => <>Loading...</>;
 
 function App() {
   let element = useRoutesWithHelper([
     {
-      path: "/",
+      path: '/',
       lazyElement: <Dashboard />,
       loadingElement: <LoadingComponent />
     },
@@ -528,13 +528,13 @@ function App() {
 
 ### More detailed information about lazy component:
 * If the lazy component has a guard on the router that returns `false`, the lazy component will not even start loading over the network.
-**In other words, a user who should not have access to the requested page / component will not download its bundle.**
+  **In other words, a user who should not have access to the requested page / component will not download its bundle.**
 * With a lazy component, you can also use `resolvers` and get values with `useResolver` inside the lazy component
 * Detailed information about statuses `lazy` component can be received inside `LoadingComponent` with the `useLazyStatus` hook
 * If some error occurred while loading the lazy component (for example, the Internet connection was interrupted) -
-then the status of the `lazy` component will be `Failed`
+  then the status of the `lazy` component will be `Failed`
 * If some error occurred while loading the lazy component (for example, the Internet connection was interrupted) -
-then detailed information about the error can be received inside the lazy loading component with the hook - `useLazyError`
+  then detailed information about the error can be received inside the lazy loading component with the hook - `useLazyError`
 
 <br />
 
@@ -542,7 +542,7 @@ then detailed information about the error can be received inside the lazy loadin
 <br />
 
 ```tsx
-import { useLazyStatus } from "react-router-helper";
+import { useLazyStatus } from '@symfa/react-router-helpers';
 
 export const LoadingComponent = () => {
   const lazyStatus = useLazyStatus();
@@ -560,7 +560,7 @@ export const LoadingComponent = () => {
 <br />
 
 ```tsx
-import { useLazyStatus, useLazyError } from "react-router-helper";
+import { useLazyStatus, useLazyError } from '@symfa/react-router-helpers';
 
 export const LoadingComponent = () => {
   const lazyStatus = useLazyStatus();
@@ -602,12 +602,12 @@ export const LoadingComponent = () => {
 <br />
 
 ```tsx
-import { useRoutesWithHelper } from "react-router-helper";
+import { useRoutesWithHelper } from '@symfa/react-router-helpers';
 
 function App() {
   let element = useRoutesWithHelper([
     {
-      path: "/",
+      path: '/',
       element: <Dashboard />,
       loadingElement: <LoadingComponent />
     },
@@ -628,7 +628,7 @@ If you need to handle statuses from `guards`, `resolvers`, `lazy components` - t
 <br />
 
 ```tsx
-import { useGuardStatus, useResolverStatus, useLazyStatus, useLazyError, useNavigate } from "react-router-helper";
+import { useGuardStatus, useResolverStatus, useLazyStatus, useLazyError, useNavigate } from '@symfa/react-router-helpers';
 import { RouteHelperStatus } from './types';
 
 const LoadingComponent = () => {

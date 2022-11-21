@@ -1,8 +1,6 @@
 import { useEffect } from 'react';
 import { LoadingSpinner } from '../../components/LoadingSpinner';
-import { useLazyError, useLazyStatus } from '../../reactRouterHelpers';
-import { useResolverStatus } from '../../reactRouterHelpers';
-import { RouteHelperStatus, useGuardStatus } from '../../reactRouterHelpers';
+import { useLazyError, useLazyStatus, useResolverStatus, RouteHelperStatus, useGuardStatus } from '@symfa/react-router-helpers';
 
 export const LoadingComponentFullPower = () => {
   const guardStatus = useGuardStatus();

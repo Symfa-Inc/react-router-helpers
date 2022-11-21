@@ -1,4 +1,4 @@
-import { useResolver } from '../../../reactRouterHelpers';
+import { useResolver } from '@symfa/react-router-helpers';
 
 interface Post {
   userId: number;

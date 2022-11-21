@@ -1,4 +1,4 @@
-import { Guard } from '../../reactRouterHelpers';
+import { Guard } from '@symfa/react-router-helpers';
 
 const wait = () => new Promise(res => setTimeout(res, 2000));
 

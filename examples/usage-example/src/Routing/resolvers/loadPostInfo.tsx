@@ -1,4 +1,4 @@
-import { Resolver } from '../../reactRouterHelpers';
+import { Resolver } from '@symfa/react-router-helpers';
 
 export const loadPostInfo: Resolver = () => () => {
   const url = 'https://jsonplaceholder.typicode.com/posts/1';
